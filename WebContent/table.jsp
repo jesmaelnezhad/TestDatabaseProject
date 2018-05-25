@@ -12,8 +12,8 @@ String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 String DB_URL="jdbc:mysql://localhost:3306/parking_system";
 
 //  Database credentials
-String USER = "root";
-String PASS = "jamshid";
+String USER = "Mojtaba";
+String PASS = "m 71197 @";
 %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
