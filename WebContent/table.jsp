@@ -6,6 +6,7 @@
 <%@ page import="java.sql.ResultSet"%>
 <%@ page import="java.sql.SQLException"%>
 <%@ page import="java.sql.Statement"%>
+<%@ page import="rm.ResourceManager"%>
 
 <%
 String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
@@ -109,6 +110,14 @@ try {
     //out.println("Running first program in JSP.");
     //out.println("Last access time: " + s.getAttribute("lastAccessTime"));
     //s.setAttribute("lastAccessTime", s.getLastAccessedTime());
+%>
+
+<%
+    if(new ResourceManager().checkSpot()){
+%>
+Spot is free.
+<%
+	} 
 %>
 <%-- END --%>
 
