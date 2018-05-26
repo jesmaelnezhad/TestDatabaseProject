@@ -9,16 +9,30 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
-  
-<servlet>
-  <servlet-name>search-servlet</servlet-name>
-  <servlet-class>SearchServlet</servlet-class>
+  <servlet>
+    <servlet-name>search-servlet</servlet-name>
+    <servlet-class>request_handlers/SearchServlet</servlet-class>
   </servlet>
-  
   <servlet-mapping>
-        <servlet-name>search-servlet</servlet-name>
-      <url-pattern>/search</url-pattern>
+    <servlet-name>search-servlet</servlet-name>
+    <url-pattern>/search</url-pattern>
   </servlet-mapping>
-  
-  
+
+  <servlet>
+    <servlet-name>spot-info-servlet</servlet-name>
+    <servlet-class>request_handlers/SpotInfoServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>spot-info-servlet</servlet-name>
+    <url-pattern>/spotinfo</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>calc-price-servlet</servlet-name>
+    <servlet-class>request_handlers/CalcPriceServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>calc-price-servlet</servlet-name>
+    <url-pattern>/calcprice</url-pattern>
+  </servlet-mapping>
 </web-app>

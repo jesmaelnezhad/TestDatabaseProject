@@ -1,13 +1,22 @@
+package request_handlers;
 
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import rm.ResourceManager;
+import rm.parking_structure.ParkingSpot;
+import rm.parking_structure.ParkingSpotContainer;
+import utility.Constants;
+import utility.Point;
 
 /**
  * Servlet implementation class SearchServlet
@@ -68,12 +77,25 @@ public class SearchServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		int centerX = (Integer) request.getAttribute(Constants.CENTER_X);
+		int centerY = (Integer) request.getAttribute(Constants.CENTER_Y);
+		Point searchCenter = new Point(centerX, centerY);
+		double searchRadius = (Double) request.getAttribute(Constants.RADIUS);
+		
+		
+		ResourceManager rm = 
+				(ResourceManager)request.getSession().getAttribute(Constants.RESOURCE_MANAGER);
+		
+		// search for spots
+		List<ParkingSpot> results = rm.searchByProximity(searchCenter, searchRadius);
+		
+		String resultsJSON = ResourceManager.getJSON(results);
+		
 	      // Set response content type
 	    response.setContentType("text/html");
 	    PrintWriter out = response.getWriter();
 		
-	    out.println("SearchServlet Served at: " + request.getContextPath());
-	    
+	    out.println(resultsJSON);
 	}
 
 	/**
