@@ -1,0 +1,106 @@
+mysql> describe cars;
++-------------+-------------+------+-----+---------+----------------+
+| Field       | Type        | Null | Key | Default | Extra          |
++-------------+-------------+------+-----+---------+----------------+
+| id          | int(11)     | NO   | PRI | NULL    | auto_increment |
+| customer_id | int(11)     | NO   | MUL | NULL    |                |
+| make_model  | varchar(50) | NO   |     | NULL    |                |
+| color       | tinyint(4)  | NO   |     | NULL    |                |
++-------------+-------------+------+-----+---------+----------------+
+4 rows in set (0.09 sec)
+
+mysql> describe available_rates;
++---------------+---------+------+-----+---------+-------+
+| Field         | Type    | Null | Key | Default | Extra |
++---------------+---------+------+-----+---------+-------+
+| street_id     | int(11) | NO   | MUL | NULL    |       |
+| price_rate_id | int(11) | NO   | MUL | NULL    |       |
++---------------+---------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+mysql> describe customer_transactions;
++----------------+------------------------+------+-----+---------+----------------+
+| Field          | Type                   | Null | Key | Default | Extra          |
++----------------+------------------------+------+-----+---------+----------------+
+| id             | int(11)                | NO   | PRI | NULL    | auto_increment |
+| type           | enum('park','deposit') | NO   |     | park    |                |
+| deposit_amount | smallint(6)            | YES  |     | NULL    |                |
+| park_id        | int(11)                | YES  | MUL | NULL    |                |
++----------------+------------------------+------+-----+---------+----------------+
+4 rows in set (0.00 sec)
+
+mysql> describe customer_wallet;
++-------------+---------+------+-----+---------+-------+
+| Field       | Type    | Null | Key | Default | Extra |
++-------------+---------+------+-----+---------+-------+
+| customer_id | int(11) | NO   | MUL | NULL    |       |
+| balance     | int(11) | NO   |     | 0       |       |
++-------------+---------+------+-----+---------+-------+
+2 rows in set (0.03 sec)
+
+mysql> describe customers;
++------------+--------------+------+-----+---------+----------------+
+| Field      | Type         | Null | Key | Default | Extra          |
++------------+--------------+------+-----+---------+----------------+
+| id         | int(11)      | NO   | PRI | NULL    | auto_increment |
+| fname      | varchar(100) | NO   |     | NULL    |                |
+| lname      | varchar(100) | NO   |     | NULL    |                |
+| cellphone  | varchar(20)  | NO   |     | NULL    |                |
+| email_addr | varchar(100) | NO   |     | NULL    |                |
+| city       | varchar(50)  | NO   |     | NULL    |                |
+| ads_flag   | tinyint(4)   | NO   |     | NULL    |                |
++------------+--------------+------+-----+---------+----------------+
+7 rows in set (0.00 sec)
+
+mysql> describe park_transactions;
++---------------+----------------------+------+-----+---------+----------------+
+| Field         | Type                 | Null | Key | Default | Extra          |
++---------------+----------------------+------+-----+---------+----------------+
+| id            | int(11)              | NO   | PRI | NULL    | auto_increment |
+| status        | enum('open','close') | NO   |     | open    |                |
+| spot_id       | int(11)              | YES  | MUL | NULL    |                |
+| car_id        | int(11)              | YES  | MUL | NULL    |                |
+| price_rate_id | int(11)              | NO   | MUL | NULL    |                |
+| fee           | smallint(6)          | NO   |     | NULL    |                |
+| start_time    | time                 | NO   |     | NULL    |                |
+| time_length   | smallint(6)          | NO   |     | NULL    |                |
++---------------+----------------------+------+-----+---------+----------------+
+8 rows in set (0.01 sec)
+
+mysql> describe parking_spots;
++-----------------+----------------------+------+-----+---------+----------------+
+| Field           | Type                 | Null | Key | Default | Extra          |
++-----------------+----------------------+------+-----+---------+----------------+
+| id              | int(11)              | NO   | PRI | NULL    | auto_increment |
+| base_station_id | tinyint(4)           | NO   |     | NULL    |                |
+| parko_meter_id  | tinyint(4)           | NO   |     | NULL    |                |
+| sesor_id        | tinyint(4)           | NO   |     | NULL    |                |
+| street_id       | int(11)              | NO   | MUL | NULL    |                |
+| status          | enum('FULL','EMPTY') | NO   |     | NULL    |                |
++-----------------+----------------------+------+-----+---------+----------------+
+6 rows in set (0.00 sec)
+
+mysql> describe price_rates;
++-------------+--------------+------+-----+---------+----------------+
+| Field       | Type         | Null | Key | Default | Extra          |
++-------------+--------------+------+-----+---------+----------------+
+| id          | int(11)      | NO   | PRI | NULL    | auto_increment |
+| description | varchar(100) | NO   |     | NULL    |                |
+| price       | smallint(6)  | NO   |     | NULL    |                |
++-------------+--------------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> describe streets;
++---------+--------------+------+-----+---------+----------------+
+| Field   | Type         | Null | Key | Default | Extra          |
++---------+--------------+------+-----+---------+----------------+
+| id      | int(11)      | NO   | PRI | NULL    | auto_increment |
+| name    | varchar(100) | NO   |     | NULL    |                |
+| start_x | double       | NO   |     | NULL    |                |
+| start_y | double       | NO   |     | NULL    |                |
+| end_x   | double       | NO   |     | NULL    |                |
+| end_y   | double       | NO   |     | NULL    |                |
+| rep_x   | double       | NO   |     | NULL    |                |
+| rep_y   | double       | NO   |     | NULL    |                |
++---------+--------------+------+-----+---------+----------------+
+8 rows in set (0.03 sec)
