@@ -1,0 +1,26 @@
+Go to this link and download Eclipse EE
+
+http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/3/eclipse-jee-oxygen-3-linux-gtk-x86_64.tar.gz
+
+Download tomcat9 from this link
+http://tomcat.apache.org/download-90.cgi
+and extract it in a location (this location is called X in the rest of this tutorial)
+
+
+Go to X/conf/tomcat-users.xml
+and add the following line:
+
+<user username="tomcat" password="123456" roles="manager-gui,admin-gui"/>
+
+Go to X/bin and
+
+sudo cp setclasspath.sh setenv.sh
+
+Then,
+sudo vim setenv.sh
+
+empty the file and copy the following two lines in this file:
+#!/bin/sh
+env JAVA_OPTS="-Xmx512m -Xms128m"
+
+
