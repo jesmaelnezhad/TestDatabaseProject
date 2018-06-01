@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS cities
 	PRIMARY KEY(id)
 ) ENGINE=INNODB;
 
-CREATE TABLE IF NOT EXISTS segments
+CREATE TABLE IF NOT EXISTS sectors
 (
 	id INT NOT NULL AUTO_INCREMENT,
 	city_id INT NOT NULL,
@@ -66,16 +66,16 @@ CREATE TABLE IF NOT EXISTS segments
 	FOREIGN KEY(city_id) REFERENCES cities(id)
 ) ENGINE=INNODB;
 
-CREATE TABLE IF NOT EXISTS segment_sectors
+CREATE TABLE IF NOT EXISTS sector_segments
 (
 	id INT NOT NULL AUTO_INCREMENT,
-	segment_id INT NOT NULL,
+	sector_id INT NOT NULL,
 	start_x DOUBLE NOT NULL,
 	start_y DOUBLE NOT NULL,
 	end_x DOUBLE NOT NULL,
 	end_y DOUBLE NOT NULL,
 	PRIMARY KEY(id),
-	FOREIGN KEY(segment_id) REFERENCES segments(id)
+	FOREIGN KEY(sector_id) REFERENCES sectors(id)
 ) ENGINE=INNODB;
 
 
@@ -85,10 +85,10 @@ CREATE TABLE IF NOT EXISTS parking_spots
 	base_station_id TINYINT NOT NULL,
 	parko_meter_id TINYINT NOT NULL,
 	sensor_id TINYINT NOT NULL,
-	sector_id INT NOT NULL,
+	segment_id INT NOT NULL,
 	status ENUM('FULL','EMPTY') NOT NULL,
 	PRIMARY KEY(id),
-	FOREIGN KEY(sector_id) REFERENCES segment_sectors(id) ON DELETE CASCADE
+	FOREIGN KEY(segment_id) REFERENCES sector_segments(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
 
 /*==== Pricing ====*/
@@ -102,9 +102,9 @@ CREATE TABLE IF NOT EXISTS price_rates
 
 CREATE TABLE IF NOT EXISTS available_rates
 (
-	segment_id INT NOT NULL,
+	sector_id INT NOT NULL,
 	price_rate_id INT NOT NULL,
-	FOREIGN KEY(segment_id) REFERENCES segments(id) ON DELETE CASCADE,
+	FOREIGN KEY(sector_id) REFERENCES sectors(id) ON DELETE CASCADE,
 	FOREIGN KEY(price_rate_id) REFERENCES price_rates(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
 
@@ -149,45 +149,45 @@ CREATE TABLE IF NOT EXISTS customer_transactions
 
 
 INSERT INTO cities (name) VALUE ('Tehran');
-INSERT INTO segments (city_id, rep_x, rep_y) VALUE (1, 5, 5);
-INSERT INTO segments (city_id, rep_x, rep_y) VALUE (1, 10, 15);
-INSERT INTO segments (city_id, rep_x, rep_y) VALUE (1, 100, 150);
-INSERT INTO segments (city_id, rep_x, rep_y) VALUE (1, 200, 190);
-INSERT INTO segment_sectors (segment_id, start_x, start_y, end_x, end_y) VALUE (1, 1, 1, 2, 2);
-INSERT INTO segment_sectors (segment_id, start_x, start_y, end_x, end_y) VALUE (1, 2, 2, 3, 3);
-INSERT INTO segment_sectors (segment_id, start_x, start_y, end_x, end_y) VALUE (1, 3, 3, 6, 6);
-INSERT INTO segment_sectors (segment_id, start_x, start_y, end_x, end_y) VALUE (2, 5, 10, 7, 12);
-INSERT INTO segment_sectors (segment_id, start_x, start_y, end_x, end_y) VALUE (2, 7, 12, 9, 14);
-INSERT INTO segment_sectors (segment_id, start_x, start_y, end_x, end_y) VALUE (2, 9, 14, 12, 17);
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO sectors (city_id, rep_x, rep_y) VALUE (1, 5, 5);
+INSERT INTO sectors (city_id, rep_x, rep_y) VALUE (1, 10, 15);
+INSERT INTO sectors (city_id, rep_x, rep_y) VALUE (1, 100, 150);
+INSERT INTO sectors (city_id, rep_x, rep_y) VALUE (1, 200, 190);
+INSERT INTO sector_segments (sector_id, start_x, start_y, end_x, end_y) VALUE (1, 1, 1, 2, 2);
+INSERT INTO sector_segments (sector_id, start_x, start_y, end_x, end_y) VALUE (1, 2, 2, 3, 3);
+INSERT INTO sector_segments (sector_id, start_x, start_y, end_x, end_y) VALUE (1, 3, 3, 6, 6);
+INSERT INTO sector_segments (sector_id, start_x, start_y, end_x, end_y) VALUE (2, 5, 10, 7, 12);
+INSERT INTO sector_segments (sector_id, start_x, start_y, end_x, end_y) VALUE (2, 7, 12, 9, 14);
+INSERT INTO sector_segments (sector_id, start_x, start_y, end_x, end_y) VALUE (2, 9, 14, 12, 17);
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 1, 1, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 2, 1, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 3, 1, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 4, 2, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 5, 2, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 6, 2, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 7, 3, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 8, 3, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 9, 3, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 10, 4, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 11, 4, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 12, 4, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 13, 5, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 14, 5, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, sector_id, status) 
+INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 15, 5, 'EMPTY');
 
 

@@ -8,7 +8,7 @@ import java.util.Map;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
 import rm.parking_structure.ParkingSpotContainer;
-import rm.parking_structure.Street;
+import rm.parking_structure.Sector;
 import utility.Point;
 
 public class ResourceManager {
@@ -59,7 +59,7 @@ public class ResourceManager {
 	
 	
 	// methods
-	public static List<PriceRate> fetchStreetRates(Street s){
+	public static List<PriceRate> fetchSectorRates(Sector s){
 		List<PriceRate> result = new ArrayList<>();
 		//TODO
 		List<Integer> rate_ids = new ArrayList<>();

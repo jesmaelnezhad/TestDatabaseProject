@@ -22,16 +22,7 @@ public class ParkingSpot {
 	public int parkometer_id;
 	public int sensor_id;
 	public City city;
-	public Street street;
-	
-	private List<PriceRate> priceRates = null;
-	
-	public List<PriceRate> getPriceRates() {
-		if(priceRates == null) {
-			priceRates = ResourceManager.fetchStreetRates(street);
-		}
-		return priceRates;
-	}
+	public Segment segment;
 	
 	// info
 	public ParkingSpotStatus status;
@@ -42,7 +33,6 @@ public class ParkingSpot {
 				"\"parkometer_id\":" + parkometer_id +
 				"\"sensor_id\":" + sensor_id +
 				"\"city\":" + city.name +
-				"\"street\":" + street.name +
 				"\"status\":" + (status==ParkingSpotStatus.EMPTY?"EMPTY":"FULL") ;
 		return result;
 	}
@@ -53,9 +43,8 @@ public class ParkingSpot {
 				"\"parkometer_id\":" + parkometer_id + "," +
 				"\"sensor_id\":" + sensor_id + "," +
 				"\"city\":" + city.name + "," +
-				"\"street\":" + street.name + "," +
 				"\"status\":" + (status==ParkingSpotStatus.EMPTY?"\"EMPTY\"":"\"FULL\"") ;
-		List<PriceRate> rates = this.getPriceRates();
+		List<PriceRate> rates = segment.sector.getPriceRates();
 		result += ", \"price_rates\":[";
 		for(int i = 0 ; i < rates.size(); ++i) {
 			result += rates.get(i).getJSON();

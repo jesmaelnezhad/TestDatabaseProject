@@ -15,7 +15,7 @@ public class City {
 	String name;
 	
 	//street_id to Street object
-	Map<Integer, Street> streets = new HashMap<Integer, Street>();
+	Map<Integer, Sector> streets = new HashMap<Integer, Sector>();
 	
 	// load a City object
 	public static City fetchFromDB(int city_id) {
