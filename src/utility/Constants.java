@@ -20,6 +20,7 @@ public class Constants {
 	public static final String CAR_ID = "car_id";
 	public static final String PARK_TIME = "park_time";
 	public static final String START_TIME = "start_time";
+	public static final String TIME_LENGTH = "time_length";
 	public static final String SIGNED_IN_CUSTOMER = "signed_in_customer";
 	public static final String PRICE_RATES = "price_rates";
 	public static final String SEGMENT = "segment";

@@ -38,7 +38,9 @@ public class Customer {
 		// TODO: working with wallet
 		// temporary code
 		JSONObject walletTransaction = new JSONObject();
+		walletTransaction.put("transaction_id", parkTransactionId);
 		walletTransaction.put("status", "successful");
+		walletTransaction.put("price", price);
 		return walletTransaction;
 	}
 	

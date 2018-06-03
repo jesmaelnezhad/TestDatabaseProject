@@ -61,10 +61,13 @@ public class SpotInfoServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 		if(request.getAttribute(Constants.SECTOR_ID) == null) {
-		      // Set response content type
+			JSONObject result = new JSONObject();
+			result.put(Constants.STATUS, "unsuccessful");
+			result.put(Constants.MESSAGE, "sector id must be given.");
 		    response.setContentType("text/html");
 		    PrintWriter out = response.getWriter();
-		    out.println("{\"error\":\"sector id must be given.\"}");
+			
+		    out.println(result.toJSONString());
 		    return;
 		}
 		int sectorId = (Integer) request.getAttribute(Constants.SECTOR_ID);
@@ -85,6 +88,14 @@ public class SpotInfoServlet extends HttpServlet {
 		}else {
 			// TODO if customer is null city will not be known.
 			// TODO : redirect to use authentication
+			JSONObject result = new JSONObject();
+			result.put(Constants.STATUS, "unsuccessful");
+			result.put(Constants.MESSAGE, "customer not signed in.");
+		    response.setContentType("text/html");
+		    PrintWriter out = response.getWriter();
+			
+		    out.println(result.toJSONString());
+		    return;
 		}
 
 		JSONObject result = rm.getInfo(city, sectorId, segmentId, spotId);

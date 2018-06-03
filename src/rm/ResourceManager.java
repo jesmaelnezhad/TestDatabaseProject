@@ -80,7 +80,6 @@ public class ResourceManager {
 		 * 
 		 * 
 		 */
-		spotInfoJSONObj.put("price", calculatedPrice);
 		
 		// record parkTransaction
 		TransactionManager tm = TransactionManager.getTM();
@@ -111,7 +110,6 @@ public class ResourceManager {
 			return result;
 		}
 		
-		result.put("status", "successful");
 		result.put("resource", spotInfoJSONObj);
 		result.put("payment", walletTransaction);
 		

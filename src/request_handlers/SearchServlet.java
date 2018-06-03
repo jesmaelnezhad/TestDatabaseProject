@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import rm.ResourceManager;
 import rm.parking_structure.City;
@@ -95,19 +96,26 @@ public class SearchServlet extends HttpServlet {
 		if(customer != null) {
 			city = customer.selected_city;
 		}else {
+			JSONObject result = new JSONObject();
 			// TODO if customer is null city will not be known.
 			// TODO : redirect to use authentication
+			result.put("status", "unsuccessful");
+			result.put("message", "customer not signed in.");
+		    response.setContentType("text/html");
+		    PrintWriter out = response.getWriter();
+			
+		    out.println(result.toJSONString());
+		    return;
 		}
 		
 		// search for sectors
 		JSONArray results = rm.searchByProximity(city, searchCenter, searchRadius);
-		String resultsJSON = results.toJSONString();
 		
 	      // Set response content type
 	    response.setContentType("text/html");
 	    PrintWriter out = response.getWriter();
 		
-	    out.println(resultsJSON);
+	    out.println(results.toJSONString());
 	}
 
 	/**

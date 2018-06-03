@@ -64,10 +64,10 @@ public class Sector {
 	public JSONObject getMinimumJSONObject() {
 		JSONObject result = new JSONObject();
 		result.put("id", id);
-		result.put("location-x", sectorLocation.x);
-		result.put("location-y", sectorLocation.y);
-		result.put("park-capacity", parkCapacity);
-		result.put("available-park", availablePark);
+		result.put("location_x", sectorLocation.x);
+		result.put("location_y", sectorLocation.y);
+		result.put("park_capacity", parkCapacity);
+		result.put("available_park", availablePark);
 		return result;
 	}
 	

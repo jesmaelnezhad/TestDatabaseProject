@@ -199,8 +199,6 @@ public class ParkingSpotContainer {
 			 * 
 			 */
 			sectorJSONObj.put("price", calculatedPrice);
-			status.put("status", "successful");
-			sectorJSONObj.put("results", status);
 		}else {
 			/////////
 			// unlock segment

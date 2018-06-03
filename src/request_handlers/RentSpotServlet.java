@@ -61,17 +61,23 @@ public class RentSpotServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(request.getAttribute(Constants.SECTOR_ID) == null) {
-		      // Set response content type
+			JSONObject result = new JSONObject();
+			result.put(Constants.STATUS, "unsuccessful");
+			result.put(Constants.MESSAGE, "sector id must be given.");
 		    response.setContentType("text/html");
 		    PrintWriter out = response.getWriter();
-		    out.println("{\"error\":\"sector id must be given.\"}");
+			
+		    out.println(result.toJSONString());
 		    return;
 		}
 		if(request.getAttribute(Constants.SEGMENT_ID) == null) {
-		      // Set response content type
+			JSONObject result = new JSONObject();
+			result.put(Constants.STATUS, "unsuccessful");
+			result.put(Constants.MESSAGE, "segment id must be given.");
 		    response.setContentType("text/html");
 		    PrintWriter out = response.getWriter();
-		    out.println("{\"error\":\"segment id must be given.\"}");
+			
+		    out.println(result.toJSONString());
 		    return;
 		}
 		
@@ -90,6 +96,16 @@ public class RentSpotServlet extends HttpServlet {
 		}else {
 			// TODO if customer is null city will not be known.
 			// TODO : redirect to use authentication
+			JSONObject result = new JSONObject();
+			// TODO if customer is null city will not be known.
+			// TODO : redirect to use authentication
+			result.put(Constants.STATUS, "unsuccessful");
+			result.put(Constants.MESSAGE, "customer not signed in.");
+		    response.setContentType("text/html");
+		    PrintWriter out = response.getWriter();
+			
+		    out.println(result.toJSONString());
+		    return;
 		}
 
 		JSONObject result = rm.rentSpot(customer, city, sectorId, segmentId, carId, rateId, parkTime);

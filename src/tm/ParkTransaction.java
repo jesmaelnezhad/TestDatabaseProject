@@ -64,6 +64,7 @@ public class ParkTransaction {
 		result.put(Constants.SEGMENT_ID, segmentId);
 		result.put(Constants.SPOT_ID, spotId);
 		result.put(Constants.START_TIME, startTime.toString());
+		result.put(Constants.TIME_LENGTH, timeLength);
 		result.put(Constants.RATE_ID, rateId);
 		result.put(Constants.STATUS, status==ParkTransactionStatus.OPEN? "open":"close");
 		return result;

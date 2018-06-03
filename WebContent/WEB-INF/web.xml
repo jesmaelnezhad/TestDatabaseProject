@@ -35,4 +35,22 @@
     <servlet-name>calc-price-servlet</servlet-name>
     <url-pattern>/calcprice</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>rent-spot-servlet</servlet-name>
+    <servlet-class>request_handlers/RentSpotServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>rent-spot-servlet</servlet-name>
+    <url-pattern>/rentspot</url-pattern>
+  </servlet-mapping>
+    
+  <servlet>
+    <servlet-name>park-info-servlet</servlet-name>
+    <servlet-class>request_handlers/ParkInfoServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>park-info-servlet</servlet-name>
+    <url-pattern>/parkinfo</url-pattern>
+  </servlet-mapping>
 </web-app>

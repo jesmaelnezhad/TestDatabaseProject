@@ -120,6 +120,46 @@ public class TransactionManager {
 		return results;
 	}
 	
+	public JSONArray getAllParkTransactions(Customer customer){
+		
+		List<ParkTransaction> transactions = new ArrayList<>();
+		JSONArray results = new JSONArray();
+		
+		Connection conn = DBManager.getDBManager().getConnection();
+		
+		String sql = "SELECT * FROM park_transactions WHERE customer_id=?;";
+		try {
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, customer.id);
+			ResultSet rs = stmt.executeQuery();
+			while(rs.next()){
+				//Retrieve by column name
+				int id = rs.getInt("id");
+				ParkTransactionStatus status = ((String)rs.getString("status")).equals("open")?
+						ParkTransactionStatus.OPEN:ParkTransactionStatus.CLOSE;
+				int sectorId = rs.getInt("sector_id");
+				int segmentId = rs.getInt("segment_id");
+				int spotId = rs.getInt("spot_id");
+				int carId = rs.getInt("car_id");
+				Car car = new Car(carId);
+				car.fetchInfoFromDB();
+				int rateId = rs.getInt("price_rate_id");
+				Time startTime = rs.getTime("start_time");
+				int timeLength = rs.getInt("time_length");
+				ParkTransaction newTransaction = new ParkTransaction(id, customer, car, 
+						sectorId, segmentId, spotId, startTime, timeLength, rateId, status);
+				transactions.add(newTransaction);
+				results.add(newTransaction.getJSON());
+			}
+			rs.close();
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return results;
+	}
+	
 	public void deleteParkTransaction(int transactionId) {
 		
 		Connection conn = DBManager.getDBManager().getConnection();
