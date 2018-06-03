@@ -10,10 +10,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.simple.JSONObject;
+
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
 import tm.TransactionManager;
+import um.Customer;
+import um.CustomerManager;
 import utility.Constants;
 
 /**
@@ -56,24 +60,43 @@ public class CalcPriceServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		int spotId = (Integer) request.getAttribute(Constants.SPOT_ID);
+		if(request.getAttribute(Constants.SECTOR_ID) == null) {
+		      // Set response content type
+		    response.setContentType("text/html");
+		    PrintWriter out = response.getWriter();
+		    out.println("{\"error\":\"sector id must be given.\"}");
+		    return;
+		}
+		if(request.getAttribute(Constants.SEGMENT_ID) == null) {
+		      // Set response content type
+		    response.setContentType("text/html");
+		    PrintWriter out = response.getWriter();
+		    out.println("{\"error\":\"segment id must be given.\"}");
+		    return;
+		}
+		
+		int sectorId = (Integer) request.getAttribute(Constants.SECTOR_ID);
+		int segmentId = (Integer) request.getAttribute(Constants.SEGMENT_ID);
 		int rateId = (Integer) request.getAttribute(Constants.RATE_ID);
 		int parkTime = (Integer) request.getAttribute(Constants.PARK_TIME);
-		ResourceManager rm = 
-				(ResourceManager)request.getSession().getAttribute(Constants.RESOURCE_MANAGER);
-		TransactionManager tm = 
-				(TransactionManager)request.getSession().getAttribute(Constants.TRANSACTION_MANAGER);
 		
-		// TODO: city could be fetched from the session object
+		ResourceManager rm = ResourceManager.getRM();
+		Customer customer = CustomerManager.getCustomer(request);
+		
 		City city = null;
-		ParkingSpot spot = rm.getSpot(city, spotId);
-		double price = TransactionManager.calcPrice(spot, rateId, parkTime);
-		
+		if(customer != null) {
+			city = customer.selected_city;
+		}else {
+			// TODO if customer is null city will not be known.
+			// TODO : redirect to use authentication
+		}
+
+		JSONObject result = rm.calculatePrice(city, sectorId, segmentId, rateId, parkTime);
 	      // Set response content type
 	    response.setContentType("text/html");
 	    PrintWriter out = response.getWriter();
 		
-	    out.println("{\"status\":\"success\", \"price\":"+price+"}");
+	    out.println(result.toJSONString());
 	}
 
 	/**

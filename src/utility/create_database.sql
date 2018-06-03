@@ -25,16 +25,15 @@ USE parking_system;
 CREATE TABLE IF NOT EXISTS customers
 (
 	id INT NOT NULL AUTO_INCREMENT,
+	username VARCHAR(100) NOT NULL,
+	password VARCHAR(100) NOT NULL,
 	fname VARCHAR(100) NOT NULL,
 	lname VARCHAR(100) NOT NULL,
 	cellphone VARCHAR(20) NOT NULL,
 	email_addr VARCHAR(100) NOT NULL,
-	city VARCHAR(50) NOT NULL,
 	ads_flag TINYINT NOT NULL,
 	PRIMARY KEY(id)
 ) ENGINE=INNODB;
-
-
 
 /*==== cars ====*/
 CREATE TABLE IF NOT EXISTS cars
@@ -114,10 +113,12 @@ CREATE TABLE IF NOT EXISTS park_transactions
 	id INT NOT NULL AUTO_INCREMENT,
 	status ENUM('open','close') NOT NULL DEFAULT 'open',
 	/*From spot_id and car_id at least one of them must have value. They cannot be null both together.*/
+	sector_id INT NULL,
+	segment_id INT NULL,
 	spot_id INT NULL,
+	customer_id INT NULL,
 	car_id INT NULL,
 	price_rate_id INT NOT NULL,
-	fee SMALLINT NOT NULL,
 	start_time TIME NOT NULL,
 	time_length SMALLINT NOT NULL,
 	PRIMARY KEY(id),
@@ -189,5 +190,38 @@ INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_i
 VALUE (0, 0, 14, 5, 'EMPTY');
 INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
 VALUE (0, 0, 15, 5, 'EMPTY');
+
+INSERT INTO price_rates (description, price)
+VALUE ('cheap', 8000);
+INSERT INTO price_rates (description, price)
+VALUE ('medium', 1000);
+INSERT INTO price_rates (description, price)
+VALUE ('expensive', 12000);
+INSERT INTO available_rates (sector_id, price_rate_id)
+VALUE (1, 1);
+INSERT INTO available_rates (sector_id, price_rate_id)
+VALUE (1, 2);
+INSERT INTO available_rates (sector_id, price_rate_id)
+VALUE (2, 1);
+INSERT INTO available_rates (sector_id, price_rate_id)
+VALUE (2, 3);
+INSERT INTO available_rates (sector_id, price_rate_id)
+VALUE (3, 2);
+INSERT INTO available_rates (sector_id, price_rate_id)
+VALUE (4, 3);
+
+INSERT INTO customers (username, password, fname, lname, cellphone, email_addr, ads_flag)
+VALUE ('moji', MD5('moji'), 'Mojtaba' , 'Arjomandi', '09171112222', 'moji@moji.com', 1);
+INSERT INTO customers (username, password, fname, lname, cellphone, email_addr, ads_flag)
+VALUE ('jimi', MD5('jimi'), 'Jamshid' , 'Esmal', '09171112223', 'jimi@jimi.com', 0);
+
+INSERT INTO cars (customer_id, make_model, color)
+VALUE (1, 'Pejo 206', 1);
+INSERT INTO cars (customer_id, make_model, color)
+VALUE (1, 'Pejo 405', 2);
+INSERT INTO cars (customer_id, make_model, color)
+VALUE (2, 'Jeep', 1);
+
+
 
 

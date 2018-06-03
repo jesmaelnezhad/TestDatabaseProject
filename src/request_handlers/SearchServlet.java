@@ -12,9 +12,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.simple.JSONArray;
+
 import rm.ResourceManager;
+import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
 import rm.parking_structure.ParkingSpotContainer;
+import um.Customer;
+import um.CustomerManager;
 import utility.Constants;
 import utility.Point;
 
@@ -83,13 +88,20 @@ public class SearchServlet extends HttpServlet {
 		double searchRadius = (Double) request.getAttribute(Constants.RADIUS);
 		
 		
-		ResourceManager rm = 
-				(ResourceManager)request.getSession().getAttribute(Constants.RESOURCE_MANAGER);
+		ResourceManager rm = ResourceManager.getRM();
+		Customer customer = CustomerManager.getCustomer(request);
 		
-		// search for spots
-		List<ParkingSpot> results = rm.searchByProximity(searchCenter, searchRadius);
+		City city = null;
+		if(customer != null) {
+			city = customer.selected_city;
+		}else {
+			// TODO if customer is null city will not be known.
+			// TODO : redirect to use authentication
+		}
 		
-		String resultsJSON = ResourceManager.getJSON(results);
+		// search for sectors
+		JSONArray results = rm.searchByProximity(city, searchCenter, searchRadius);
+		String resultsJSON = results.toJSONString();
 		
 	      // Set response content type
 	    response.setContentType("text/html");

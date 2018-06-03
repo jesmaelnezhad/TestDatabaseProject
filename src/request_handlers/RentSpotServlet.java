@@ -15,21 +15,22 @@ import org.json.simple.JSONObject;
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
+import tm.TransactionManager;
 import um.Customer;
 import um.CustomerManager;
 import utility.Constants;
 
 /**
- * Servlet implementation class SpotInfoServlet
+ * Servlet implementation class CalcPriceServlet
  */
-@WebServlet("/SpotInfoServlet")
-public class SpotInfoServlet extends HttpServlet {
+@WebServlet("/CalcPriceServlet")
+public class RentSpotServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public SpotInfoServlet() {
+    public RentSpotServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -59,7 +60,6 @@ public class SpotInfoServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
 		if(request.getAttribute(Constants.SECTOR_ID) == null) {
 		      // Set response content type
 		    response.setContentType("text/html");
@@ -67,15 +67,20 @@ public class SpotInfoServlet extends HttpServlet {
 		    out.println("{\"error\":\"sector id must be given.\"}");
 		    return;
 		}
+		if(request.getAttribute(Constants.SEGMENT_ID) == null) {
+		      // Set response content type
+		    response.setContentType("text/html");
+		    PrintWriter out = response.getWriter();
+		    out.println("{\"error\":\"segment id must be given.\"}");
+		    return;
+		}
+		
 		int sectorId = (Integer) request.getAttribute(Constants.SECTOR_ID);
-		int segmentId = -1;
-		if(request.getAttribute(Constants.SEGMENT_ID) != null) {
-			segmentId = (Integer) request.getAttribute(Constants.SEGMENT_ID);
-		}
-		int spotId = -1;
-		if(request.getAttribute(Constants.SPOT_ID) != null) {
-			spotId = (Integer) request.getAttribute(Constants.SPOT_ID);
-		}
+		int segmentId = (Integer) request.getAttribute(Constants.SEGMENT_ID);
+		int carId = (Integer) request.getAttribute(Constants.CAR_ID);
+		int rateId = (Integer) request.getAttribute(Constants.RATE_ID);
+		int parkTime = (Integer) request.getAttribute(Constants.PARK_TIME);
+		
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCustomer(request);
 		
@@ -87,13 +92,12 @@ public class SpotInfoServlet extends HttpServlet {
 			// TODO : redirect to use authentication
 		}
 
-		JSONObject result = rm.getInfo(city, sectorId, segmentId, spotId);
+		JSONObject result = rm.rentSpot(customer, city, sectorId, segmentId, carId, rateId, parkTime);
 	      // Set response content type
 	    response.setContentType("text/html");
 	    PrintWriter out = response.getWriter();
 		
 	    out.println(result.toJSONString());
-		
 	}
 
 	/**

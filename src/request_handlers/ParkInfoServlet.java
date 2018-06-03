@@ -2,6 +2,7 @@ package request_handlers;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -10,11 +11,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
+import tm.ParkTransaction;
+import tm.TransactionManager;
 import um.Customer;
 import um.CustomerManager;
 import utility.Constants;
@@ -23,13 +27,13 @@ import utility.Constants;
  * Servlet implementation class SpotInfoServlet
  */
 @WebServlet("/SpotInfoServlet")
-public class SpotInfoServlet extends HttpServlet {
+public class ParkInfoServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public SpotInfoServlet() {
+    public ParkInfoServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -60,39 +64,35 @@ public class SpotInfoServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		if(request.getAttribute(Constants.SECTOR_ID) == null) {
+
+		boolean ongoing = true;
+		if(request.getAttribute(Constants.ON_GOING) != null) {
+			ongoing = (Boolean)request.getAttribute(Constants.ON_GOING);
+		}
+		
+		TransactionManager tm = TransactionManager.getTM();
+		Customer customer = CustomerManager.getCustomer(request);
+		
+		if(customer == null) {
+			// customer must be known to fetch current park transactions
+			JSONObject result = new JSONObject();
+			result.put(Constants.STATUS, "unsuccessful");
+			result.put(Constants.MESSAGE, "customer not signed in.");
 		      // Set response content type
 		    response.setContentType("text/html");
 		    PrintWriter out = response.getWriter();
-		    out.println("{\"error\":\"sector id must be given.\"}");
+			
+		    out.println(result.toJSONString());
+		    // TODO : could be redirected to sign in
 		    return;
 		}
-		int sectorId = (Integer) request.getAttribute(Constants.SECTOR_ID);
-		int segmentId = -1;
-		if(request.getAttribute(Constants.SEGMENT_ID) != null) {
-			segmentId = (Integer) request.getAttribute(Constants.SEGMENT_ID);
-		}
-		int spotId = -1;
-		if(request.getAttribute(Constants.SPOT_ID) != null) {
-			spotId = (Integer) request.getAttribute(Constants.SPOT_ID);
-		}
-		ResourceManager rm = ResourceManager.getRM();
-		Customer customer = CustomerManager.getCustomer(request);
-		
-		City city = null;
-		if(customer != null) {
-			city = customer.selected_city;
-		}else {
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-		}
 
-		JSONObject result = rm.getInfo(city, sectorId, segmentId, spotId);
+		JSONArray transactions = tm.getCurrentParkTransactions(customer);
 	      // Set response content type
 	    response.setContentType("text/html");
 	    PrintWriter out = response.getWriter();
 		
-	    out.println(result.toJSONString());
+	    out.println(transactions.toJSONString());
 		
 	}
 
