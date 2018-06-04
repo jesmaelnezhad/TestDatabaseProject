@@ -19,8 +19,8 @@ import utility.DBManager;
 public class Car {
 	public int id;
 	// info
-	String makeModel = "";
-	int color = 0;
+	public String makeModel = "";
+	public int color = 0;
 	public Car(int id){
 		this.id = id;
 	}

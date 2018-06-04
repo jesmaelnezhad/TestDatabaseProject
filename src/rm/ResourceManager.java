@@ -35,6 +35,17 @@ public class ResourceManager {
 		//TODO: initialization
 	}
 	
+	public City loadCity(int cityId) {
+		for(City city : citySpots.keySet()) {
+			if(city.id == cityId) {
+				return city;
+			}
+		}
+		City newCity = null;
+		// TODO: load a city from database
+		return newCity;
+	}
+	
 	private static ResourceManager rm = null;
 	public static ResourceManager getRM() {
 		if(rm == null) {

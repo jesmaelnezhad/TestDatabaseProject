@@ -1,7 +1,9 @@
 package request_handlers;
 
+
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -10,27 +12,30 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
-import tm.TransactionManager;
+import rm.parking_structure.ParkingSpotContainer;
 import um.Customer;
 import um.CustomerManager;
 import utility.Constants;
+import utility.Point;
 
 /**
- * Servlet implementation class CalcPriceServlet
+ * Servlet implementation class SearchServlet
  */
-@WebServlet("/CalcPriceServlet")
-public class CalcPriceServlet extends HttpServlet {
+@WebServlet("/SearchServlet")
+public class UserProfileServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public CalcPriceServlet() {
+    public UserProfileServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -49,52 +54,48 @@ public class CalcPriceServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 	}
 
+//	/**
+//	 * @see Servlet#getServletConfig()
+//	 */
+//	public ServletConfig getServletConfig() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	/**
+//	 * @see Servlet#getServletInfo()
+//	 */
+//	public String getServletInfo() {
+//		// TODO Auto-generated method stub
+//		return null; 
+//	}
+
 	/**
 	 * @see HttpServlet#service(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		doGet(request, response);
 	}
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if(request.getAttribute(Constants.SECTOR_ID) == null) {
-			JSONObject result = new JSONObject();
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "sector id must be given.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
-		    return;
-		}
-		if(request.getAttribute(Constants.SEGMENT_ID) == null) {
-			JSONObject result = new JSONObject();
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "segment id must be given.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
-		    return;
-		}
+		// TODO: just check if customer is signed in. If so, return customer profile info.
 		
-		int sectorId = (Integer) request.getAttribute(Constants.SECTOR_ID);
-		int segmentId = (Integer) request.getAttribute(Constants.SEGMENT_ID);
-		int rateId = (Integer) request.getAttribute(Constants.RATE_ID);
-		int parkTime = (Integer) request.getAttribute(Constants.PARK_TIME);
 		
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
-		City city = null;
 		if(customer != null) {
-			city = customer.selected_city;
+			JSONObject result = customer.getUserProfile();
+		    response.setContentType("text/html");
+		    PrintWriter out = response.getWriter();
+			
+		    out.println(result.toJSONString());
+		    return;
 		}else {
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
 			JSONObject result = new JSONObject();
 			// TODO if customer is null city will not be known.
 			// TODO : redirect to use authentication
@@ -106,13 +107,6 @@ public class CalcPriceServlet extends HttpServlet {
 		    out.println(result.toJSONString());
 		    return;
 		}
-
-		JSONObject result = rm.calculatePrice(city, sectorId, segmentId, rateId, parkTime);
-	      // Set response content type
-	    response.setContentType("text/html");
-	    PrintWriter out = response.getWriter();
-		
-	    out.println(result.toJSONString());
 	}
 
 	/**
@@ -122,5 +116,40 @@ public class CalcPriceServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
+
+//	/**
+//	 * @see HttpServlet#doPut(HttpServletRequest, HttpServletResponse)
+//	 */
+//	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//		// TODO Auto-generated method stub
+//	}
+//
+//	/**
+//	 * @see HttpServlet#doDelete(HttpServletRequest, HttpServletResponse)
+//	 */
+//	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//		// TODO Auto-generated method stub
+//	}
+//
+//	/**
+//	 * @see HttpServlet#doHead(HttpServletRequest, HttpServletResponse)
+//	 */
+//	protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//		// TODO Auto-generated method stub
+//	}
+//
+//	/**
+//	 * @see HttpServlet#doOptions(HttpServletRequest, HttpServletResponse)
+//	 */
+//	protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//		// TODO Auto-generated method stub
+//	}
+//
+//	/**
+//	 * @see HttpServlet#doTrace(HttpServletRequest, HttpServletResponse)
+//	 */
+//	protected void doTrace(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//		// TODO Auto-generated method stub
+//	}
 
 }

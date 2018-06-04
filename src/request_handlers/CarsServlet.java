@@ -19,6 +19,7 @@ import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
 import rm.parking_structure.ParkingSpotContainer;
+import um.Car;
 import um.Customer;
 import um.CustomerManager;
 import utility.Constants;
@@ -28,14 +29,14 @@ import utility.Point;
  * Servlet implementation class SearchServlet
  */
 @WebServlet("/SearchServlet")
-public class SearchServlet extends HttpServlet {
+public class CarsServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public SearchServlet() {
+    public CarsServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -82,11 +83,8 @@ public class SearchServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		int centerX = (Integer) request.getAttribute(Constants.CENTER_X);
-		int centerY = (Integer) request.getAttribute(Constants.CENTER_Y);
-		Point searchCenter = new Point(centerX, centerY);
-		double searchRadius = (Double) request.getAttribute(Constants.RADIUS);
+		// TODO: just check if customer is signed in. If so, return customer profile info.
+		String command = (String) request.getSession().getAttribute(Constants.COMMAND);
 		
 		
 		ResourceManager rm = ResourceManager.getRM();
@@ -109,13 +107,47 @@ public class SearchServlet extends HttpServlet {
 		}
 		
 		// search for sectors
-		JSONArray results = rm.searchByProximity(city, searchCenter, searchRadius);
+		JSONObject result = new JSONObject();
+		if(Constants.COMMAND_ADD.equals(command)) {
+			String makeModel = (String) request.getSession().getAttribute(Constants.MAKE_MODEL);
+			int color = (Integer) request.getSession().getAttribute(Constants.COLOR);
+			Car newCar = CustomerManager.getCM().insertNewCar(customer, makeModel, color);
+			result = newCar.getJSON();
+		}else if(Constants.COMMAND_EDIT.equals(command)) {
+			int id = (Integer) request.getSession().getAttribute("id");
+			String makeModel = (String) request.getSession().getAttribute(Constants.MAKE_MODEL);
+			int color = (Integer) request.getSession().getAttribute(Constants.COLOR);
+			Car car = new Car(id);
+			car.makeModel = makeModel;
+			car.color = color;
+			Car editedCar = CustomerManager.getCM().editCar(car);
+			if(editedCar == null) {
+				result.put("status", "unsuccessful");
+				result.put("message", "Car id not found.");
+			}
+			result = car.getJSON();
+		}else if(Constants.COMMAND_GET_ALL.equals(command)) {
+			List<Car> cars = CustomerManager.getCM().fetchAllCars(customer);
+			JSONArray results = new JSONArray();
+			for(Car car : cars) {
+				results.add(car.getJSON());
+			}
+		      // Set response content type
+		    response.setContentType("text/html");
+		    PrintWriter out = response.getWriter();
+			
+		    out.println(results.toJSONString());
+		    return;
+		}else {
+			result.put("status", "unsuccessful");
+			result.put("message", "command not recognized.");
+		}
 		
 	      // Set response content type
 	    response.setContentType("text/html");
 	    PrintWriter out = response.getWriter();
 		
-	    out.println(results.toJSONString());
+	    out.println(result.toJSONString());
 	}
 
 	/**

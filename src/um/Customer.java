@@ -6,6 +6,7 @@ package um;
 import org.json.simple.JSONObject;
 
 import rm.parking_structure.City;
+import utility.Constants;
 
 /**
  * @author jam
@@ -18,13 +19,13 @@ public class Customer {
 	public String fname, lname;
 	public String cellphone_number;
 	public String email_addr;
-	public boolean ads_flag;
+	public int ads_flag;
 	
 	public City selected_city = null;
 
 	public Customer(int id,	String username, String fname, 
 			String lname, String cellphone_number, String email_addr, 
-			boolean ads_flag) {
+			int ads_flag) {
 		this.id = id;
 		this.username = username;
 		this.fname = fname;
@@ -44,10 +45,16 @@ public class Customer {
 		return walletTransaction;
 	}
 	
-	
-	public static Customer loadCustomer(String username, String password) {
-		
-		// returns null if username does not exist or password doesn't work
-		return null;
+	public JSONObject getUserProfile() {
+		JSONObject profile = new JSONObject();
+		profile.put("id", id);
+		profile.put(Constants.USERNAME, username);
+		profile.put(Constants.FIRST_NAME, fname);
+		profile.put(Constants.LAST_NAME, lname);
+		profile.put(Constants.CELL_PHONE, cellphone_number);
+		profile.put(Constants.EMAIL_ADDR, email_addr);
+		profile.put(Constants.ADS_FLAG, ads_flag);
+		return profile;
 	}
+	
 }

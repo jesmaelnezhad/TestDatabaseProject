@@ -28,14 +28,14 @@ import utility.Point;
  * Servlet implementation class SearchServlet
  */
 @WebServlet("/SearchServlet")
-public class SearchServlet extends HttpServlet {
+public class SignUpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public SearchServlet() {
+    public SignUpServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -83,39 +83,31 @@ public class SearchServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		int centerX = (Integer) request.getAttribute(Constants.CENTER_X);
-		int centerY = (Integer) request.getAttribute(Constants.CENTER_Y);
-		Point searchCenter = new Point(centerX, centerY);
-		double searchRadius = (Double) request.getAttribute(Constants.RADIUS);
+		String username = (String) request.getAttribute(Constants.USERNAME);
+		String password = (String) request.getAttribute(Constants.PASSWORD);
+		String fname = (String) request.getAttribute(Constants.FIRST_NAME);
+		String lname = (String) request.getAttribute(Constants.LAST_NAME);
+		String cellphone = (String) request.getAttribute(Constants.CELL_PHONE);
+		String emailAddr = (String) request.getAttribute(Constants.EMAIL_ADDR);
+		int adsFlag = (Integer) request.getAttribute(Constants.ADS_FLAG);
+
 		
 		
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
-		City city = null;
 		if(customer != null) {
-			city = customer.selected_city;
-		}else {
-			JSONObject result = new JSONObject();
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			result.put("status", "unsuccessful");
-			result.put("message", "customer not signed in.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
-		    return;
+			CustomerManager.getCM().signOutCustomer(request);
 		}
 		
-		// search for sectors
-		JSONArray results = rm.searchByProximity(city, searchCenter, searchRadius);
+		JSONObject result = CustomerManager.getCM().signUpCustomer(request, username, password, 
+				fname, lname, cellphone, emailAddr, adsFlag);
 		
 	      // Set response content type
 	    response.setContentType("text/html");
 	    PrintWriter out = response.getWriter();
 		
-	    out.println(results.toJSONString());
+	    out.println(result.toJSONString());
 	}
 
 	/**

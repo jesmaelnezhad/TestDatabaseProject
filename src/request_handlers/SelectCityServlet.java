@@ -28,14 +28,14 @@ import utility.Point;
  * Servlet implementation class SearchServlet
  */
 @WebServlet("/SearchServlet")
-public class SearchServlet extends HttpServlet {
+public class SelectCityServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public SearchServlet() {
+    public SelectCityServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -83,18 +83,33 @@ public class SearchServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		int centerX = (Integer) request.getAttribute(Constants.CENTER_X);
-		int centerY = (Integer) request.getAttribute(Constants.CENTER_Y);
-		Point searchCenter = new Point(centerX, centerY);
-		double searchRadius = (Double) request.getAttribute(Constants.RADIUS);
+		int cityId = (Integer) request.getAttribute(Constants.CITY_ID);
 		
 		
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
-		City city = null;
 		if(customer != null) {
-			city = customer.selected_city;
+			customer.selected_city = rm.loadCity(cityId);
+			if(customer.selected_city == null) {
+				JSONObject result = new JSONObject();
+				result.put(Constants.STATUS, "unsuccessful");
+				result.put(Constants.MESSAGE, "city id not found.");
+			    response.setContentType("text/html");
+			    PrintWriter out = response.getWriter();
+				
+			    out.println(result.toJSONString());
+			    return;
+			}else {
+				JSONObject result = new JSONObject();
+				result.put(Constants.STATUS, "successful");
+				result.put(Constants.MESSAGE, "city "+customer.selected_city.name+" was selected.");
+			    response.setContentType("text/html");
+			    PrintWriter out = response.getWriter();
+				
+			    out.println(result.toJSONString());
+			    return;
+			}
 		}else {
 			JSONObject result = new JSONObject();
 			// TODO if customer is null city will not be known.
@@ -107,15 +122,6 @@ public class SearchServlet extends HttpServlet {
 		    out.println(result.toJSONString());
 		    return;
 		}
-		
-		// search for sectors
-		JSONArray results = rm.searchByProximity(city, searchCenter, searchRadius);
-		
-	      // Set response content type
-	    response.setContentType("text/html");
-	    PrintWriter out = response.getWriter();
-		
-	    out.println(results.toJSONString());
 	}
 
 	/**

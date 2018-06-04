@@ -53,4 +53,59 @@
     <servlet-name>park-info-servlet</servlet-name>
     <url-pattern>/parkinfo</url-pattern>
   </servlet-mapping>
+      
+  <servlet>
+    <servlet-name>signin-servlet</servlet-name>
+    <servlet-class>request_handlers/SignInServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>signin-servlet</servlet-name>
+    <url-pattern>/signin</url-pattern>
+  </servlet-mapping>
+        
+  <servlet>
+    <servlet-name>signout-servlet</servlet-name>
+    <servlet-class>request_handlers/SignOutServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>signout-servlet</servlet-name>
+    <url-pattern>/signout</url-pattern>
+  </servlet-mapping>
+        
+  <servlet>
+    <servlet-name>signup-servlet</servlet-name>
+    <servlet-class>request_handlers/SignUpServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>signup-servlet</servlet-name>
+    <url-pattern>/signup</url-pattern>
+  </servlet-mapping>
+        
+  <servlet>
+    <servlet-name>user-profile-servlet</servlet-name>
+    <servlet-class>request_handlers/UserProfileServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>user-profile-servlet</servlet-name>
+    <url-pattern>/userprofile</url-pattern>
+  </servlet-mapping>
+          
+  <servlet>
+    <servlet-name>select-city-servlet</servlet-name>
+    <servlet-class>request_handlers/SelectCityServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>select-city-servlet</servlet-name>
+    <url-pattern>/selectcity</url-pattern>
+  </servlet-mapping>
+  
+            
+  <servlet>
+    <servlet-name>cars-servlet</servlet-name>
+    <servlet-class>request_handlers/CarsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>cars-servlet</servlet-name>
+    <url-pattern>/cars</url-pattern>
+  </servlet-mapping>
 </web-app>

@@ -80,7 +80,7 @@ public class SpotInfoServlet extends HttpServlet {
 			spotId = (Integer) request.getAttribute(Constants.SPOT_ID);
 		}
 		ResourceManager rm = ResourceManager.getRM();
-		Customer customer = CustomerManager.getCustomer(request);
+		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
 		City city = null;
 		if(customer != null) {

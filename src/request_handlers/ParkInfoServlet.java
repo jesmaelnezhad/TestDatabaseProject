@@ -71,7 +71,7 @@ public class ParkInfoServlet extends HttpServlet {
 		}
 		
 		TransactionManager tm = TransactionManager.getTM();
-		Customer customer = CustomerManager.getCustomer(request);
+		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
 		if(customer == null) {
 			// customer must be known to fetch current park transactions

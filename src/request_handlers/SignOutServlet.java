@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import com.sun.org.apache.bcel.internal.classfile.ConstantNameAndType;
+
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
@@ -28,14 +30,14 @@ import utility.Point;
  * Servlet implementation class SearchServlet
  */
 @WebServlet("/SearchServlet")
-public class SearchServlet extends HttpServlet {
+public class SignOutServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public SearchServlet() {
+    public SignOutServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -82,40 +84,26 @@ public class SearchServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		int centerX = (Integer) request.getAttribute(Constants.CENTER_X);
-		int centerY = (Integer) request.getAttribute(Constants.CENTER_Y);
-		Point searchCenter = new Point(centerX, centerY);
-		double searchRadius = (Double) request.getAttribute(Constants.RADIUS);
 		
+		JSONObject result = new JSONObject();
 		
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
-		City city = null;
 		if(customer != null) {
-			city = customer.selected_city;
+			// there is a signed in user. Sign out
+			CustomerManager.getCM().signOutCustomer(request);
+			result.put(Constants.STATUS, "successful");
 		}else {
-			JSONObject result = new JSONObject();
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			result.put("status", "unsuccessful");
-			result.put("message", "customer not signed in.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
-		    return;
+			result.put(Constants.STATUS, "unsuccessful");
+			result.put(Constants.MESSAGE, "No customer is signed in.");
 		}
-		
-		// search for sectors
-		JSONArray results = rm.searchByProximity(city, searchCenter, searchRadius);
 		
 	      // Set response content type
 	    response.setContentType("text/html");
 	    PrintWriter out = response.getWriter();
 		
-	    out.println(results.toJSONString());
+	    out.println(result.toJSONString());
 	}
 
 	/**

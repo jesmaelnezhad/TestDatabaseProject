@@ -11,8 +11,8 @@ import java.util.Map;
  *
  */
 public class City {
-	int id;
-	String name;
+	public int id;
+	public String name;
 	
 	//street_id to Street object
 	Map<Integer, Sector> streets = new HashMap<Integer, Sector>();

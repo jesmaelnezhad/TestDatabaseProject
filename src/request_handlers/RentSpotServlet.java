@@ -88,7 +88,7 @@ public class RentSpotServlet extends HttpServlet {
 		int parkTime = (Integer) request.getAttribute(Constants.PARK_TIME);
 		
 		ResourceManager rm = ResourceManager.getRM();
-		Customer customer = CustomerManager.getCustomer(request);
+		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
 		City city = null;
 		if(customer != null) {
