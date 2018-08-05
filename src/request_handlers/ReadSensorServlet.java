@@ -41,7 +41,7 @@ public class ReadSensorServlet extends HttpServlet {
 		if(sensorIdString == null) {
 			JSONObject result = new JSONObject();
 			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "Sensor id is invalid.");
+			result.put(Constants.MESSAGE, "Sensor id is not given.");
 		    response.setContentType("text/html");
 		    PrintWriter out = response.getWriter();
 			

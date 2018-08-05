@@ -429,4 +429,13 @@ public class ParkingSpotContainer {
 		}
 		return s.read().toJSON();
 	}
+	
+	public Sensor getSensorById(int sensorId) {
+		SensorId id = SensorId.toSensorId(sensorId);
+		Sensor s = citySensors.get(id);
+		if(s == null) {
+			return null;
+		}
+		return s;		
+	}
 }

@@ -31,7 +31,7 @@ public class Sensor {
 			JSONObject result = new JSONObject();
 			result.put("full", fullFlag);
 			result.put("lastTimeChanged", lastTimeChanged.toString());
-			result.put("lastTimeUpdated", lastTimeUpdated).toString();
+			result.put("lastTimeUpdated", lastTimeUpdated.toString());
 			return result;
 		}
 	}

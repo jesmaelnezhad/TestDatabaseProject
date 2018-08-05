@@ -220,6 +220,7 @@ public class ResourceManager {
 	
 	
 	
+	
 	// methods
 	public static List<PriceRate> fetchSectorRates(Sector s){
 		List<PriceRate> result = new ArrayList<>();
