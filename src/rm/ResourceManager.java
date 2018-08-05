@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -185,6 +186,36 @@ public class ResourceManager {
 		}
 		result += "]";
 		return result;
+	}
+	
+	public JSONObject updateSensors(City city, 
+			int[] sensorIds, boolean[] fullFlags, 
+			Time[] lastTimeChanged, Time[] lastTimeUpdated) {
+		JSONObject result = new JSONObject();
+		
+		ParkingSpotContainer container = citySpots.get(city);
+		
+		if(container == null) {
+			result.put("status", "unsuccessful");
+			result.put("message", "City not found.");
+			return result;
+		}
+		
+		return container.updateSensors(sensorIds, fullFlags, lastTimeChanged, lastTimeUpdated);
+	}
+	
+	public JSONObject readSensor(City city, int sensorId) {
+		JSONObject result = new JSONObject();
+		
+		ParkingSpotContainer container = citySpots.get(city);
+		
+		if(container == null) {
+			result.put("status", "unsuccessful");
+			result.put("message", "City not found.");
+			return result;
+		}
+		
+		return container.readSensor(sensorId);
 	}
 	
 	

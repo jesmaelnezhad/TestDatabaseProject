@@ -3,6 +3,7 @@
  */
 package rm.parking_structure;
 
+import java.sql.Time;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,8 @@ import org.json.simple.JSONObject;
 
 
 import rm.PriceRate;
+import rm.basestations.Sensor;
+import rm.basestations.SensorId;
 import utility.Constants;
 import utility.ParkingSpotStatus;
 import utility.Point;
@@ -27,6 +30,8 @@ public class ParkingSpotContainer {
 	public Map<Integer, Point> sectorLocationIndex = new HashMap<>();
 	// TODO: these maps may need a lock themselves
 	public Map<Integer, Sector> sectorIndex = new HashMap<>();
+	
+	public Map<SensorId, Sensor> citySensors = new HashMap<>();
 	
 	public ParkingSpot getSpotById(int spotId) {
 		// TODO
@@ -387,5 +392,41 @@ public class ParkingSpotContainer {
 		
 		// TODO
 		return null;
+	}
+	
+	public JSONObject updateSensors(int[] sensorIds, boolean[] fullFlags, 
+			Time[] lastTimeChanged, Time[] lastTimeUpdated) {
+		
+		JSONObject result = new JSONObject();
+		for(int i = 0 ; i < sensorIds.length; i++) {
+			int sensorIdInt = sensorIds[i];
+			boolean fullFlag = fullFlags[i];
+			Time t1 = lastTimeChanged[i];
+			Time t2 = lastTimeUpdated[i];
+			SensorId id = SensorId.toSensorId(sensorIdInt);
+			Sensor s = citySensors.get(id);
+			if(s == null) {
+				if(! result.containsKey("status")) {
+					result.put("status", "unsuccessful");
+				}
+				result.put("sensor_not_found", sensorIdInt);
+				continue;
+			}
+			s.update(fullFlag, t1, t2);
+			result.put("sensor_updated", sensorIdInt);
+		}
+		return result;
+	}
+	
+	public JSONObject readSensor(int sensorId) {
+		JSONObject result = new JSONObject();
+		SensorId id = SensorId.toSensorId(sensorId);
+		Sensor s = citySensors.get(id);
+		if(s == null) {
+			result.put("status", "unsuccessful");
+			result.put("sensor_not_found", sensorId);
+			return result;
+		}
+		return s.read().toJSON();
 	}
 }
