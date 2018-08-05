@@ -26,7 +26,7 @@ import utility.Point;
 public class ResourceManager {
 
 	// A mapping from cities to the container of their parking spots
-	public Map<City, ParkingSpotContainer> citySpots = new HashMap<>();
+	public Map<City, ParkingSpotContainer> citySpots = new HashMap<City, ParkingSpotContainer>();
 	
 	private ResourceManager() {
 		//TODO: initialization
