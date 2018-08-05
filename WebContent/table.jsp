@@ -45,7 +45,7 @@ tr:nth-child(even) {
 <%-- START --%>
 <center>
 
-<form action="<%out.print(request.getContextPath()); %>/table.jsp" method="get">
+<form action="./table.jsp" method="get">
   Search for street:
   <input name="keyword" type="text" width="100px" height="17px"><input type="submit" value="Search">
 </form>
@@ -113,7 +113,7 @@ try {
 %>
 
 <%
-    if(new ResourceManager().checkSpot()){
+    if(ResourceManager.getRM().checkSpot()){
 %>
 Spot is free.
 <%

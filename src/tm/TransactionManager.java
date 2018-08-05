@@ -181,4 +181,17 @@ public class TransactionManager {
 		// TODO
 		return 0.0;
 	}
+	
+	// TODO: saves the even of somebody paying for a spot at a parkometer.
+	// saves it in data base.
+	public JSONObject saveSensorTransaction(int sensorId, int price, Time time) {
+		// TODO
+	}
+	
+	// TODO: calculates the price of parking at a spot (given with sensor) for a given timeLength.
+	// saves it in data base.
+	public JSONObject calcSensorPrice(int sensorId, int timeLength) {
+		// TODO
+	}
+	
 }
