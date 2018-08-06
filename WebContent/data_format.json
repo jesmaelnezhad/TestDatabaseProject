@@ -1,0 +1,130 @@
+[
+	{
+	"city":"#City name - city 1#",
+	"sectors":
+			[
+				{
+				 "id":"#segment ID#", 
+				 "center_location":"#X,Y#", 
+				 "segments":[
+				 				{"id":"#segment ID#", 
+				 				 "start_location":"#X,Y#", "end_location":"#X,Y#", 
+				 				 "capacity":"#Number of parking spots#",
+				 				 "sensor_spots":[
+				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
+				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
+				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"} ]
+				 				},
+				 				{"id":"#segment ID#", 
+				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
+				 				 "capacity":"#Number of parking spots#",
+				 				 "sensor_spots":[]
+				 				},
+				 				{"id":"#segment ID#", 
+				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
+				 				 "capacity":"#Number of parking spots#",
+				 				 "sensor_spots":[
+				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
+				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
+				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
+				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
+				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
+				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"} ]
+				 				}
+				 			]
+				},
+				{
+				 "id":"#segment ID#", 
+				 "center_location":"#X,Y#", 
+				 "segments":[
+				 				{"id":"#segment ID#", 
+				 				 "start_location":"#X,Y#", "end_location":"#X,Y#", 
+				 				 "capacity":"#Number of parking spots#",
+				 				 "sensor_spots":[]
+				 				},
+				 				{"id":"#segment ID#", 
+				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
+				 				 "capacity":"#Number of parking spots#",
+				 				 "sensor_spots":[
+				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
+				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"}]
+				 				},
+				 				{"id":"#segment ID#", 
+				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
+				 				 "capacity":"#Number of parking spots#",
+				 				 "sensor_spots":[
+				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"}]
+				 				}
+				 			]
+				}
+			]
+	},
+		
+	{
+	"city":"#City name - city 2#",
+	"sectors":
+			[
+				{
+				 "id":"#segment ID#", 
+				 "center_location":"#X,Y#", 
+				 "segments":[
+				 				{"id":"#segment ID#", 
+				 				 "start_location":"#X,Y#", "end_location":"#X,Y#", 
+				 				 "capacity":"#Number of parking spots#",
+				 				 "sensor_spots":[
+				 				 			{"id":"#sensor id#"},
+				 				 			{"id":"#sensor id#"},
+				 				 			{"id":"#sensor id#"} ]
+				 				},
+				 				{"id":"#segment ID#", 
+				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
+				 				 "capacity":"#Number of parking spots#",
+				 				 "sensor_spots":[]
+				 				},
+				 				{"id":"#segment ID#", 
+				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
+				 				 "capacity":"#Number of parking spots#",
+				 				 "sensor_spots":[
+				 				 			{"id":"#sensor id#"},
+				 				 			{"id":"#sensor id#"},
+				 				 			{"id":"#sensor id#"},
+				 				 			{"id":"#sensor id#"},
+				 				 			{"id":"#sensor id#"},
+				 				 			{"id":"#sensor id#"} ]
+				 				}
+				 			]
+				},
+				{
+				 "id":"#segment ID#", 
+				 "center_location":"#X,Y#", 
+				 "segments":[
+				 				{"id":"#segment ID#", 
+				 				 "start_location":"#X,Y#", "end_location":"#X,Y#", 
+				 				 "capacity":"#Number of parking spots#",
+				 				 "sensor_spots":[]
+				 				},
+				 				{"id":"#segment ID#", 
+				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
+				 				 "capacity":"#Number of parking spots#",
+				 				 "sensor_spots":[
+				 				 			{"id":"#sensor id#"},
+				 				 			{"id":"#sensor id#"}]
+				 				},
+				 				{"id":"#segment ID#", 
+				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
+				 				 "capacity":"#Number of parking spots#",
+				 				 "sensor_spots":[
+				 				 			{"id":"#sensor id#"}]
+				 				}
+				 			]
+				}
+			]
+	}
+]
+
+=========================================================================================
+Note: in each segment object, there is a capacity which shows the number 
+of parking spots that fit in that segment. There is also an array called
+sensor_spots in a segment object which is a list of sensor ids that correspond 
+to the spots of that segment. Since not all spots have sensors, the length of 
+the sensor_spots array must always be less than or equal to the capacity attribute.
