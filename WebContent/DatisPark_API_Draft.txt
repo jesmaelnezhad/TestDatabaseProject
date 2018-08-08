@@ -1,0 +1,143 @@
+
+1. userProfile {GET, PUT} Authenticated
+{
+    firstName: String
+    lastName: String
+    mobile: String
+    profileImage: URL?
+    email: String?
+    credits: Double // avilable money in user wallet
+    city: String
+}
+
+2. cars {GET} Authenticated
+{
+    carName: String
+    plateNumber: String 
+}
+
+3. parkHistory {GET} Authenticated, must have pagination
+{
+    totalHours: Float // totla parking hours
+    totalParks: Int // total count user has parked his car 
+    results: [
+        {
+            id: String
+            date: Date
+            totalHours: Float
+            carName: String -> "پراید نقره‌‌ای"
+            plateNumber: String
+            address: String
+            location: Coordinate
+            totalPrice: String "۱۲ هزار تومان"
+            description: String "نیم‌ساعت رایگان"
+        }
+    ]
+}
+
+4. topUp {POST} Authenticated
+Body {
+    amount: Int "should be in Toman"
+}
+
+5. transactions {GET} Authenticated
+Response {
+    id: String
+    topUp: Bool "credit added or removed"
+    date: Date
+    description: String "کسر هزینه پارک در خیابان شریعتی"
+    amount: String "۴۰۰۰ تومان"
+}
+
+6. SearchAdress {POST}
+Body {
+    searchTerm: String
+}
+
+Response {
+    title: String 
+    fullAddress: String
+}
+
+e.g. {
+    title: آریاشهر
+    fullAddress: آریا شهر - بالاتر از اشرفی اصفهانی
+}
+
+7. searchArea {POST}
+Body {
+    northWest: Coordinate
+    southEast: Coordinate
+}
+
+Response {
+    Sectors:[
+        {
+            id:1
+            centerPoint: Coordinate
+            avaialbelSpots: Int
+            freeSpaceProbability: Int -> {  reservable: 0, likely: 1, moderately: 2, unlikely: 3 }
+            segments: [
+                {
+                    id: 1
+                    path: [Coordinate]
+                }
+            ]
+
+            startingPrice: String -> 1000 تومان
+            address: String
+            description: String? -> لطفا پس از پارک در مکان معین، هزینه پارک را پرداخت نمایید.
+
+            priceList: [
+                {
+                    title: String "۲ تا ۴ ساعت"
+                    description: String "۵ هزار تومان"
+                }
+            ]
+
+            workingHours: [
+                {
+                    title: "شنبه تا چهارشنبه:"
+                    description: "۸ صبح تا ۱۲ شب"   
+                },
+                {
+                    title: "جمعه‌"
+                    description: "رایگان"
+                }
+            ]
+        }
+    ]
+
+    ParkinLots: [
+        {
+            id:1
+            name: String
+            phone: String
+            centerPoint: Coordinate
+            avaialbelSpots: Int
+            startingPrice: String -> 1000 تومان
+            address: String
+            description: String? -> "دارای نگهبان، سقف سرپوشیده، روشنایی در شب"
+            images: [URL]
+            totalSpace: Int
+            freeSpace: Int
+        }
+    ]
+}
+
+8: ReserveSpot {POST} Authorized 
+Body {
+    spotID: String
+    timeRange: {Int} -> it should be templated like ۱ تا ۳ ساعت
+}
+
+Response {
+    code:Int
+    message: String
+}
+
+9: FinishParking {POST} // Used when user wants to leave parking spot
+Body {
+    spotID: String
+}
+
