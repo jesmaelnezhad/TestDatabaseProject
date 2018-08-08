@@ -15,8 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import com.sun.org.apache.bcel.internal.classfile.ConstantNameAndType;
-
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
