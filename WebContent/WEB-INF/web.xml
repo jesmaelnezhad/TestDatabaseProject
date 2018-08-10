@@ -113,4 +113,12 @@
     <servlet-name>read-sensor-servlet</servlet-name>
     <url-pattern>/readsensor</url-pattern>
   </servlet-mapping>
+  <servlet>
+  	<servlet-name>transaction-servlet</servlet-name>
+  	<servlet-class>request_handlers/TransactionServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>transaction-servlet</servlet-name>
+  	<url-pattern>/transaction</url-pattern>
+  </servlet-mapping>
 </web-app>

@@ -17,6 +17,7 @@ import rm.parking_structure.City;
 import tm.TransactionManager;
 import um.Customer;
 import um.CustomerManager;
+import utility.Constants;
 
 /**
  * Servlet implementation class TransactionServlet
@@ -37,37 +38,57 @@ public class TransactionServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String command = request.getParameter("command");
-		if(command == null) {
+		// get command type
+		String command = request.getParameter(Constants.COMMAND);
+		
+		// check if command type has value
+		if (command == null) {
 			JSONObject result = new JSONObject();
-			result.put("status", "unsuccessful");
-			result.put("message", "command not given.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-		    out.println(result.toJSONString());
-		    return;
+			result.put(Constants.STATUS, Constants.STATUS_UNSUCCESSFUL);
+			result.put(Constants.MESSAGE, Constants.MSG_COMMAND_NOT_GIVEN);
+			response.setContentType(Constants.TYPE_HTML);
+			PrintWriter out = response.getWriter();
+			out.println(result.toJSONString());
+			return;
 		}
-		///
-		TransactionManager tm = TransactionManager.getTM();
+		
+		// get transaction manager and customer objects
+		TransactionManager tm = TransactionManager.getTM(); // It is a unique object, remember
 		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
+		// set the city for this transaction request
 		City city = null;
-		if(customer != null) {
-			city = customer.selected_city;
-		}else {
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
+		if (customer != null) {
+			city = customer.selected_city; 
+			// TODO: Not implemented in customer object yet 
+		} else {
+			// TODO: if customer is null city will not be known. (jamshid this is implemented below, right?)
+			// TODO: redirect to use authentication
 			JSONObject result = new JSONObject();
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			result.put("status", "unsuccessful");
-			result.put("message", "customer not signed in.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
-		    return;
+			result.put(Constants.STATUS, Constants.MSG_CUSTOMER_NOT_SIGHNED_IN);
+			result.put(Constants.STATUS, Constants.STATUS_UNSUCCESSFUL);
+			response.setContentType(Constants.TYPE_HTML);
+			PrintWriter out = response.getWriter();
+			out.println(result.toJSONString());
 		}
+		
+		// perform actions based on command type
+		if (command.equals(Constants.COMMAND_SAVE)) {
+			// save command
+			// get parameters from request
+			String sensorIdString = request.getParameter(Constants.SENSOR_ID);
+			String priceString = request.getParameter(Constants.price);
+			String timeString = request.getParameter(Constants.time);
+			
+			// check if these parameters are exist
+			
+		}
+		
+		
+		
+		
+		
+		/* 
 		if(command.equals("save")) {
 			String sensorIdString = request.getParameter("sensorId");
 			String priceString = request.getParameter("price");
@@ -137,7 +158,7 @@ public class TransactionServlet extends HttpServlet {
 		    response.setContentType("text/html");
 		    PrintWriter out = response.getWriter();
 		    out.println(result.toJSONString());
-		    return;
+		    return; */
 		}
 	}
 

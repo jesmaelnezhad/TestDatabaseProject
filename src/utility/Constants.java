@@ -42,4 +42,12 @@ public class Constants {
 	public static final String COMMAND_ADD = "add";
 	public static final String COMMAND_EDIT = "edit";
 	public static final String COMMAND_GET_ALL = "getall";
+	public static final String STATUS_UNSUCCESSFUL = "unsuccessful";
+	public static final String MSG_COMMAND_NOT_GIVEN = "command not given";
+	public static final String TYPE_HTML = "text/html";
+	public static final String MSG_CUSTOMER_NOT_SIGHNED_IN = "Customer not signed in";
+	public static final String COMMAND_SAVE = "save";
+	public static final String SENSOR_ID = "sensor_id";
+	public static final String price = "price";
+	public static final String time = "time";
 }
