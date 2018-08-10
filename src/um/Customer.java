@@ -3,10 +3,20 @@
  */
 package um;
 
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import rm.parking_structure.City;
+import tm.ParkTransaction;
+import tm.Wallet;
+import tm.WalletTransaction;
 import utility.Constants;
+import utility.Photo;
 
 /**
  * @author jam
@@ -15,44 +25,168 @@ import utility.Constants;
  */
 public class Customer {
 	public int id;
-	public String username;
 	public String fname, lname;
 	public String cellphone_number;
 	public String email_addr;
+	public String profileImage;
 	public int ads_flag;
 	
 	public City selected_city = null;
 
-	public Customer(int id,	String username, String fname, 
-			String lname, String cellphone_number, String email_addr, 
+	public Customer(int id, String fname, 
+			String lname, String cellphone_number, String email_addr, String profileImage,
 			int ads_flag) {
 		this.id = id;
-		this.username = username;
 		this.fname = fname;
 		this.lname = lname;
 		this.cellphone_number = cellphone_number;
 		this.email_addr = email_addr;
 		this.ads_flag = ads_flag;
+		this.profileImage = profileImage;
+	}
+
+	public JSONObject getWalletInfo() {
+		Wallet wallet = Wallet.fetchWallet(this);
+		if(wallet == null) {
+			JSONObject walletTransaction = new JSONObject();
+			walletTransaction.put("status", "unsuccessful");
+			walletTransaction.put("message", "Wallet not found.");
+			return walletTransaction;			
+		}	
+		JSONObject walletTransaction = new JSONObject();
+		walletTransaction.put("balance", wallet.balance);
+		return walletTransaction;
+	}
+	
+	public JSONArray getTransactionHistory() {
+		JSONArray result = new JSONArray();
+		List<WalletTransaction> transactions = WalletTransaction.fetchAllTransactions(this);
+		for(WalletTransaction t: transactions) {
+			if(! t.description.equals("topup")) {
+				// we must retrieve the description of a park transaction
+				t.description = 
+						ParkTransaction.getParkTransactionDescription(Integer.parseInt(t.description));
+			}
+			result.add(t.toJSON());
+		}
+		return result;
+	}
+	
+	public JSONObject topUp(int price) {
+		if(price <= 0) {
+			JSONObject walletTransaction = new JSONObject();
+			walletTransaction.put("status", "unsuccessful");
+			walletTransaction.put("message", "TopUp value not valid.");
+			return walletTransaction;			
+		}		
+		
+		Wallet wallet = Wallet.fetchWallet(this);
+		if(wallet == null) {
+			JSONObject walletTransaction = new JSONObject();
+			walletTransaction.put("status", "unsuccessful");
+			walletTransaction.put("message", "Wallet not found.");
+			return walletTransaction;			
+		}
+		
+		// 1. add money to the wallet and update the wallet
+		wallet.balance += price;
+		boolean result = wallet.save();
+		if(! result) {
+			JSONObject walletTransaction = new JSONObject();
+			walletTransaction.put("status", "unsuccessful");
+			walletTransaction.put("message", "Wallet not working.");
+			return walletTransaction;	
+		}
+		// 2. record a wallet transaction
+		Calendar currenttime = Calendar.getInstance();
+	    Date now = new Date((currenttime.getTime()).getTime());
+		WalletTransaction transaction = 
+				WalletTransaction.saveNewTransaction(this.id, 0, now , "topUp", price);
+		if(transaction == null) {
+			wallet.balance -= price;
+			result = wallet.save();
+			if(! result) {
+				JSONObject walletTransaction = new JSONObject();
+				walletTransaction.put("status", "unsuccessful");
+				walletTransaction.put("message", "Wallet info not consistent.");
+				return walletTransaction;	
+			}
+			JSONObject walletTransaction = new JSONObject();
+			walletTransaction.put("status", "unsuccessful");
+			walletTransaction.put("message", "Wallet transaction cannot be saved.");
+			return walletTransaction;	
+		}
+		// 3. report the result out of the function
+		JSONObject walletTransaction = new JSONObject();
+		walletTransaction.put("transaction_id", transaction.id);
+		walletTransaction.put("status", "successful");
+		walletTransaction.put("amount", price);
+		walletTransaction.put("balance", wallet.balance);
+		return walletTransaction;
 	}
 	
 	public JSONObject pay(int price, int parkTransactionId) {
-		// TODO: working with wallet
-		// temporary code
-		JSONObject walletTransaction = new JSONObject();
-		walletTransaction.put("transaction_id", parkTransactionId);
-		walletTransaction.put("status", "successful");
-		walletTransaction.put("price", price);
-		return walletTransaction;
+		
+		Wallet wallet = Wallet.fetchWallet(this);
+		if(wallet == null) {
+			JSONObject walletTransaction = new JSONObject();
+			walletTransaction.put("status", "unsuccessful");
+			walletTransaction.put("message", "Wallet not found.");
+			return walletTransaction;			
+		}
+		
+		if(wallet.balance >= price) {
+			// 1. take money from the wallet and update the wallet
+			wallet.balance -= price;
+			boolean result = wallet.save();
+			if(! result) {
+				JSONObject walletTransaction = new JSONObject();
+				walletTransaction.put("status", "unsuccessful");
+				walletTransaction.put("message", "Wallet not working.");
+				return walletTransaction;	
+			}
+			// 2. record a wallet transaction
+			Calendar currenttime = Calendar.getInstance();
+		    Date now = new Date((currenttime.getTime()).getTime());
+			WalletTransaction transaction = 
+					WalletTransaction.saveNewTransaction(this.id, 0, now , "" + parkTransactionId, price);
+			if(transaction == null) {
+				wallet.balance += price;
+				result = wallet.save();
+				if(! result) {
+					JSONObject walletTransaction = new JSONObject();
+					walletTransaction.put("status", "unsuccessful");
+					walletTransaction.put("message", "Wallet info not consistent.");
+					return walletTransaction;	
+				}
+				JSONObject walletTransaction = new JSONObject();
+				walletTransaction.put("status", "unsuccessful");
+				walletTransaction.put("message", "Wallet transaction cannot be saved.");
+				return walletTransaction;	
+			}
+			// 3. report the result out of the function
+			JSONObject walletTransaction = new JSONObject();
+			walletTransaction.put("transaction_id", transaction.id);
+			walletTransaction.put("status", "successful");
+			walletTransaction.put("price", price);
+			return walletTransaction;
+			
+		}else {
+			JSONObject walletTransaction = new JSONObject();
+			walletTransaction.put("status", "unsuccessful");
+			walletTransaction.put("message", "Wallet balance not enough.");
+			return walletTransaction;
+		}
 	}
 	
 	public JSONObject getUserProfile() {
 		JSONObject profile = new JSONObject();
 		profile.put("id", id);
-		profile.put(Constants.USERNAME, username);
 		profile.put(Constants.FIRST_NAME, fname);
 		profile.put(Constants.LAST_NAME, lname);
 		profile.put(Constants.CELL_PHONE, cellphone_number);
 		profile.put(Constants.EMAIL_ADDR, email_addr);
+		profile.put(Constants.PROFILE_IMAGE, Photo.getPhotoPath(Constants.USER_PROFILE_IMAGES, id, profileImage));
 		profile.put(Constants.ADS_FLAG, ads_flag);
 		return profile;
 	}

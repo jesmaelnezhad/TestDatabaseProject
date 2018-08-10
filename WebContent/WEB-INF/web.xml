@@ -98,6 +98,14 @@
     <url-pattern>/cars</url-pattern>
   </servlet-mapping>
   <servlet>
+    <servlet-name>wallet-servlet</servlet-name>
+    <servlet-class>request_handlers/WalletServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>wallet-servlet</servlet-name>
+    <url-pattern>/wallet</url-pattern>
+  </servlet-mapping>
+  <servlet>
     <servlet-name>update-sensors-servlet</servlet-name>
     <servlet-class>request_handlers/UpdateSensorsServlet</servlet-class>
   </servlet>

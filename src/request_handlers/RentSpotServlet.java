@@ -60,7 +60,7 @@ public class RentSpotServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if(request.getAttribute(Constants.SECTOR_ID) == null) {
+		if(request.getParameter(Constants.SECTOR_ID) == null) {
 			JSONObject result = new JSONObject();
 			result.put(Constants.STATUS, "unsuccessful");
 			result.put(Constants.MESSAGE, "sector id must be given.");
@@ -70,7 +70,7 @@ public class RentSpotServlet extends HttpServlet {
 		    out.println(result.toJSONString());
 		    return;
 		}
-		if(request.getAttribute(Constants.SEGMENT_ID) == null) {
+		if(request.getParameter(Constants.SEGMENT_ID) == null) {
 			JSONObject result = new JSONObject();
 			result.put(Constants.STATUS, "unsuccessful");
 			result.put(Constants.MESSAGE, "segment id must be given.");
@@ -81,11 +81,11 @@ public class RentSpotServlet extends HttpServlet {
 		    return;
 		}
 		
-		int sectorId = (Integer) request.getAttribute(Constants.SECTOR_ID);
-		int segmentId = (Integer) request.getAttribute(Constants.SEGMENT_ID);
-		int carId = (Integer) request.getAttribute(Constants.CAR_ID);
-		int rateId = (Integer) request.getAttribute(Constants.RATE_ID);
-		int parkTime = (Integer) request.getAttribute(Constants.PARK_TIME);
+		int sectorId = Integer.parseInt(request.getParameter(Constants.SECTOR_ID));
+		int segmentId = Integer.parseInt(request.getParameter(Constants.SEGMENT_ID));
+		int carId = Integer.parseInt(request.getParameter(Constants.CAR_ID));
+		int rateId = Integer.parseInt(request.getParameter(Constants.RATE_ID));
+		int parkTime = Integer.parseInt(request.getParameter(Constants.PARK_TIME));
 		
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);

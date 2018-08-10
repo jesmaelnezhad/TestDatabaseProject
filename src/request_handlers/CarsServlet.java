@@ -109,17 +109,20 @@ public class CarsServlet extends HttpServlet {
 		// search for sectors
 		JSONObject result = new JSONObject();
 		if(Constants.COMMAND_ADD.equals(command)) {
-			String makeModel = (String) request.getSession().getAttribute(Constants.MAKE_MODEL);
-			int color = (Integer) request.getSession().getAttribute(Constants.COLOR);
-			Car newCar = CustomerManager.getCM().insertNewCar(customer, makeModel, color);
+			String makeModel = request.getParameter(Constants.MAKE_MODEL);
+			int color = Integer.parseInt(request.getParameter(Constants.COLOR));
+			String plateNumber = request.getParameter(Constants.PLATE_NUMBER);
+			Car newCar = CustomerManager.getCM().insertNewCar(customer, makeModel, color, plateNumber);
 			result = newCar.getJSON();
 		}else if(Constants.COMMAND_EDIT.equals(command)) {
-			int id = (Integer) request.getSession().getAttribute("id");
-			String makeModel = (String) request.getSession().getAttribute(Constants.MAKE_MODEL);
-			int color = (Integer) request.getSession().getAttribute(Constants.COLOR);
+			int id = Integer.parseInt(request.getParameter("id"));
+			String makeModel = request.getParameter(Constants.MAKE_MODEL);
+			int color = Integer.parseInt(request.getParameter(Constants.COLOR));
+			String plateNumber = request.getParameter(Constants.PLATE_NUMBER);
 			Car car = new Car(id);
 			car.makeModel = makeModel;
 			car.color = color;
+			car.plateNumber = plateNumber;
 			Car editedCar = CustomerManager.getCM().editCar(car);
 			if(editedCar == null) {
 				result.put("status", "unsuccessful");

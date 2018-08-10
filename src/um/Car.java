@@ -21,6 +21,7 @@ public class Car {
 	// info
 	public String makeModel = "";
 	public int color = 0;
+	public String plateNumber;
 	public Car(int id){
 		this.id = id;
 	}
@@ -37,6 +38,7 @@ public class Car {
 				//Retrieve by column name
 				this.makeModel = rs.getString("make_model");
 				this.color = rs.getInt("color");
+				this.plateNumber = rs.getString("plate_number");
 				return;
 			}
 			rs.close();
@@ -52,6 +54,7 @@ public class Car {
 		result.put("id", id);
 		result.put("make_model", makeModel);
 		result.put("color", color);
+		result.put("plate_number", plateNumber);
 		return result;
 	}
 }

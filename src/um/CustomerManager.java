@@ -3,6 +3,7 @@
  */
 package um;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,11 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 
 import org.json.simple.JSONObject;
 
 import utility.Constants;
 import utility.DBManager;
+import utility.Photo;
 
 
 /**
@@ -52,55 +55,54 @@ public class CustomerManager {
 		request.removeAttribute(Constants.SIGNED_IN_CUSTOMER);
 	}
 	
-	public JSONObject signUpCustomer(HttpServletRequest request, String username, String password, 
-			String fname, String lname, String cellphone, String emailAddr, int adsFlag) {
+	public JSONObject signUpCustomer(HttpServletRequest request, 
+			String fname, String lname, String cellphone, String emailAddr, Part profileImage, int adsFlag) {
 		
 		
-		Customer newCustomer = insertNewCustomer(username, password, fname, 
-				lname, cellphone, emailAddr, adsFlag);
+		Customer newCustomer = insertNewCustomer(fname, 
+				lname, cellphone, emailAddr, profileImage.getName(), adsFlag);
 		if(newCustomer == null) {
 			JSONObject result = new JSONObject();
 			result.put(Constants.STATUS, "unsuccessful");
 			result.put(Constants.MESSAGE, "Customer exists.");
 			return result;
 		}
+		
+		try {
+			Photo.savePhoto(Constants.USER_PROFILE_IMAGES, newCustomer.id, profileImage, request.getServletContext());
+		}catch(IOException e) {
+			JSONObject result = new JSONObject();
+			result.put(Constants.STATUS, "unsuccessful");
+			result.put(Constants.MESSAGE, "Image could not be saved.");
+			return result;	
+		}
+		
 		request.setAttribute(Constants.SIGNED_IN_CUSTOMER, newCustomer);
 		return newCustomer.getUserProfile();
 	}
 	
 	// returns null if customer exists
-	private Customer insertNewCustomer(String username, String password, 
-			String fname, String lname, String cellphone, String emailAddr, int adsFlag) {
+	private Customer insertNewCustomer(String fname, String lname, String cellphone, 
+			String emailAddr, String profileImage, int adsFlag) {
 		Connection conn = DBManager.getDBManager().getConnection();
-		String sql = "SELECT id FROM customers WHERE username=?;";
+		String sql = "";
 		PreparedStatement stmt;
 		try {
-			stmt = conn.prepareStatement(sql);
-			stmt.setString(1, username);
-			ResultSet rs = stmt.executeQuery();
-			while(rs.next()){
-				int id = rs.getInt("id");
-				// customer exists
-				return null;
-			}
-			rs.close();
-			stmt.close();
-			sql = "INSERT INTO customers (username, password, fname, lname, cellphone, email_addr, ads_flag)"
-					+ "VALUE (?, MD5(?), ?, ?, ?, ?, ?);";
+			sql = "INSERT INTO customers (fname, lname, cellphone, email_addr, profile_image, ads_flag)"
+					+ "VALUE (?, ?, ?, ?, ?, ?);";
 			stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			stmt.setString(1, username);
-			stmt.setString(2, password);
-			stmt.setString(3, fname);
-			stmt.setString(4, lname);
-			stmt.setString(5, cellphone);
-			stmt.setString(6, emailAddr);
-			stmt.setInt(7, adsFlag);
+			stmt.setString(1, fname);
+			stmt.setString(2, lname);
+			stmt.setString(3, cellphone);
+			stmt.setString(4, emailAddr);
+			stmt.setString(5, profileImage);
+			stmt.setInt(6, adsFlag);
 			stmt.executeUpdate();
-			rs = stmt.getGeneratedKeys();
+			ResultSet rs = stmt.getGeneratedKeys();
 			if(rs.next()) {
 				int id = rs.getInt("id");
 				Customer newCustomer = 
-						new Customer(id, username, fname, lname, cellphone, emailAddr, adsFlag);
+						new Customer(id, fname, lname, cellphone, emailAddr, profileImage, adsFlag);
 				return newCustomer;
 			}
 		} catch (SQLException e) {
@@ -139,9 +141,10 @@ public class CustomerManager {
 				String lname = rs.getString("lname");
 				String cellphone = rs.getString("cellphone");
 				String emailAddr = rs.getString("email_addr");
+				String profileImage = rs.getString("profile_image");
 				int adsFlag = rs.getInt("ads_flag");
 				newCustomer = 
-						new Customer(id, username, fname, lname, cellphone, emailAddr, adsFlag);
+						new Customer(id, fname, lname, cellphone, emailAddr, profileImage, adsFlag);
 			}else {
 				// username password don't match
 				newCustomer = null;
@@ -156,18 +159,19 @@ public class CustomerManager {
 		return null;
 	}
 	
-	public Car insertNewCar(Customer customer, String makeModel, int color) {
+	public Car insertNewCar(Customer customer, String makeModel, int color, String plateNumber) {
 		Car newCar = null;
 		
 		Connection conn = DBManager.getDBManager().getConnection();
 		
-		String sql = "INSERT INTO cars (customer_id, make_model, color) "
-				+ "VALUE (?, ?, ?);";
+		String sql = "INSERT INTO cars (customer_id, make_model, color, plateNumber) "
+				+ "VALUE (?, ?, ?, ?);";
 		try {
 			PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			stmt.setInt(1, customer.id);
 			stmt.setString(2, makeModel);
 			stmt.setInt(3, color);
+			stmt.setString(4, plateNumber);
 			stmt.executeUpdate();
 			ResultSet rs = stmt.getGeneratedKeys();
 			if(rs.next()){
@@ -176,6 +180,7 @@ public class CustomerManager {
 				newCar = new Car(id);
 				newCar.makeModel = makeModel;
 				newCar.color = color;
+				newCar.plateNumber = plateNumber;
 			}
 			rs.close();
 			stmt.close();
@@ -210,6 +215,7 @@ public class CustomerManager {
 				Car newCar = new Car(id);
 				newCar.makeModel = rs.getString("make_model");
 				newCar.color = rs.getInt("color");
+				newCar.plateNumber = rs.getString("plate_number");
 				cars.add(newCar);
 			}
 			rs.close();

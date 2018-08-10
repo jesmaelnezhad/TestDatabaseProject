@@ -69,4 +69,9 @@ public class ParkTransaction {
 		result.put(Constants.STATUS, status==ParkTransactionStatus.OPEN? "open":"close");
 		return result;
 	}
+	
+	public static String getParkTransactionDescription(int id) {
+		// TODO: fetch the transaction and prepare a description of the parking event.
+		return "parking transaction";
+	}
 }

@@ -11,6 +11,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -83,13 +84,14 @@ public class SignUpServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		String username = (String) request.getAttribute(Constants.USERNAME);
-		String password = (String) request.getAttribute(Constants.PASSWORD);
-		String fname = (String) request.getAttribute(Constants.FIRST_NAME);
-		String lname = (String) request.getAttribute(Constants.LAST_NAME);
-		String cellphone = (String) request.getAttribute(Constants.CELL_PHONE);
-		String emailAddr = (String) request.getAttribute(Constants.EMAIL_ADDR);
-		int adsFlag = (Integer) request.getAttribute(Constants.ADS_FLAG);
+		String fname = (String) request.getParameter(Constants.FIRST_NAME);
+		String lname = (String) request.getParameter(Constants.LAST_NAME);
+		String cellphone = (String) request.getParameter(Constants.CELL_PHONE);
+		String emailAddr = (String) request.getParameter(Constants.EMAIL_ADDR);
+		
+		Part profileImagePart = request.getPart(Constants.PROFILE_IMAGE);
+		
+		int adsFlag = Integer.parseInt(request.getParameter(Constants.ADS_FLAG));
 
 		
 		
@@ -100,8 +102,8 @@ public class SignUpServlet extends HttpServlet {
 			CustomerManager.getCM().signOutCustomer(request);
 		}
 		
-		JSONObject result = CustomerManager.getCM().signUpCustomer(request, username, password, 
-				fname, lname, cellphone, emailAddr, adsFlag);
+		JSONObject result = CustomerManager.getCM().signUpCustomer(request,
+				fname, lname, cellphone, emailAddr, profileImagePart, adsFlag);
 		
 	      // Set response content type
 	    response.setContentType("text/html");

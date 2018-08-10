@@ -9,12 +9,22 @@
     credits: Double // avilable money in user wallet
     city: String
 }
+/************************************************************************/
+User should not have a city attribute. City depends on the search request.
+/************************************************************************/
 
 2. cars {GET} Authenticated
 {
     carName: String
     plateNumber: String 
 }
+
+/************************************************************************/
+Cars request is incomplete. We added plate_number to requests. But color and make/model is missing
+in these request definitions.
+Also, cars request must have the three add, edit, and getAll commands. getAll because a customer may 
+have more than one car.
+/************************************************************************/
 
 3. parkHistory {GET} Authenticated, must have pagination
 {
@@ -39,6 +49,10 @@
 Body {
     amount: Int "should be in Toman"
 }
+/************************************************************************/
+A new request named 'wallet' is added. Command 'topup' of this request is dedicated to this request.
+/************************************************************************/
+
 
 5. transactions {GET} Authenticated
 Response {
@@ -48,6 +62,12 @@ Response {
     description: String "کسر هزینه پارک در خیابان شریعتی"
     amount: String "۴۰۰۰ تومان"
 }
+/************************************************************************/
+The response should be an array.
+
+The command 'transactions' in the wallet request is responsible for this request.
+/************************************************************************/
+
 
 6. SearchAdress {POST}
 Body {

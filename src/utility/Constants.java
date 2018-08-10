@@ -10,12 +10,15 @@ package utility;
 public class Constants {
 
 	public static final String TRANSACTION_MANAGER = "transaction_manager";
-	public static final String USERNAME = "username";
-	public static final String PASSWORD = "password";
+	public static final String USER_PROFILE_IMAGES = "user_profile_images";
+	public static final String COMMAND_TOPUP = "topup";
+	public static final String COMMAND_WALLET_INFO = "wallet_info";
+	public static final String COMMAND_WALLET_TRANSACTIONS = "transactions";
 	public static final String FIRST_NAME = "fname";
 	public static final String LAST_NAME = "lname";
 	public static final String CELL_PHONE = "cellphone";
 	public static final String EMAIL_ADDR = "email_addr";
+	public static final String PROFILE_IMAGE = "profile_image";
 	public static final String ADS_FLAG = "ads_flag";
 	public static final String RADIUS = "radius";
 	public static final String CENTER_X = "center_x";
@@ -27,6 +30,7 @@ public class Constants {
 	public static final String CAR_ID = "car_id";
 	public static final String MAKE_MODEL = "make_model";
 	public static final String COLOR = "color";
+	public static final String PLATE_NUMBER = "plate_number";
 	public static final String CITY_ID = "city_id";
 	public static final String PARK_TIME = "park_time";
 	public static final String START_TIME = "start_time";

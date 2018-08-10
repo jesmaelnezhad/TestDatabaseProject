@@ -19,6 +19,7 @@ import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
 import rm.parking_structure.ParkingSpotContainer;
+import tm.WalletTransaction;
 import um.Customer;
 import um.CustomerManager;
 import utility.Constants;
@@ -27,15 +28,15 @@ import utility.Point;
 /**
  * Servlet implementation class SearchServlet
  */
-@WebServlet("/UserProfileServlet")
-public class UserProfileServlet extends HttpServlet {
+@WebServlet("/WalletServlet")
+public class WalletServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public UserProfileServlet() {
+    public WalletServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -81,15 +82,48 @@ public class UserProfileServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO: just check if customer is signed in. If so, return customer profile info.
-		
+		String command = request.getParameter("command");
+		if(command == null) {
+			JSONObject result = new JSONObject();
+			result.put("status", "unsuccessful");
+			result.put("message", "Command not given.");
+		    response.setContentType("text/html");
+		    PrintWriter out = response.getWriter();
+		    out.println(result.toJSONString());
+		    return;
+		}
 		
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
 		if(customer != null) {
-			JSONObject result = customer.getUserProfile();
+			JSONObject result = new JSONObject();;
+			if(command.equals(Constants.COMMAND_TOPUP)) {
+				
+				int amount = Integer.parseInt(request.getParameter("amount"));
+				if(command == null) {
+					result.put("status", "unsuccessful");
+					result.put("message", "Amount not given.");
+				    response.setContentType("text/html");
+				    PrintWriter out = response.getWriter();
+				    out.println(result.toJSONString());
+				    return;
+				}
+				
+				result = customer.topUp(amount);
+			}else if(command.equals(Constants.COMMAND_WALLET_INFO)) {
+				result = customer.getWalletInfo();
+			}else if(command.equals(Constants.COMMAND_WALLET_TRANSACTIONS)) {
+				JSONArray results = customer.getTransactionHistory();
+			    response.setContentType("text/html");
+			    PrintWriter out = response.getWriter();
+				
+			    out.println(results.toJSONString());
+			    return;
+			}
+			
 		    response.setContentType("text/html");
 		    PrintWriter out = response.getWriter();
 			
@@ -112,9 +146,9 @@ public class UserProfileServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		doGet(request, response);
+		doPost(request, response);
 	}
 
 //	/**

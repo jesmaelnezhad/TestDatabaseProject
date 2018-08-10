@@ -25,12 +25,11 @@ USE parking_system;
 CREATE TABLE IF NOT EXISTS customers
 (
 	id INT NOT NULL AUTO_INCREMENT,
-	username VARCHAR(100) NOT NULL,
-	password VARCHAR(100) NOT NULL,
 	fname VARCHAR(100) NOT NULL,
 	lname VARCHAR(100) NOT NULL,
 	cellphone VARCHAR(20) NOT NULL,
 	email_addr VARCHAR(100) NOT NULL,
+	profile_image VARCHAR(100) NOT NULL,
 	ads_flag TINYINT NOT NULL,
 	PRIMARY KEY(id)
 ) ENGINE=INNODB;
@@ -42,6 +41,7 @@ CREATE TABLE IF NOT EXISTS cars
 	customer_id INT NOT NULL,
 	make_model VARCHAR(50) NOT NULL,
 	color TINYINT NOT NULL,
+	plate_number VARCHAR(50) NOT NULL,
 	PRIMARY KEY(id),
 	FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
@@ -128,10 +128,22 @@ CREATE TABLE IF NOT EXISTS park_transactions
 ) ENGINE=INNODB;
 
 /*==== Transactions ====*/
-CREATE TABLE IF NOT EXISTS customer_wallet
+CREATE TABLE IF NOT EXISTS customer_wallets
 (
         customer_id INT NOT NULL,
         balance INT NOT NULL DEFAULT 0,
+        FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE
+) ENGINE=INNODB;
+
+CREATE TABLE IF NOT EXISTS wallet_transaction
+(
+		id INT NOT NULL AUTO_INCREMENT,
+        customer_id INT NOT NULL,
+        top_up INT NOT NULL,
+        transaction_date DATE NOT NULL,
+        description VARCHAR(100) NOT NULL,
+        amount INT NOT NULL DEFAULT 0,
+        PRIMARY KEY(id),
         FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
 
