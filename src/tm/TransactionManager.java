@@ -185,12 +185,14 @@ public class TransactionManager {
 	// saves it in data base.
 	public JSONObject saveSensorTransaction(int sensorId, int price, Time time) {
 		// TODO
+		return null;
 	}
 	
 	// TODO: calculates the price of parking at a spot (given with sensor) for a given timeLength.
 	// saves it in data base.
 	public JSONObject calcSensorPrice(int sensorId, int timeLength) {
 		// TODO
+		return null;
 	}
 	
 }

@@ -144,7 +144,7 @@ public class Customer {
 			return walletTransaction;
 			
 		}else {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_BALANCE_NOT_INFO);
+			return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_BALANCE_NOT_ENOUGH);
 		}
 	}
 	
