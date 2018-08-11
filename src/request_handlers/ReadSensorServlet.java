@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONObject;
 
+import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import um.Customer;
@@ -20,7 +21,7 @@ import utility.Constants;
 /**
  * Servlet implementation class ReadSensor
  */
-@WebServlet("/ReadSensor")
+@WebServlet("/ReadSensorServlet")
 public class ReadSensorServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -29,36 +30,22 @@ public class ReadSensorServlet extends HttpServlet {
      */
     public ReadSensorServlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		String sensorIdString = request.getParameter("id");
 		if(sensorIdString == null) {
-			JSONObject result = new JSONObject();
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "Sensor id is not given.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
+		    ResponseHelper.respondWithMessage(false, ResponseCode.SENSOR_ID_MISSING, response);
 		    return;
 		}
 		int sensorId = 0;
 		try {
 			sensorId = Integer.parseInt(sensorIdString);
 		}catch(NumberFormatException e) {
-			JSONObject result = new JSONObject();
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "Sensor id is invalid.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
+		    ResponseHelper.respondWithMessage(false, ResponseCode.SENSOR_ID_INVALID, response);
 		    return;
 		}
 		
@@ -69,27 +56,11 @@ public class ReadSensorServlet extends HttpServlet {
 		if(customer != null) {
 			city = customer.selected_city;
 		}else {
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			JSONObject result = new JSONObject();
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			result.put("status", "unsuccessful");
-			result.put("message", "customer not signed in.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
+			ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, response);
 		    return;
 		}
 		
-		
-		JSONObject result = 
-				rm.readSensor(city, sensorId);
-	    response.setContentType("text/html");
-	    PrintWriter out = response.getWriter();
-		
-	    out.println(result.toJSONString());
+		ResponseHelper.respondWithJSONObject(rm.readSensor(city, sensorId), response);
 	    return;
 	}
 

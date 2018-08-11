@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
@@ -31,51 +32,31 @@ import utility.Point;
 @WebServlet("/WalletServlet")
 public class WalletServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public WalletServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
+
+
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
+	public WalletServlet() {
+		super();
+	}
 
 	/**
 	 * @see Servlet#init(ServletConfig)
 	 */
 	public void init(ServletConfig config) throws ServletException {
-		// TODO Auto-generated method stub
 	}
 
 	/**
 	 * @see Servlet#destroy()
 	 */
 	public void destroy() {
-		// TODO Auto-generated method stub
 	}
-
-//	/**
-//	 * @see Servlet#getServletConfig()
-//	 */
-//	public ServletConfig getServletConfig() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	/**
-//	 * @see Servlet#getServletInfo()
-//	 */
-//	public String getServletInfo() {
-//		// TODO Auto-generated method stub
-//		return null; 
-//	}
 
 	/**
 	 * @see HttpServlet#service(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 
@@ -83,63 +64,36 @@ public class WalletServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO: just check if customer is signed in. If so, return customer profile info.
 		String command = request.getParameter("command");
 		if(command == null) {
-			JSONObject result = new JSONObject();
-			result.put("status", "unsuccessful");
-			result.put("message", "Command not given.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-		    out.println(result.toJSONString());
-		    return;
+			ResponseHelper.respondWithMessage(false, ResponseCode.COMMAND_MISSING, response);
+			return;
 		}
-		
+
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
-		
+
 		if(customer != null) {
-			JSONObject result = new JSONObject();;
 			if(command.equals(Constants.COMMAND_TOPUP)) {
-				
-				int amount = Integer.parseInt(request.getParameter("amount"));
-				if(command == null) {
-					result.put("status", "unsuccessful");
-					result.put("message", "Amount not given.");
-				    response.setContentType("text/html");
-				    PrintWriter out = response.getWriter();
-				    out.println(result.toJSONString());
-				    return;
+
+				if(request.getParameter("amount") == null) {
+					ResponseHelper.respondWithMessage(false, ResponseCode.AMOUNT_MISSING, response);
+					return;
 				}
-				
-				result = customer.topUp(amount);
+				int amount = Integer.parseInt(request.getParameter("amount"));
+
+				ResponseHelper.respondWithJSONObject(customer.topUp(amount), response);
+				return;
 			}else if(command.equals(Constants.COMMAND_WALLET_INFO)) {
-				result = customer.getWalletInfo();
+				ResponseHelper.respondWithJSONObject(customer.getWalletInfo(), response);
+				return;
 			}else if(command.equals(Constants.COMMAND_WALLET_TRANSACTIONS)) {
-				JSONArray results = customer.getTransactionHistory();
-			    response.setContentType("text/html");
-			    PrintWriter out = response.getWriter();
-				
-			    out.println(results.toJSONString());
-			    return;
+				ResponseHelper.respondWithJSONArray(customer.getTransactionHistory(), response);
+				return;
 			}
-			
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
-		    return;
 		}else {
-			JSONObject result = new JSONObject();
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			result.put("status", "unsuccessful");
-			result.put("message", "customer not signed in.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
-		    return;
+			ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, response);
+			return;
 		}
 	}
 
@@ -147,43 +101,7 @@ public class WalletServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doPost(request, response);
 	}
-
-//	/**
-//	 * @see HttpServlet#doPut(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doDelete(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doHead(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doOptions(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doTrace(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doTrace(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
 
 }

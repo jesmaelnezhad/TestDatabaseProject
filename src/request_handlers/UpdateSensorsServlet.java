@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONObject;
 
+import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import um.Customer;
@@ -21,7 +22,7 @@ import utility.Constants;
 /**
  * Servlet implementation class UpdateSensor
  */
-@WebServlet("/UpdateSensor")
+@WebServlet("/UpdateSensorServlet")
 public class UpdateSensorsServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -30,7 +31,6 @@ public class UpdateSensorsServlet extends HttpServlet {
      */
     public UpdateSensorsServlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	/**
@@ -44,26 +44,14 @@ public class UpdateSensorsServlet extends HttpServlet {
 		
 		if(sensorIdStrings == null || fullFlagStrings == null || 
 				lastTimeChangedStrings == null || lastTimeUpdatedStrings == null) {
-			JSONObject result = new JSONObject();
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "Four parallel arrays of id, fullFlag, lastTimeUpdated, and lastTimeChanged values must be given.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
+		    ResponseHelper.respondWithMessage(false, ResponseCode.UPDATE_SENSOR_INPUT_WRONG, response);
 		    return;
 		}
 		
 		if(sensorIdStrings.length != fullFlagStrings.length ||
 				sensorIdStrings.length != lastTimeChangedStrings.length ||	
 				sensorIdStrings.length != lastTimeUpdatedStrings.length ) {
-			JSONObject result = new JSONObject();
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "Arrays must have the same size.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
+			ResponseHelper.respondWithMessage(false, ResponseCode.UPDATE_SENSOR_INPUT_WRONG, response);
 		    return;
 		}
 		
@@ -95,26 +83,12 @@ public class UpdateSensorsServlet extends HttpServlet {
 		if(customer != null) {
 			city = customer.selected_city;
 		}else {
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			JSONObject result = new JSONObject();
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			result.put("status", "unsuccessful");
-			result.put("message", "customer not signed in.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
+			ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, response);
 		    return;
 		}
 		
-		JSONObject result = 
-				rm.updateSensors(city, sensorIds, fullFlags, lastChangedTimes, lastUpdatedTimes);
-	    response.setContentType("text/html");
-	    PrintWriter out = response.getWriter();
-		
-	    out.println(result.toJSONString());
+	    ResponseHelper.respondWithJSONObject(
+	    		rm.updateSensors(city, sensorIds, fullFlags, lastChangedTimes, lastUpdatedTimes) , response);
 	    return;
 		
 	}

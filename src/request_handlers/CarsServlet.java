@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
@@ -28,7 +29,7 @@ import utility.Point;
 /**
  * Servlet implementation class SearchServlet
  */
-@WebServlet("/SearchServlet")
+@WebServlet("/CarsServlet")
 public class CarsServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
@@ -38,44 +39,26 @@ public class CarsServlet extends HttpServlet {
      */
     public CarsServlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	/**
 	 * @see Servlet#init(ServletConfig)
 	 */
 	public void init(ServletConfig config) throws ServletException {
-		// TODO Auto-generated method stub
 	}
 
 	/**
 	 * @see Servlet#destroy()
 	 */
 	public void destroy() {
-		// TODO Auto-generated method stub
 	}
 
-//	/**
-//	 * @see Servlet#getServletConfig()
-//	 */
-//	public ServletConfig getServletConfig() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	/**
-//	 * @see Servlet#getServletInfo()
-//	 */
-//	public String getServletInfo() {
-//		// TODO Auto-generated method stub
-//		return null; 
-//	}
+
 
 	/**
 	 * @see HttpServlet#service(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 
@@ -83,9 +66,12 @@ public class CarsServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO: just check if customer is signed in. If so, return customer profile info.
+
 		String command = (String) request.getSession().getAttribute(Constants.COMMAND);
-		
+		if(command == null) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.COMMAND_MISSING, response);
+			return;
+		}
 		
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
@@ -94,15 +80,7 @@ public class CarsServlet extends HttpServlet {
 		if(customer != null) {
 			city = customer.selected_city;
 		}else {
-			JSONObject result = new JSONObject();
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			result.put("status", "unsuccessful");
-			result.put("message", "customer not signed in.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
+			ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, response);
 		    return;
 		}
 		
@@ -113,87 +91,50 @@ public class CarsServlet extends HttpServlet {
 			int color = Integer.parseInt(request.getParameter(Constants.COLOR));
 			String plateNumber = request.getParameter(Constants.PLATE_NUMBER);
 			Car newCar = CustomerManager.getCM().insertNewCar(customer, makeModel, color, plateNumber);
-			result = newCar.getJSON();
+			if(newCar == null) {
+				result = ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+			}else {
+				result = newCar.getJSON();
+			}
 		}else if(Constants.COMMAND_EDIT.equals(command)) {
 			int id = Integer.parseInt(request.getParameter("id"));
 			String makeModel = request.getParameter(Constants.MAKE_MODEL);
 			int color = Integer.parseInt(request.getParameter(Constants.COLOR));
 			String plateNumber = request.getParameter(Constants.PLATE_NUMBER);
+			//NOTE: the existance of these parameters is not checked because it's assumed 
+			//      this request is only used by the app in correct format.
+			
 			Car car = new Car(id);
 			car.makeModel = makeModel;
 			car.color = color;
 			car.plateNumber = plateNumber;
 			Car editedCar = CustomerManager.getCM().editCar(car);
 			if(editedCar == null) {
-				result.put("status", "unsuccessful");
-				result.put("message", "Car id not found.");
+				result = ResponseHelper.respondWithMessage(false, ResponseCode.CAR_ID_NOT_FOUND);
+			}else {
+				result = editedCar.getJSON();
 			}
-			result = car.getJSON();
 		}else if(Constants.COMMAND_GET_ALL.equals(command)) {
 			List<Car> cars = CustomerManager.getCM().fetchAllCars(customer);
 			JSONArray results = new JSONArray();
 			for(Car car : cars) {
 				results.add(car.getJSON());
 			}
-		      // Set response content type
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(results.toJSONString());
+		    
+			ResponseHelper.respondWithJSONArray(results, response);
 		    return;
 		}else {
-			result.put("status", "unsuccessful");
-			result.put("message", "command not recognized.");
+			result = ResponseHelper.respondWithMessage(false, ResponseCode.COMMAND_NOT_RECOGNIZED);
 		}
 		
-	      // Set response content type
-	    response.setContentType("text/html");
-	    PrintWriter out = response.getWriter();
-		
-	    out.println(result.toJSONString());
+	    ResponseHelper.respondWithJSONObject(result, response);
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
-
-//	/**
-//	 * @see HttpServlet#doPut(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doDelete(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doHead(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doOptions(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doTrace(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doTrace(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
 
 }

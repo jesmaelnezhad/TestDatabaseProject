@@ -17,6 +17,8 @@ import javax.servlet.http.Part;
 
 import org.json.simple.JSONObject;
 
+import request_handlers.ResponseConstants.ResponseCode;
+import request_handlers.ResponseHelper;
 import utility.Constants;
 import utility.DBManager;
 import utility.Photo;
@@ -62,19 +64,13 @@ public class CustomerManager {
 		Customer newCustomer = insertNewCustomer(fname, 
 				lname, cellphone, emailAddr, profileImage.getName(), adsFlag);
 		if(newCustomer == null) {
-			JSONObject result = new JSONObject();
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "Customer exists.");
-			return result;
+			return ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_EXISTS);
 		}
 		
 		try {
 			Photo.savePhoto(Constants.USER_PROFILE_IMAGES, newCustomer.id, profileImage, request.getServletContext());
 		}catch(IOException e) {
-			JSONObject result = new JSONObject();
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "Image could not be saved.");
-			return result;	
+			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
 		}
 		
 		request.setAttribute(Constants.SIGNED_IN_CUSTOMER, newCustomer);

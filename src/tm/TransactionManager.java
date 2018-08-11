@@ -73,7 +73,6 @@ public class TransactionManager {
 					segmentId, spotId, startTime, timeLength, rateId, 
 					ParkTransactionStatus.OPEN);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

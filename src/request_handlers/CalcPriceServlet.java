@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONObject;
 
+import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
@@ -26,14 +27,14 @@ import utility.Constants;
 @WebServlet("/CalcPriceServlet")
 public class CalcPriceServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public CalcPriceServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
+
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
+	public CalcPriceServlet() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
 	/**
 	 * @see Servlet#init(ServletConfig)
@@ -61,58 +62,44 @@ public class CalcPriceServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(request.getAttribute(Constants.SECTOR_ID) == null) {
-			JSONObject result = new JSONObject();
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "sector id must be given.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
-		    return;
+			ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_MISSING, response);
+			return;
 		}
 		if(request.getAttribute(Constants.SEGMENT_ID) == null) {
-			JSONObject result = new JSONObject();
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "segment id must be given.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
-		    return;
+			ResponseHelper.respondWithMessage(false, ResponseCode.SEGMENT_ID_MISSING, response);
+			return;
 		}
-		
-		int sectorId = (Integer) request.getAttribute(Constants.SECTOR_ID);
-		int segmentId = (Integer) request.getAttribute(Constants.SEGMENT_ID);
-		int rateId = (Integer) request.getAttribute(Constants.RATE_ID);
-		int parkTime = (Integer) request.getAttribute(Constants.PARK_TIME);
-		
+		if(request.getAttribute(Constants.RATE_ID) == null) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.RATE_ID_MISSING, response);
+			return;
+		}
+		if(request.getAttribute(Constants.PARK_TIME) == null) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.PARK_TIME_MISSING, response);
+			return;
+		}
+
+		int sectorId = Integer.parseInt(request.getParameter(Constants.SECTOR_ID));
+		int segmentId = Integer.parseInt(request.getParameter(Constants.SEGMENT_ID));
+		int rateId = Integer.parseInt(request.getParameter(Constants.RATE_ID));
+		int parkTime = Integer.parseInt(request.getParameter(Constants.PARK_TIME));
+
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
-		
+
 		City city = null;
 		if(customer != null) {
 			city = customer.selected_city;
 		}else {
 			// TODO if customer is null city will not be known.
 			// TODO : redirect to use authentication
-			JSONObject result = new JSONObject();
 			// TODO if customer is null city will not be known.
 			// TODO : redirect to use authentication
-			result.put("status", "unsuccessful");
-			result.put("message", "customer not signed in.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
-		    return;
+			ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, response);
+			return;
 		}
 
-		JSONObject result = rm.calculatePrice(city, sectorId, segmentId, rateId, parkTime);
-	      // Set response content type
-	    response.setContentType("text/html");
-	    PrintWriter out = response.getWriter();
-		
-	    out.println(result.toJSONString());
+		ResponseHelper.respondWithJSONObject(
+				rm.calculatePrice(city, sectorId, segmentId, rateId, parkTime), response);
 	}
 
 	/**

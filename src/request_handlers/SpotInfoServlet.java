@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONObject;
 
+import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
@@ -31,28 +32,24 @@ public class SpotInfoServlet extends HttpServlet {
      */
     public SpotInfoServlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	/**
 	 * @see Servlet#init(ServletConfig)
 	 */
 	public void init(ServletConfig config) throws ServletException {
-		// TODO Auto-generated method stub
 	}
 
 	/**
 	 * @see Servlet#destroy()
 	 */
 	public void destroy() {
-		// TODO Auto-generated method stub
 	}
 
 	/**
 	 * @see HttpServlet#service(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 	}
 
 	/**
@@ -60,24 +57,18 @@ public class SpotInfoServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		if(request.getAttribute(Constants.SECTOR_ID) == null) {
-			JSONObject result = new JSONObject();
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "sector id must be given.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
+		if(request.getParameter(Constants.SECTOR_ID) == null) {
+		    ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_MISSING, response);
 		    return;
 		}
-		int sectorId = (Integer) request.getAttribute(Constants.SECTOR_ID);
+		int sectorId = Integer.parseInt(request.getParameter(Constants.SECTOR_ID));
 		int segmentId = -1;
-		if(request.getAttribute(Constants.SEGMENT_ID) != null) {
-			segmentId = (Integer) request.getAttribute(Constants.SEGMENT_ID);
+		if(request.getParameter(Constants.SEGMENT_ID) != null) {
+			segmentId = Integer.parseInt(request.getParameter(Constants.SEGMENT_ID));
 		}
 		int spotId = -1;
-		if(request.getAttribute(Constants.SPOT_ID) != null) {
-			spotId = (Integer) request.getAttribute(Constants.SPOT_ID);
+		if(request.getParameter(Constants.SPOT_ID) != null) {
+			spotId = Integer.parseInt(request.getParameter(Constants.SPOT_ID));
 		}
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
@@ -86,32 +77,17 @@ public class SpotInfoServlet extends HttpServlet {
 		if(customer != null) {
 			city = customer.selected_city;
 		}else {
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			JSONObject result = new JSONObject();
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "customer not signed in.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
+		    ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, response);
 		    return;
 		}
 
-		JSONObject result = rm.getInfo(city, sectorId, segmentId, spotId);
-	      // Set response content type
-	    response.setContentType("text/html");
-	    PrintWriter out = response.getWriter();
-		
-	    out.println(result.toJSONString());
-		
+	    ResponseHelper.respondWithJSONObject(rm.getInfo(city, sectorId, segmentId, spotId) , response);
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 
