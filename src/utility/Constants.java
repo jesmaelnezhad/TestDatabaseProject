@@ -41,6 +41,7 @@ public class Constants {
 	public static final String SPOT = "spot";
 	public static final String STATUS = "status";
 	public static final String MESSAGE = "message";
+	public static final String MESSAGE_CODE = "message_code";
 	public static final String ON_GOING = "on_going";
 	public static final String COMMAND = "command";
 	public static final String COMMAND_ADD = "add";
@@ -54,4 +55,9 @@ public class Constants {
 	public static final String SENSOR_ID = "sensor_id";
 	public static final String price = "price";
 	public static final String time = "time";
+	public static final String RESOURCE = "resource";
+	public static final String PAYMENT = "payment";
+	public static final String SEGMENTS = "segments";
+	public static final String AMOUNT = "amount";
+	public static final String BALANCE = "balance";
 }

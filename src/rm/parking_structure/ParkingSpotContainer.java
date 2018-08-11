@@ -13,7 +13,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-
+import request_handlers.ResponseHelper;
+import request_handlers.ResponseConstants.ResponseCode;
 import rm.PriceRate;
 import rm.basestations.Sensor;
 import rm.basestations.SensorId;
@@ -64,7 +65,7 @@ public class ParkingSpotContainer {
 					// unlock segment
 					segmentLock.unlock();
 				}
-				sectorJSONObj.put("segments", sectorSegments);
+				sectorJSONObj.put(Constants.SEGMENTS, sectorSegments);
 				result.add(sectorJSONObj);
 				/////////
 				// unlock sector
@@ -78,8 +79,7 @@ public class ParkingSpotContainer {
 	public JSONObject getInfo(int sectorId, int segmentId, int spotId) {
 		Sector sector = sectorIndex.get(sectorId);
 		if(sector == null) { 
-			// TODO: there is something wrong. sectorId isn't valid.
-			return new JSONObject();
+			return ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_INVALID);
 		}
 
 		// lock S on sector
@@ -99,6 +99,7 @@ public class ParkingSpotContainer {
 			/////////
 			// unlock sector
 			sectorLock.unlock();
+			sectorJSONObj = ResponseHelper.respondWithMessage(sectorJSONObj, false, ResponseCode.SEGMENT_ID_INVALID);
 			return sectorJSONObj;
 		}
 		// read segments' info
@@ -114,6 +115,7 @@ public class ParkingSpotContainer {
 			segmentLock.unlock();
 			// unlock sector
 			sectorLock.unlock();
+			sectorJSONObj = ResponseHelper.respondWithMessage(sectorJSONObj, false, ResponseCode.SPOT_ID_INVALID);
 			return sectorJSONObj;
 		}
 		// read segments' info
@@ -228,16 +230,14 @@ public class ParkingSpotContainer {
 
 	// Get the information of a sector, segment, and|or a spot
 	public JSONObject rentSpot(int sectorId, int segmentId) {
-
-		JSONObject transactionJSONObj = new JSONObject();
 		
 		Sector sector = sectorIndex.get(sectorId);
 		if(sector == null) { 
 			// TODO: there is something wrong. sectorId isn't valid.
-			transactionJSONObj.put("status", "unsuccessful");
-			transactionJSONObj.put("message", "sector id invalid.");
-			return transactionJSONObj;
+			return ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_INVALID);
 		}
+
+		JSONObject transactionJSONObj = new JSONObject();
 
 		// lock S on sector
 		WriteLock sectorLock = sector.lock.writeLock();
@@ -251,9 +251,8 @@ public class ParkingSpotContainer {
 			/////////
 			// unlock sector
 			sectorLock.unlock();
-			transactionJSONObj.put("status", "unsuccessful");
-			transactionJSONObj.put("message", "segment id invalid.");
-			return transactionJSONObj;
+			return ResponseHelper.respondWithMessage(transactionJSONObj, 
+					false, ResponseCode.SEGMENT_ID_INVALID);
 		}
 		WriteLock segmentLock = segment.lock.writeLock();
 		///////// segment is safe for read ////////
@@ -273,7 +272,7 @@ public class ParkingSpotContainer {
 				// record the change in DB
 				ParkingSpot.updateDB(spot);
 				
-				transactionJSONObj.put("status", "successful");
+				transactionJSONObj = ResponseHelper.respondWithStatus(transactionJSONObj, true);
 				/////////
 				// unlock the spot
 				lock.unlock();
@@ -295,9 +294,8 @@ public class ParkingSpotContainer {
 		/////////
 		// unlock sector
 		sectorLock.unlock();
-		transactionJSONObj.put("status", "unsuccessful");
-		transactionJSONObj.put("message", "Segment capacity is full.");
-		return transactionJSONObj;
+		return ResponseHelper.respondWithMessage(transactionJSONObj, 
+				false, ResponseCode.SEGMENT_CAPACITY_FULL);
 	}
 	
 	// returns null if sectorId is not found
@@ -423,9 +421,7 @@ public class ParkingSpotContainer {
 		SensorId id = SensorId.toSensorId(sensorId);
 		Sensor s = citySensors.get(id);
 		if(s == null) {
-			result.put("status", "unsuccessful");
-			result.put("sensor_not_found", sensorId);
-			return result;
+			return ResponseHelper.respondWithMessage(false, ResponseCode.SENSOR_ID_INVALID);
 		}
 		return s.read().toJSON();
 	}

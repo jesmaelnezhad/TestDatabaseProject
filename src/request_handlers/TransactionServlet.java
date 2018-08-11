@@ -31,7 +31,6 @@ public class TransactionServlet extends HttpServlet {
      */
     public TransactionServlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	/**

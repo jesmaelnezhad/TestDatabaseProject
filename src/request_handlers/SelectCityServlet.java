@@ -14,7 +14,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.omg.CORBA.portable.ResponseHandler;
 
+import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
@@ -27,7 +29,7 @@ import utility.Point;
 /**
  * Servlet implementation class SearchServlet
  */
-@WebServlet("/SearchServlet")
+@WebServlet("/SelectCityServlet")
 public class SelectCityServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
@@ -37,44 +39,24 @@ public class SelectCityServlet extends HttpServlet {
      */
     public SelectCityServlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	/**
 	 * @see Servlet#init(ServletConfig)
 	 */
 	public void init(ServletConfig config) throws ServletException {
-		// TODO Auto-generated method stub
 	}
 
 	/**
 	 * @see Servlet#destroy()
 	 */
 	public void destroy() {
-		// TODO Auto-generated method stub
 	}
-
-//	/**
-//	 * @see Servlet#getServletConfig()
-//	 */
-//	public ServletConfig getServletConfig() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	/**
-//	 * @see Servlet#getServletInfo()
-//	 */
-//	public String getServletInfo() {
-//		// TODO Auto-generated method stub
-//		return null; 
-//	}
 
 	/**
 	 * @see HttpServlet#service(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 
@@ -82,8 +64,7 @@ public class SelectCityServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		int cityId = (Integer) request.getAttribute(Constants.CITY_ID);
+		int cityId = Integer.parseInt(request.getParameter(Constants.CITY_ID));
 		
 		
 		ResourceManager rm = ResourceManager.getRM();
@@ -92,34 +73,19 @@ public class SelectCityServlet extends HttpServlet {
 		if(customer != null) {
 			customer.selected_city = rm.loadCity(cityId);
 			if(customer.selected_city == null) {
-				JSONObject result = new JSONObject();
-				result.put(Constants.STATUS, "unsuccessful");
-				result.put(Constants.MESSAGE, "city id not found.");
-			    response.setContentType("text/html");
-			    PrintWriter out = response.getWriter();
-				
-			    out.println(result.toJSONString());
+				ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND, response);
 			    return;
 			}else {
 				JSONObject result = new JSONObject();
 				result.put(Constants.STATUS, "successful");
-				result.put(Constants.MESSAGE, "city "+customer.selected_city.name+" was selected.");
+				result.put(Constants.MESSAGE, "شهر "+customer.selected_city.name+" انتخاب شده است.");
 			    response.setContentType("text/html");
 			    PrintWriter out = response.getWriter();
-				
 			    out.println(result.toJSONString());
 			    return;
 			}
 		}else {
-			JSONObject result = new JSONObject();
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			result.put("status", "unsuccessful");
-			result.put("message", "customer not signed in.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
+			ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, response);
 		    return;
 		}
 	}
@@ -128,43 +94,6 @@ public class SelectCityServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
-
-//	/**
-//	 * @see HttpServlet#doPut(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doDelete(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doHead(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doOptions(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doTrace(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doTrace(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-
 }

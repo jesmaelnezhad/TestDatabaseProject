@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONObject;
 
+import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
@@ -23,7 +24,7 @@ import utility.Constants;
 /**
  * Servlet implementation class CalcPriceServlet
  */
-@WebServlet("/CalcPriceServlet")
+@WebServlet("/RentSpotServlet")
 public class RentSpotServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -32,28 +33,24 @@ public class RentSpotServlet extends HttpServlet {
      */
     public RentSpotServlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	/**
 	 * @see Servlet#init(ServletConfig)
 	 */
 	public void init(ServletConfig config) throws ServletException {
-		// TODO Auto-generated method stub
 	}
 
 	/**
 	 * @see Servlet#destroy()
 	 */
 	public void destroy() {
-		// TODO Auto-generated method stub
 	}
 
 	/**
 	 * @see HttpServlet#service(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 	}
 
 	/**
@@ -61,23 +58,23 @@ public class RentSpotServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(request.getParameter(Constants.SECTOR_ID) == null) {
-			JSONObject result = new JSONObject();
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "sector id must be given.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
+		    ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_MISSING, response);
 		    return;
 		}
 		if(request.getParameter(Constants.SEGMENT_ID) == null) {
-			JSONObject result = new JSONObject();
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "segment id must be given.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
+			ResponseHelper.respondWithMessage(false, ResponseCode.SEGMENT_ID_MISSING, response);
+		    return;
+		}
+		if(request.getParameter(Constants.CAR_ID) == null) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.CAR_ID_MISSING, response);
+		    return;
+		}
+		if(request.getParameter(Constants.RATE_ID) == null) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.RATE_ID_MISSING, response);
+		    return;
+		}
+		if(request.getParameter(Constants.PARK_TIME) == null) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.PARK_TIME_MISSING, response);
 		    return;
 		}
 		
@@ -94,26 +91,12 @@ public class RentSpotServlet extends HttpServlet {
 		if(customer != null) {
 			city = customer.selected_city;
 		}else {
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			JSONObject result = new JSONObject();
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "customer not signed in.");
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-			
-		    out.println(result.toJSONString());
+			ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND, response);
 		    return;
 		}
 
-		JSONObject result = rm.rentSpot(customer, city, sectorId, segmentId, carId, rateId, parkTime);
-	      // Set response content type
-	    response.setContentType("text/html");
-	    PrintWriter out = response.getWriter();
-		
-	    out.println(result.toJSONString());
+	    ResponseHelper.respondWithJSONObject(
+	    		rm.rentSpot(customer, city, sectorId, segmentId, carId, rateId, parkTime), response);
 	}
 
 	/**

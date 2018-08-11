@@ -13,6 +13,8 @@ import java.util.Map;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import request_handlers.ResponseConstants.ResponseCode;
+import request_handlers.ResponseHelper;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
 import rm.parking_structure.ParkingSpotContainer;
@@ -57,23 +59,18 @@ public class ResourceManager {
 	
 	public JSONObject rentSpot(Customer customer, City city, int sectorId, int segmentId, int carId, int rateId, int time) {
 		
-		JSONObject result = new JSONObject();
 		
 		ParkingSpotContainer container = citySpots.get(city);
 		if(container == null) {
 			// TODO: city must be loaded from database or city is wrong
 			// currently, we just return an empty result
 			// prepare output
-			result.put("status", "unsuccessful");
-			result.put("message", "City not found.");
-			return result;
+			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
 		}
 		JSONObject spotInfoJSONObj = container.rentSpot(sectorId, segmentId);
 		if(spotInfoJSONObj == null || 
-				((String)spotInfoJSONObj.get("status")).equals("unsuccessful")) {
-			result.put("status", "unsuccessful");
-			result.put("message", "City not found.");
-			return result;
+				((String)spotInfoJSONObj.get(Constants.STATUS)).equals("unsuccessful")) {
+			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
 		}
 		// price
 		// read price rates
@@ -101,44 +98,42 @@ public class ResourceManager {
 			// release the spot
 			int spotId = (Integer)spotInfoJSONObj.get(Constants.SPOT_ID);
 			container.freeSpot(sectorId, segmentId, spotId);
-			// prepare output
-			result.put("status", "unsuccessful");
-			result.put("message", "");
-			return result;
+
+			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
 		}
 		
 		JSONObject walletTransaction = customer.pay(calculatedPrice, transaction.id);
 		
 		if(walletTransaction == null || 
-				((String)walletTransaction.get("status")).equals("unsuccessful")) {
+				((String)walletTransaction.get(Constants.STATUS)).equals("unsuccessful")) {
 			// delete park transaction
 			tm.deleteParkTransaction(transaction.id);
 			// release the spot
 			int spotId = (Integer)spotInfoJSONObj.get(Constants.SPOT_ID);
 			container.freeSpot(sectorId, segmentId, spotId);
 			// prepare output
-			result.put("status", "unsuccessful");
-			result.put("message", "Payment not successful.");
-			return result;
+			if(walletTransaction == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.PAYMENT_NOT_SUCCESSFUL);
+			}else {
+				return walletTransaction;
+			}
 		}
 		
-		result.put("resource", spotInfoJSONObj);
-		result.put("payment", walletTransaction);
+		JSONObject result = new JSONObject();
+		result.put(Constants.RESOURCE, spotInfoJSONObj);
+		result.put(Constants.PAYMENT, walletTransaction);
 		
 		return result;
 	}
 	
 	public JSONObject calculatePrice(City city, int sectorId, int segmentId, int rateId, int time) {
 		
-		JSONObject result = new JSONObject();
 		
 		ParkingSpotContainer container = citySpots.get(city);
 		if(container == null) {
 			// TODO: city must be loaded from database or city is wrong
 			// currently, we just return an empty result
-			result.put("status", "unsuccessful");
-			result.put("message", "City not found.");
-			return result;
+			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
 		}
 		return container.calculatePrice(sectorId, segmentId, rateId, time);
 	}
@@ -191,30 +186,20 @@ public class ResourceManager {
 	public JSONObject updateSensors(City city, 
 			int[] sensorIds, boolean[] fullFlags, 
 			Time[] lastTimeChanged, Time[] lastTimeUpdated) {
-		JSONObject result = new JSONObject();
-		
 		ParkingSpotContainer container = citySpots.get(city);
 		
 		if(container == null) {
-			result.put("status", "unsuccessful");
-			result.put("message", "City not found.");
-			return result;
+			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
 		}
 		
 		return container.updateSensors(sensorIds, fullFlags, lastTimeChanged, lastTimeUpdated);
 	}
 	
 	public JSONObject readSensor(City city, int sensorId) {
-		JSONObject result = new JSONObject();
-		
 		ParkingSpotContainer container = citySpots.get(city);
-		
 		if(container == null) {
-			result.put("status", "unsuccessful");
-			result.put("message", "City not found.");
-			return result;
+			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
 		}
-		
 		return container.readSensor(sensorId);
 	}
 	

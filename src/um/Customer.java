@@ -11,6 +11,8 @@ import java.util.List;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import request_handlers.ResponseHelper;
+import request_handlers.ResponseConstants.ResponseCode;
 import rm.parking_structure.City;
 import tm.ParkTransaction;
 import tm.Wallet;
@@ -48,13 +50,10 @@ public class Customer {
 	public JSONObject getWalletInfo() {
 		Wallet wallet = Wallet.fetchWallet(this);
 		if(wallet == null) {
-			JSONObject walletTransaction = new JSONObject();
-			walletTransaction.put("status", "unsuccessful");
-			walletTransaction.put("message", "Wallet not found.");
-			return walletTransaction;			
+			return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_NOT_FOUND);			
 		}	
 		JSONObject walletTransaction = new JSONObject();
-		walletTransaction.put("balance", wallet.balance);
+		walletTransaction.put(Constants.BALANCE, wallet.balance);
 		return walletTransaction;
 	}
 	
@@ -74,28 +73,19 @@ public class Customer {
 	
 	public JSONObject topUp(int price) {
 		if(price <= 0) {
-			JSONObject walletTransaction = new JSONObject();
-			walletTransaction.put("status", "unsuccessful");
-			walletTransaction.put("message", "TopUp value not valid.");
-			return walletTransaction;			
+			return ResponseHelper.respondWithMessage(false, ResponseCode.TOPUP_VALUE_INVALID);
 		}		
 		
 		Wallet wallet = Wallet.fetchWallet(this);
 		if(wallet == null) {
-			JSONObject walletTransaction = new JSONObject();
-			walletTransaction.put("status", "unsuccessful");
-			walletTransaction.put("message", "Wallet not found.");
-			return walletTransaction;			
+			return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_NOT_FOUND);		
 		}
 		
 		// 1. add money to the wallet and update the wallet
 		wallet.balance += price;
 		boolean result = wallet.save();
 		if(! result) {
-			JSONObject walletTransaction = new JSONObject();
-			walletTransaction.put("status", "unsuccessful");
-			walletTransaction.put("message", "Wallet not working.");
-			return walletTransaction;	
+			return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_NOT_WORKING);
 		}
 		// 2. record a wallet transaction
 		Calendar currenttime = Calendar.getInstance();
@@ -106,22 +96,16 @@ public class Customer {
 			wallet.balance -= price;
 			result = wallet.save();
 			if(! result) {
-				JSONObject walletTransaction = new JSONObject();
-				walletTransaction.put("status", "unsuccessful");
-				walletTransaction.put("message", "Wallet info not consistent.");
-				return walletTransaction;	
+				return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_INFO_NOT_CONSISTENT);	
 			}
-			JSONObject walletTransaction = new JSONObject();
-			walletTransaction.put("status", "unsuccessful");
-			walletTransaction.put("message", "Wallet transaction cannot be saved.");
-			return walletTransaction;	
+			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
 		}
 		// 3. report the result out of the function
 		JSONObject walletTransaction = new JSONObject();
 		walletTransaction.put("transaction_id", transaction.id);
-		walletTransaction.put("status", "successful");
-		walletTransaction.put("amount", price);
-		walletTransaction.put("balance", wallet.balance);
+		walletTransaction.put(Constants.STATUS, "successful");
+		walletTransaction.put(Constants.AMOUNT, price);
+		walletTransaction.put(Constants.BALANCE, wallet.balance);
 		return walletTransaction;
 	}
 	
@@ -129,10 +113,7 @@ public class Customer {
 		
 		Wallet wallet = Wallet.fetchWallet(this);
 		if(wallet == null) {
-			JSONObject walletTransaction = new JSONObject();
-			walletTransaction.put("status", "unsuccessful");
-			walletTransaction.put("message", "Wallet not found.");
-			return walletTransaction;			
+			return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_NOT_FOUND);
 		}
 		
 		if(wallet.balance >= price) {
@@ -140,10 +121,7 @@ public class Customer {
 			wallet.balance -= price;
 			boolean result = wallet.save();
 			if(! result) {
-				JSONObject walletTransaction = new JSONObject();
-				walletTransaction.put("status", "unsuccessful");
-				walletTransaction.put("message", "Wallet not working.");
-				return walletTransaction;	
+				return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_NOT_WORKING);
 			}
 			// 2. record a wallet transaction
 			Calendar currenttime = Calendar.getInstance();
@@ -154,28 +132,19 @@ public class Customer {
 				wallet.balance += price;
 				result = wallet.save();
 				if(! result) {
-					JSONObject walletTransaction = new JSONObject();
-					walletTransaction.put("status", "unsuccessful");
-					walletTransaction.put("message", "Wallet info not consistent.");
-					return walletTransaction;	
+					return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_INFO_NOT_CONSISTENT);
 				}
-				JSONObject walletTransaction = new JSONObject();
-				walletTransaction.put("status", "unsuccessful");
-				walletTransaction.put("message", "Wallet transaction cannot be saved.");
-				return walletTransaction;	
+				return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
 			}
 			// 3. report the result out of the function
 			JSONObject walletTransaction = new JSONObject();
 			walletTransaction.put("transaction_id", transaction.id);
-			walletTransaction.put("status", "successful");
-			walletTransaction.put("price", price);
+			walletTransaction.put(Constants.STATUS, "successful");
+			walletTransaction.put(Constants.price, price);
 			return walletTransaction;
 			
 		}else {
-			JSONObject walletTransaction = new JSONObject();
-			walletTransaction.put("status", "unsuccessful");
-			walletTransaction.put("message", "Wallet balance not enough.");
-			return walletTransaction;
+			return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_BALANCE_NOT_INFO);
 		}
 	}
 	

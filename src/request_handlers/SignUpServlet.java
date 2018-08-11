@@ -16,6 +16,7 @@ import javax.servlet.http.Part;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
@@ -28,7 +29,7 @@ import utility.Point;
 /**
  * Servlet implementation class SearchServlet
  */
-@WebServlet("/SearchServlet")
+@WebServlet("/SignUpServlet")
 public class SignUpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
@@ -38,44 +39,24 @@ public class SignUpServlet extends HttpServlet {
      */
     public SignUpServlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	/**
 	 * @see Servlet#init(ServletConfig)
 	 */
 	public void init(ServletConfig config) throws ServletException {
-		// TODO Auto-generated method stub
 	}
 
 	/**
 	 * @see Servlet#destroy()
 	 */
 	public void destroy() {
-		// TODO Auto-generated method stub
 	}
-
-//	/**
-//	 * @see Servlet#getServletConfig()
-//	 */
-//	public ServletConfig getServletConfig() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	/**
-//	 * @see Servlet#getServletInfo()
-//	 */
-//	public String getServletInfo() {
-//		// TODO Auto-generated method stub
-//		return null; 
-//	}
 
 	/**
 	 * @see HttpServlet#service(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 
@@ -83,15 +64,25 @@ public class SignUpServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+
+		if(request.getParameter(Constants.FIRST_NAME) == null ||
+				request.getParameter(Constants.LAST_NAME) == null ||
+				request.getParameter(Constants.CELL_PHONE) == null ||
+				request.getParameter(Constants.EMAIL_ADDR) == null ||
+				request.getPart(Constants.PROFILE_IMAGE) == null || 
+				request.getParameter(Constants.ADS_FLAG) == null) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.INPUT_INFO_INCOMPLETE, response);
+			return;
+		}
+		
 		String fname = (String) request.getParameter(Constants.FIRST_NAME);
 		String lname = (String) request.getParameter(Constants.LAST_NAME);
 		String cellphone = (String) request.getParameter(Constants.CELL_PHONE);
 		String emailAddr = (String) request.getParameter(Constants.EMAIL_ADDR);
-		
 		Part profileImagePart = request.getPart(Constants.PROFILE_IMAGE);
-		
 		int adsFlag = Integer.parseInt(request.getParameter(Constants.ADS_FLAG));
+		
+
 
 		
 		
@@ -102,57 +93,15 @@ public class SignUpServlet extends HttpServlet {
 			CustomerManager.getCM().signOutCustomer(request);
 		}
 		
-		JSONObject result = CustomerManager.getCM().signUpCustomer(request,
-				fname, lname, cellphone, emailAddr, profileImagePart, adsFlag);
-		
-	      // Set response content type
-	    response.setContentType("text/html");
-	    PrintWriter out = response.getWriter();
-		
-	    out.println(result.toJSONString());
+	    ResponseHelper.respondWithJSONObject(CustomerManager.getCM().signUpCustomer(request,
+				fname, lname, cellphone, emailAddr, profileImagePart, adsFlag), response);
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
-
-//	/**
-//	 * @see HttpServlet#doPut(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doDelete(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doHead(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doOptions(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
-//
-//	/**
-//	 * @see HttpServlet#doTrace(HttpServletRequest, HttpServletResponse)
-//	 */
-//	protected void doTrace(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		// TODO Auto-generated method stub
-//	}
 
 }
