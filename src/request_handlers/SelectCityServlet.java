@@ -70,24 +70,20 @@ public class SelectCityServlet extends HttpServlet {
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
-		if(customer != null) {
-			customer.selected_city = rm.loadCity(cityId);
-			if(customer.selected_city == null) {
-				ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND, response);
-			    return;
-			}else {
-				JSONObject result = new JSONObject();
-				result.put(Constants.STATUS, "successful");
-				result.put(Constants.MESSAGE, "شهر "+customer.selected_city.name+" انتخاب شده است.");
-			    response.setContentType("text/html");
-			    PrintWriter out = response.getWriter();
-			    out.println(result.toJSONString());
-			    return;
-			}
+		customer.selected_city = rm.loadCity(cityId);
+		if(customer.selected_city == null) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND, response);
+		    return;
 		}else {
-			ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, response);
+			JSONObject result = new JSONObject();
+			result.put(Constants.STATUS, "successful");
+			result.put(Constants.MESSAGE, "شهر "+customer.selected_city.name+" انتخاب شده است.");
+		    response.setContentType("text/html");
+		    PrintWriter out = response.getWriter();
+		    out.println(result.toJSONString());
 		    return;
 		}
+		
 	}
 
 	/**

@@ -67,13 +67,8 @@ public class UserProfileServlet extends HttpServlet {
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
-		if(customer != null) {
-		    ResponseHelper.respondWithJSONObject(customer.getUserProfile(), response);
-		    return;
-		}else {
-		    ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, response);
-		    return;
-		}
+		ResponseHelper.respondWithJSONObject(customer.getUserProfile(), response);
+		return;
 	}
 
 	/**

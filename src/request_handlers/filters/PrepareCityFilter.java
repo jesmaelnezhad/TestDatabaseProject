@@ -1,0 +1,62 @@
+package request_handlers.filters;
+
+import java.io.IOException;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import rm.parking_structure.City;
+import um.CustomerManager;
+
+/**
+ * Servlet Filter implementation class PrepareCityFilter
+ */
+@WebFilter("/PrepareCityFilter")
+public class PrepareCityFilter implements Filter {
+
+    /**
+     * Default constructor. 
+     */
+    public PrepareCityFilter() {
+    }
+
+	/**
+	 * @see Filter#destroy()
+	 */
+	public void destroy() {
+	}
+
+	/**
+	 * @see Filter#doFilter(ServletRequest, ServletResponse, FilterChain)
+	 */
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+		// place your code here
+
+        HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse res = (HttpServletResponse) response;
+
+        if(prepareCity(req, res)) {
+        	chain.doFilter(request, response);
+        }
+	}
+	
+	public boolean prepareCity(HttpServletRequest req, HttpServletResponse res) {
+		//TODO: find out that the city is and load the data structure if needed.
+		City city = null;//TODO
+		CustomerManager.getCM().setCity(req, city);
+		return true;
+	}
+
+	/**
+	 * @see Filter#init(FilterConfig)
+	 */
+	public void init(FilterConfig fConfig) throws ServletException {
+	}
+
+}
