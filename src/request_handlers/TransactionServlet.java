@@ -76,8 +76,8 @@ public class TransactionServlet extends HttpServlet {
 			// save command
 			// get parameters from request
 			String sensorIdString = request.getParameter(Constants.SENSOR_ID);
-			String priceString = request.getParameter(Constants.price);
-			String timeString = request.getParameter(Constants.time);
+			String priceString = request.getParameter(Constants.PRICE);
+			String timeString = request.getParameter(Constants.TIME);
 			
 			// check if these parameters are exist
 			

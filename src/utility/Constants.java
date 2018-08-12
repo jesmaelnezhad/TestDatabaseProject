@@ -53,8 +53,8 @@ public class Constants {
 	public static final String MSG_CUSTOMER_NOT_SIGHNED_IN = "Customer not signed in";
 	public static final String COMMAND_SAVE = "save";
 	public static final String SENSOR_ID = "sensor_id";
-	public static final String price = "price";
-	public static final String time = "time";
+	public static final String PRICE = "price";
+	public static final String TIME = "time";
 	public static final String RESOURCE = "resource";
 	public static final String PAYMENT = "payment";
 	public static final String SEGMENTS = "segments";
