@@ -16,6 +16,7 @@ import org.json.simple.JSONObject;
 import request_handlers.ResponseHelper;
 import request_handlers.ResponseConstants.ResponseCode;
 import rm.PriceRate;
+import rm.SensorInfoMaterializer;
 import rm.basestations.Sensor;
 import rm.basestations.SensorId;
 import utility.Constants;
@@ -33,6 +34,13 @@ public class ParkingSpotContainer {
 	public Map<Integer, Sector> sectorIndex = new HashMap<>();
 	
 	public Map<SensorId, Sensor> citySensors = new HashMap<>();
+	
+	private SensorInfoMaterializer materializer = null;
+	
+	public ParkingSpotContainer() {
+		this.materializer = new SensorInfoMaterializer(this);
+		this.materializer.start();
+	}
 	
 	public ParkingSpot getSpotById(int spotId) {
 		// TODO

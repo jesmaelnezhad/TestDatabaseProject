@@ -158,6 +158,15 @@ CREATE TABLE IF NOT EXISTS customer_transactions
         FOREIGN KEY(park_id) REFERENCES park_transactions(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
 
+CREATE TABLE IF NOT EXISTS sensors
+(
+	id INT NOT NULL AUTO_INCREMENT,
+	full_flag TINYINT NOT NULL,
+	last_changed time NOT NULL,
+	last_updated time NOT NULL,
+	PRIMARY KEY(id)
+) ENGINE=INNODB;
+
 /* Test Data */
 
 
