@@ -1,3 +1,12 @@
+<%@page import="org.json.simple.JSONObject"%>
+<%@page import="rm.basestations.Sensor"%>
+<%@page import="rm.ResourceManager"%>
+<%@page import="um.CustomerManager"%>
+<%@page import="request_handlers.ResponseConstants.ResponseCode"%>
+<%@page import="request_handlers.ResponseHelper"%>
+<%@page import="rm.parking_structure.City"%>
+<%@page import="um.Customer"%>
+<%@page import="rm.basestations.SensorId"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -20,18 +29,85 @@
 	<tr>
 		<td width="962" valign="top" style="border: 1px solid #000000; padding: 0.04in">
 			<p align="center"><font size="5" style="font-size: 20pt">Search
-			for a sensor using sensor ID:</font></p>
+			for a sensor using sensor ID:</font></p><br/>
+			<center>
 			<form action="./sensors.jsp" method="get">
-				<input type="text" placeholder="Enter sensor id here." />
+				<input type="text" placeholder="Enter sensor id here." name="id" />
+				<input type="submit" value="Search!"/>
 			</form>
-			<p align="center"><font size="5" style="font-size: 20pt">Search
-			box and botton</font></p>
-			<p align="center"><br/>
+			</center><br/>
 
-			</p>
 		</td>
 	</tr>
 </table>
+<%
+String sensorIdString = request.getParameter("id");
+if(sensorIdString != null){
+	int sensorId = -1;
+	try{
+		sensorId = Integer.parseInt(sensorIdString);
+		
+	}catch(NumberFormatException e){
+			%>
+		<table width="972" cellpadding="4" cellspacing="0">
+			<col width="962">
+			<tr>
+				<td width="962" valign="top"
+					style="border: 1px solid #000000; padding: 0.04in">
+					<p align="center">
+						<font size="5" style="font-size: 20pt;color:red">Sensor ID must be a number.</font>
+					</p>
+					<br />
+				</td>
+			</tr>
+		</table>
+		<%
+	}
+	
+	ResourceManager rm = ResourceManager.getRM();
+	Customer customer = CustomerManager.getCM().getCustomer(request);
+	
+	City city = null;
+	if(customer != null) {
+		city = customer.selected_city;
+	}
+	if(customer == null){
+			%>
+		<table width="972" cellpadding="4" cellspacing="0">
+			<col width="962">
+			<tr>
+				<td width="962" valign="top"
+					style="border: 1px solid #000000; padding: 0.04in">
+					<p align="center">
+						<font size="5" style="font-size: 20pt;color:red">Authentication required.</font>
+					</p>
+					<br />
+				</td>
+			</tr>
+		</table>
+		<%
+	}else if(city == null){
+			%>
+		<table width="972" cellpadding="4" cellspacing="0">
+			<col width="962">
+			<tr>
+				<td width="962" valign="top"
+					style="border: 1px solid #000000; padding: 0.04in">
+					<p align="center">
+						<font size="5" style="font-size: 20pt;color:red">City of this request is not determined.</font>
+					</p>
+					<br />
+				</td>
+			</tr>
+		</table>
+		<%
+	}else if(sensorId != -1){
+		
+		SensorId sensorIdObj = SensorId.toSensorId(sensorId);
+		JSONObject sensorJSON = rm.readSensor(city, sensorId);
+		boolean full = (Boolean)sensorJSON.get("full");
+		
+%>
 <table width="972" cellpadding="4" cellspacing="0" style="page-break-before: auto">
 	<col width="224">
 	<col width="730">
@@ -55,7 +131,7 @@
 						<p align="right"><font size="5" style="font-size: 18pt">ID</font></p>
 					</td>
 					<td width="599" style="border: none; padding: 0in">
-						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt">35432</font></p>
+						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt"><%=sensorIdObj.basestationIndex %></font></p>
 					</td>
 				</tr>
 			</table>
@@ -84,7 +160,7 @@
 						<p align="right"><font size="5" style="font-size: 18pt">ID</font></p>
 					</td>
 					<td width="599" style="border: none; padding: 0in">
-						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt">67</font></p>
+						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt"><%=sensorIdObj.parkometerIndex %></font></p>
 					</td>
 				</tr>
 			</table>
@@ -111,7 +187,7 @@
 				<col width="364">
 				<tr valign="top">
 					<td rowspan="4" width="136" style="border: none; padding: 0in">
-						<p><img src="data:image/png;base64,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" name="Image4" align="left" width="128" height="128" border="0"/>
+						<p><img src="./images/<%=full?"red_circle.jpg":"green_circle.png" %>" name="Image4" align="left" width="128" height="128" border="0"/>
 <br/>
 
 						</p>
@@ -120,7 +196,7 @@
 						<p align="right"><font size="5" style="font-size: 18pt">ID</font></p>
 					</td>
 					<td width="364" style="border: none; padding: 0in">
-						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt">134643324</font></p>
+						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt"><%=sensorId %></font></p>
 					</td>
 				</tr>
 				<tr valign="top">
@@ -129,7 +205,7 @@
 						time changed</font></p>
 					</td>
 					<td width="364" style="border: none; padding: 0in">
-						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt">12:03:45</font></p>
+						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt"><%=sensorJSON.get("lastTimeUpdated") %></font></p>
 					</td>
 				</tr>
 				<tr valign="top">
@@ -138,7 +214,7 @@
 						time updated</font></p>
 					</td>
 					<td width="364" style="border: none; padding: 0in">
-						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt">12:00:06</font></p>
+						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt"><%=sensorJSON.get("lastTimeUpdated") %></font></p>
 					</td>
 				</tr>
 				<tr valign="top">
@@ -147,7 +223,7 @@
 						Index</font></p>
 					</td>
 					<td width="364" style="border: none; padding: 0in">
-						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt">2353</font></p>
+						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt"><%=sensorIdObj.sensorIndex %></font></p>
 					</td>
 				</tr>
 			</table>
@@ -157,6 +233,11 @@
 		</td>
 	</tr>
 </table>
+<%
 
+	}
+}
+
+%>
 </body>
 </html>

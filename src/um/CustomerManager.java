@@ -18,6 +18,7 @@ import javax.servlet.http.Part;
 import org.json.simple.JSONObject;
 
 import request_handlers.ResponseConstants.ResponseCode;
+import rm.parking_structure.City;
 import request_handlers.ResponseHelper;
 import utility.Constants;
 import utility.DBManager;
@@ -49,6 +50,15 @@ public class CustomerManager {
 		}
 		return customer;
 	}
+	
+	public City getCity(HttpServletRequest request) {
+		return (City) request.getAttribute(Constants.CITY_IN_USE);
+	}
+	
+	public void setCity(HttpServletRequest request, City city) {
+		request.setAttribute(Constants.CITY_IN_USE, city);
+	}
+	
 	public void signOutCustomer(HttpServletRequest request) {
 		Customer customer = (Customer) request.getAttribute(Constants.SIGNED_IN_CUSTOMER);
 		if(customer == null) {

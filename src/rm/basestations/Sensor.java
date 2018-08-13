@@ -64,7 +64,17 @@ public class Sensor {
 		return snapshot;
 	}
 	
+	public boolean isChanged() {
+		boolean result = false;
+		ReadLock lockObj = lock.readLock();
+		result = updatedSinceFlush;
+		lockObj.unlock();
+		return result;
+	}
+	
 	public void flush() {
+		WriteLock lockObj = lock.writeLock();
 		updatedSinceFlush = false;
+		lockObj.unlock();
 	}
 }

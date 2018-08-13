@@ -73,26 +73,21 @@ public class WalletServlet extends HttpServlet {
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
 
-		if(customer != null) {
-			if(command.equals(Constants.COMMAND_TOPUP)) {
+		if(command.equals(Constants.COMMAND_TOPUP)) {
 
-				if(request.getParameter("amount") == null) {
-					ResponseHelper.respondWithMessage(false, ResponseCode.AMOUNT_MISSING, response);
-					return;
-				}
-				int amount = Integer.parseInt(request.getParameter("amount"));
-
-				ResponseHelper.respondWithJSONObject(customer.topUp(amount), response);
-				return;
-			}else if(command.equals(Constants.COMMAND_WALLET_INFO)) {
-				ResponseHelper.respondWithJSONObject(customer.getWalletInfo(), response);
-				return;
-			}else if(command.equals(Constants.COMMAND_WALLET_TRANSACTIONS)) {
-				ResponseHelper.respondWithJSONArray(customer.getTransactionHistory(), response);
+			if(request.getParameter("amount") == null) {
+				ResponseHelper.respondWithMessage(false, ResponseCode.AMOUNT_MISSING, response);
 				return;
 			}
-		}else {
-			ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, response);
+			int amount = Integer.parseInt(request.getParameter("amount"));
+
+			ResponseHelper.respondWithJSONObject(customer.topUp(amount), response);
+			return;
+		}else if(command.equals(Constants.COMMAND_WALLET_INFO)) {
+			ResponseHelper.respondWithJSONObject(customer.getWalletInfo(), response);
+			return;
+		}else if(command.equals(Constants.COMMAND_WALLET_TRANSACTIONS)) {
+			ResponseHelper.respondWithJSONArray(customer.getTransactionHistory(), response);
 			return;
 		}
 	}

@@ -76,14 +76,6 @@ public class CarsServlet extends HttpServlet {
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
-		City city = null;
-		if(customer != null) {
-			city = customer.selected_city;
-		}else {
-			ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, response);
-		    return;
-		}
-		
 		// search for sectors
 		JSONObject result = new JSONObject();
 		if(Constants.COMMAND_ADD.equals(command)) {

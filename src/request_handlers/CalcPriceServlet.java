@@ -86,17 +86,7 @@ public class CalcPriceServlet extends HttpServlet {
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
 
-		City city = null;
-		if(customer != null) {
-			city = customer.selected_city;
-		}else {
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			// TODO if customer is null city will not be known.
-			// TODO : redirect to use authentication
-			ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, response);
-			return;
-		}
+		City city = CustomerManager.getCM().getCity(request);
 
 		ResponseHelper.respondWithJSONObject(
 				rm.calculatePrice(city, sectorId, segmentId, rateId, parkTime), response);

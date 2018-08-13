@@ -36,6 +36,7 @@ public class Constants {
 	public static final String START_TIME = "start_time";
 	public static final String TIME_LENGTH = "time_length";
 	public static final String SIGNED_IN_CUSTOMER = "signed_in_customer";
+	public static final String CITY_IN_USE = "city_in_user";
 	public static final String PRICE_RATES = "price_rates";
 	public static final String SEGMENT = "segment";
 	public static final String SPOT = "spot";

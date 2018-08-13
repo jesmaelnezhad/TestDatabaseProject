@@ -87,13 +87,7 @@ public class RentSpotServlet extends HttpServlet {
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
-		City city = null;
-		if(customer != null) {
-			city = customer.selected_city;
-		}else {
-			ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND, response);
-		    return;
-		}
+		City city = CustomerManager.getCM().getCity(request);
 
 	    ResponseHelper.respondWithJSONObject(
 	    		rm.rentSpot(customer, city, sectorId, segmentId, carId, rateId, parkTime), response);

@@ -73,13 +73,7 @@ public class SearchServlet extends HttpServlet {
 		ResourceManager rm = ResourceManager.getRM();
 		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
-		City city = null;
-		if(customer != null) {
-			city = customer.selected_city;
-		}else {
-		    ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, response);
-		    return;
-		}
+		City city = CustomerManager.getCM().getCity(request);
 		
 	    ResponseHelper.respondWithJSONArray(
 	    		rm.searchByProximity(city, searchCenter, searchRadius), response);

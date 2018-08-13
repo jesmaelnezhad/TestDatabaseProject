@@ -34,6 +34,21 @@ public class DBManager {
 		}
 	}
 	
+	public Connection createNewConnection() {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			// Open a connection
+			return DriverManager.getConnection(DB_URL, USER, PASS);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public Connection getConnection() {
 		if(conn == null) {
 			try {
