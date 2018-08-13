@@ -181,7 +181,7 @@ public class TransactionManager {
 		return 0.0;
 	}
 	
-	// TODO: saves the even of somebody paying for a spot at a parkometer.
+	// TODO: saves the event of somebody paying for a spot at a parkometer.
 	// saves it in data base.
 	public JSONObject saveSensorTransaction(int sensorId, int price, Time time) {
 		// TODO

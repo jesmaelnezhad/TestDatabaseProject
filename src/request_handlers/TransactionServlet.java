@@ -79,86 +79,86 @@ public class TransactionServlet extends HttpServlet {
 			String priceString = request.getParameter(Constants.PRICE);
 			String timeString = request.getParameter(Constants.TIME);
 			
-			// check if these parameters are exist
-			
-		}
-		
-		
-		
-		
-		
-		/* 
-		if(command.equals("save")) {
-			String sensorIdString = request.getParameter("sensorId");
-			String priceString = request.getParameter("price");
-			String timeString = request.getParameter("time");
-
-			if(sensorIdString == null) {
+			// check if these parameters are exist, if is OK, then convert the parameter to its right type 
+			// sensor ID
+			if (sensorIdString == null) {
 				JSONObject result = new JSONObject();
-				result.put("status", "unsuccessful");
-				result.put("message", "sensorId not given.");
-			    response.setContentType("text/html");
-			    PrintWriter out = response.getWriter();
-			    out.println(result.toJSONString());
-			    return;
+				result.put(Constants.STATUS, Constants.STATUS_UNSUCCESSFUL);
+				result.put(Constants.MESSAGE, Constants.MSG_SENSOR_ID_NOT_GIVEN);
+				response.setContentType(Constants.TYPE_HTML);
+				PrintWriter out = response.getWriter();
+				out.println(result.toJSONString());
+				return;
 			}
 			int sensorId = Integer.parseInt(sensorIdString);
-			if(priceString == null) {
+			
+			// price
+			if (priceString == null) {
 				JSONObject result = new JSONObject();
-				result.put("status", "unsuccessful");
-				result.put("message", "price not given.");
-			    response.setContentType("text/html");
-			    PrintWriter out = response.getWriter();
-			    out.println(result.toJSONString());
-			    return;
+				result.put(Constants.STATUS, Constants.STATUS_UNSUCCESSFUL);
+				result.put(Constants.MESSAGE, Constants.MSG_PRICE_NOT_GIVEN);
+				response.setContentType(Constants.TYPE_HTML);
+				PrintWriter out = response.getWriter();
+				out.println(result.toJSONString());
+				return;
 			}
 			int price = Integer.parseInt(priceString);
-			if(timeString == null) {
+			
+			// time
+			if (timeString == null) {
 				JSONObject result = new JSONObject();
-				result.put("status", "unsuccessful");
-				result.put("message", "time not given.");
-			    response.setContentType("text/html");
-			    PrintWriter out = response.getWriter();
-			    out.println(result.toJSONString());
-			    return;
+				result.put(Constants.STATUS, Constants.STATUS_UNSUCCESSFUL);
+				result.put(Constants.MESSAGE, Constants.MSG_TIME_NOT_GIVEN);
+				response.setContentType(Constants.TYPE_HTML);
+				PrintWriter out = response.getWriter();
+				out.println(result.toJSONString());
+				return;
 			}
 			Time time = Time.valueOf(timeString);
-			JSONObject result = tm.saveSensorTransaction(sensorId, price, time);
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
 			
-		    out.println(result.toJSONString());
-		    return;
-		}else if(command.equals("calcprice")) {
-			String sensorIdString = request.getParameter("sensorId");
-			String timeLengthString = request.getParameter("timeLength");
-
-			if(sensorIdString == null) {
+			// every input is correct, so save this transaction to the database
+			JSONObject result = tm.saveSensorTransaction(sensorId, price, time); // TODO: complete this function
+			response.setContentType(Constants.TYPE_HTML);
+			PrintWriter out = response.getWriter();
+			out.println(result.toJSONString());
+			return;
+		}
+		else if (command.equals(Constants.COMMAND_CALC_PRICE)) {
+			// get the input parameters as string
+			String sensorIdString = request.getParameter(Constants.SENSOR_ID);
+			String timeLengthString = request.getParameter(Constants.TIME_LENGTH);
+			
+			// check if these parameters are exist, if is OK, then convert the parameter to its right type 
+			// sensor ID
+			if (sensorIdString == null) {
 				JSONObject result = new JSONObject();
-				result.put("status", "unsuccessful");
-				result.put("message", "sensorId not given.");
-			    response.setContentType("text/html");
-			    PrintWriter out = response.getWriter();
-			    out.println(result.toJSONString());
-			    return;
+				result.put(Constants.STATUS, Constants.STATUS_UNSUCCESSFUL);
+				result.put(Constants.MESSAGE, Constants.MSG_SENSOR_ID_NOT_GIVEN);
+				response.setContentType(Constants.TYPE_HTML);
+				PrintWriter out = response.getWriter();
+				out.println(result.toJSONString());
+				return;
 			}
 			int sensorId = Integer.parseInt(sensorIdString);
-			if(timeLengthString == null) {
+			
+			// Time Length
+			if (timeLengthString == null) {
 				JSONObject result = new JSONObject();
-				result.put("status", "unsuccessful");
-				result.put("message", "price not given.");
-			    response.setContentType("text/html");
-			    PrintWriter out = response.getWriter();
-			    out.println(result.toJSONString());
-			    return;
+				result.put(Constants.STATUS, Constants.STATUS_UNSUCCESSFUL);
+				result.put(Constants.MESSAGE, Constants.MSG_TIME_NOT_GIVEN);
+				response.setContentType(Constants.TYPE_HTML);
+				PrintWriter out = response.getWriter();
+				out.println(result.toJSONString());
+				return;
 			}
 			int timeLength = Integer.parseInt(timeLengthString);
-			JSONObject result = tm.calcSensorPrice(sensorId, timeLength);
-		    response.setContentType("text/html");
-		    PrintWriter out = response.getWriter();
-		    out.println(result.toJSONString());
-		    return; */
-		}
-	
-
+			
+			// every input is correct, calculate price and send it back as response
+			JSONObject result = tm.calcSensorPrice(sensorId, timeLength); // TODO: complete this function
+			response.setContentType(Constants.TYPE_HTML);
+			PrintWriter out = response.getWriter();
+			out.println(result.toJSONString());
+			return;
+		}		
+	}
 }

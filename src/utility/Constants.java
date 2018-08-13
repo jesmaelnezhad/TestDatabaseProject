@@ -60,4 +60,8 @@ public class Constants {
 	public static final String SEGMENTS = "segments";
 	public static final String AMOUNT = "amount";
 	public static final String BALANCE = "balance";
+	public static final String MSG_SENSOR_ID_NOT_GIVEN = "sensor Id not given";
+	public static final String MSG_PRICE_NOT_GIVEN = "price not given";
+	public static final String MSG_TIME_NOT_GIVEN = "time not give";
+	public static final String COMMAND_CALC_PRICE = "calcprice";
 }
