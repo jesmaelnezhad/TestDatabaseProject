@@ -30,6 +30,11 @@
     <filter>
 	    <filter-name>prepare-city-filter</filter-name>
 	    <filter-class>request_handlers.filters.PrepareCityFilter</filter-class>
+	    <init-param>
+	        <param-name>excludedUrls</param-name>
+	        <!-- Comma separated list of excluded servlets  -->
+	        <param-value>/selectcity</param-value>
+    	</init-param>
 	</filter>
 	
 	<filter-mapping>

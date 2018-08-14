@@ -45,7 +45,7 @@ public class AuthenticationFilter implements Filter {
         
         if(excludedUrls.contains(path))
         {
-            // this filter shouldn't be applied in this request.
+            // this filter shouldn't be applied on this request.
         	chain.doFilter(request, response);
         	return;
         }

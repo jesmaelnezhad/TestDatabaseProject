@@ -1,6 +1,9 @@
 package request_handlers.filters;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -20,10 +23,12 @@ import um.CustomerManager;
 @WebFilter("/PrepareCityFilter")
 public class PrepareCityFilter implements Filter {
 
+    private List<String> excludedUrls;
     /**
      * Default constructor. 
      */
     public PrepareCityFilter() {
+
     }
 
 	/**
@@ -36,8 +41,15 @@ public class PrepareCityFilter implements Filter {
 	 * @see Filter#doFilter(ServletRequest, ServletResponse, FilterChain)
 	 */
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		// place your code here
-
+        String path = ((HttpServletRequest) request).getServletPath();
+        
+        if(excludedUrls.contains(path))
+        {
+            // this filter shouldn't be applied on this request.
+        	chain.doFilter(request, response);
+        	return;
+        }
+		
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 
@@ -47,7 +59,7 @@ public class PrepareCityFilter implements Filter {
 	}
 	
 	public boolean prepareCity(HttpServletRequest req, HttpServletResponse res) {
-		//TODO: find out that the city is and load the data structure if needed.
+		//TODO: find out what the city is and load the data structure if needed.
 		City city = null;//TODO
 		CustomerManager.getCM().setCity(req, city);
 		return true;
@@ -57,6 +69,8 @@ public class PrepareCityFilter implements Filter {
 	 * @see Filter#init(FilterConfig)
 	 */
 	public void init(FilterConfig fConfig) throws ServletException {
-	}
+        String excludePattern = fConfig.getInitParameter("excludedUrls");
+        excludedUrls = Arrays.asList(excludePattern.split(","));	
+    }
 
 }
