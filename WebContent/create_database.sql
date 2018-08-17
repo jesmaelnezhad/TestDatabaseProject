@@ -21,16 +21,19 @@ USE parking_system;
 
 /*======== CREATING THE TABLES  ========*/
 
-/*==== customers ====*/
-CREATE TABLE IF NOT EXISTS customers
+/*==== users ====*/
+CREATE TABLE IF NOT EXISTS users
 (
 	id INT NOT NULL AUTO_INCREMENT,
-	fname VARCHAR(100) NOT NULL,
-	lname VARCHAR(100) NOT NULL,
-	cellphone VARCHAR(20) NOT NULL,
-	email_addr VARCHAR(100) NOT NULL,
-	profile_image VARCHAR(100) NOT NULL,
-	ads_flag TINYINT NOT NULL,
+	type ENUM('customer','police', 'basestation') NOT NULL DEFAULT 'customer',
+	username VARCHAR(100),/*username and password are only used in the case of basestation and police.*/
+	password VARCHAR(100),
+	fname VARCHAR(100),
+	lname VARCHAR(100),
+	cellphone VARCHAR(20),
+	email_addr VARCHAR(100),
+	profile_image VARCHAR(100),
+	ads_flag TINYINT,
 	PRIMARY KEY(id)
 ) ENGINE=INNODB;
 
@@ -43,7 +46,7 @@ CREATE TABLE IF NOT EXISTS cars
 	color TINYINT NOT NULL,
 	plate_number VARCHAR(50) NOT NULL,
 	PRIMARY KEY(id),
-	FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE
+	FOREIGN KEY(customer_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
 
 
@@ -61,8 +64,10 @@ CREATE TABLE IF NOT EXISTS sectors
 	city_id INT NOT NULL,
 	rep_x DOUBLE NOT NULL,
 	rep_y DOUBLE NOT NULL,
+	price_rate_id INT,
 	PRIMARY KEY(id),
-	FOREIGN KEY(city_id) REFERENCES cities(id)
+	FOREIGN KEY(city_id) REFERENCES cities(id),
+	FOREIGN KEY(price_rate_id) REFERENCES price_rates(id)
 ) ENGINE=INNODB;
 
 CREATE TABLE IF NOT EXISTS sector_segments
@@ -78,85 +83,57 @@ CREATE TABLE IF NOT EXISTS sector_segments
 ) ENGINE=INNODB;
 
 
-CREATE TABLE IF NOT EXISTS parking_spots
+CREATE TABLE IF NOT EXISTS spots
 (
 	id INT NOT NULL AUTO_INCREMENT,
-	base_station_id TINYINT NOT NULL,
-	parko_meter_id TINYINT NOT NULL,
-	sensor_id TINYINT NOT NULL,
-	segment_id INT NOT NULL,
-	status ENUM('FULL','EMPTY') NOT NULL,
+	sector_id INT NOT NULL,
+	local_spot_id INT NOT NULL,
+	sensor_id INT NOT NULL,
 	PRIMARY KEY(id),
-	FOREIGN KEY(segment_id) REFERENCES sector_segments(id) ON DELETE CASCADE
+	FOREIGN KEY(sector_id) REFERENCES sectors(id) ON DELETE CASCADE,
+	FOREIGN KEY(sensor_id) REFERENCES sensors(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
 
 /*==== Pricing ====*/
 CREATE TABLE IF NOT EXISTS price_rates
 (
 	id INT NOT NULL AUTO_INCREMENT,
-	description VARCHAR(100) NOT NULL,
-	price SMALLINT NOT NULL,
+	pricing VARCHAR(500) NOT NULL,/*the format of this field is a JSON array of objects like {int, int, int}*/
 	PRIMARY KEY(id)
 ) ENGINE=INNODB;
 
-CREATE TABLE IF NOT EXISTS available_rates
-(
-	sector_id INT NOT NULL,
-	price_rate_id INT NOT NULL,
-	FOREIGN KEY(sector_id) REFERENCES sectors(id) ON DELETE CASCADE,
-	FOREIGN KEY(price_rate_id) REFERENCES price_rates(id) ON DELETE CASCADE
-) ENGINE=INNODB;
-
-/*==== Park and Transactions ====*/
-CREATE TABLE IF NOT EXISTS park_transactions
-(
-	id INT NOT NULL AUTO_INCREMENT,
-	status ENUM('open','close') NOT NULL DEFAULT 'open',
-	/*From spot_id and car_id at least one of them must have value. They cannot be null both together.*/
-	sector_id INT NULL,
-	segment_id INT NULL,
-	spot_id INT NULL,
-	customer_id INT NULL,
-	car_id INT NULL,
-	price_rate_id INT NOT NULL,
-	start_time TIME NOT NULL,
-	time_length SMALLINT NOT NULL,
-	PRIMARY KEY(id),
-	FOREIGN KEY(spot_id) REFERENCES parking_spots(id) ON DELETE CASCADE,
-	FOREIGN KEY(car_id) REFERENCES cars(id) ON DELETE CASCADE,
-	FOREIGN KEY(price_rate_id) REFERENCES price_rates(id) ON DELETE CASCADE
-) ENGINE=INNODB;
-
-/*==== Transactions ====*/
+/*==== Transactions and Reservations ====*/
 CREATE TABLE IF NOT EXISTS customer_wallets
 (
         customer_id INT NOT NULL,
         balance INT NOT NULL DEFAULT 0,
-        FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE
+        FOREIGN KEY(customer_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
 
-CREATE TABLE IF NOT EXISTS wallet_transaction
+CREATE TABLE IF NOT EXISTS reservations
 (
-		id INT NOT NULL AUTO_INCREMENT,
-        customer_id INT NOT NULL,
-        top_up INT NOT NULL,
-        transaction_date DATE NOT NULL,
-        description VARCHAR(100) NOT NULL,
-        amount INT NOT NULL DEFAULT 0,
-        PRIMARY KEY(id),
-        FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE
+	id int NOT NULL AUTO_INCREMENT,
+	location_id INT,/*local_spot_id or sector_id or sensor_id*/
+	car_id INT,/*car_id in the cases where the reservation determines the car.*/
+	start_time TIME NOT NULL,
+	time_length INT NOT NULL,/*how many 30 minutes?*/
+	PRIMARY KEY(id),
+	FOREIGN KEY(car_id) REFERENCES cars(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
 
-CREATE TABLE IF NOT EXISTS customer_transactions
+CREATE TABLE IF NOT EXISTS transactions
 (
-        id INT NOT NULL AUTO_INCREMENT,
-        type ENUM('park','deposit') NOT NULL DEFAULT 'park',
-        deposit_amount SMALLINT NULL,
-        park_id INT NULL,
-        PRIMARY KEY(id),
-	/*park_id can be null in the case where the type is 'deposit'*/
-        FOREIGN KEY(park_id) REFERENCES park_transactions(id) ON DELETE CASCADE
+    id INT NOT NULL AUTO_INCREMENT,
+    type ENUM('topUp','paymentByWallet', 'paymentByRFCARD') NOT NULL DEFAULT 'paymentByWallet',
+    payer_id VARCHAR(100) NOT NULL,/*either contains a string of wallet_id or RFID of the payment*/
+    reservation_id INT,
+    price INT NOT NULL,	
+    transaction_time TIME NOT NULL,
+    description VARCHAR(100) NOT NULL,
+    PRIMARY KEY(id),
+    FOREIGN KEY(reservation_id) REFERENCES reservations(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
+
 
 CREATE TABLE IF NOT EXISTS sensors
 (
@@ -168,80 +145,6 @@ CREATE TABLE IF NOT EXISTS sensors
 ) ENGINE=INNODB;
 
 /* Test Data */
-
-
-INSERT INTO cities (name) VALUE ('Tehran');
-INSERT INTO sectors (city_id, rep_x, rep_y) VALUE (1, 5, 5);
-INSERT INTO sectors (city_id, rep_x, rep_y) VALUE (1, 10, 15);
-INSERT INTO sectors (city_id, rep_x, rep_y) VALUE (1, 100, 150);
-INSERT INTO sectors (city_id, rep_x, rep_y) VALUE (1, 200, 190);
-INSERT INTO sector_segments (sector_id, start_x, start_y, end_x, end_y) VALUE (1, 1, 1, 2, 2);
-INSERT INTO sector_segments (sector_id, start_x, start_y, end_x, end_y) VALUE (1, 2, 2, 3, 3);
-INSERT INTO sector_segments (sector_id, start_x, start_y, end_x, end_y) VALUE (1, 3, 3, 6, 6);
-INSERT INTO sector_segments (sector_id, start_x, start_y, end_x, end_y) VALUE (2, 5, 10, 7, 12);
-INSERT INTO sector_segments (sector_id, start_x, start_y, end_x, end_y) VALUE (2, 7, 12, 9, 14);
-INSERT INTO sector_segments (sector_id, start_x, start_y, end_x, end_y) VALUE (2, 9, 14, 12, 17);
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 1, 1, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 2, 1, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 3, 1, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 4, 2, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 5, 2, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 6, 2, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 7, 3, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 8, 3, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 9, 3, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 10, 4, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 11, 4, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 12, 4, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 13, 5, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 14, 5, 'EMPTY');
-INSERT INTO parking_spots (base_station_id, parko_meter_id, sensor_id, segment_id, status) 
-VALUE (0, 0, 15, 5, 'EMPTY');
-
-INSERT INTO price_rates (description, price)
-VALUE ('cheap', 8000);
-INSERT INTO price_rates (description, price)
-VALUE ('medium', 1000);
-INSERT INTO price_rates (description, price)
-VALUE ('expensive', 12000);
-INSERT INTO available_rates (sector_id, price_rate_id)
-VALUE (1, 1);
-INSERT INTO available_rates (sector_id, price_rate_id)
-VALUE (1, 2);
-INSERT INTO available_rates (sector_id, price_rate_id)
-VALUE (2, 1);
-INSERT INTO available_rates (sector_id, price_rate_id)
-VALUE (2, 3);
-INSERT INTO available_rates (sector_id, price_rate_id)
-VALUE (3, 2);
-INSERT INTO available_rates (sector_id, price_rate_id)
-VALUE (4, 3);
-
-INSERT INTO customers (username, password, fname, lname, cellphone, email_addr, ads_flag)
-VALUE ('moji', MD5('moji'), 'Mojtaba' , 'Arjomandi', '09171112222', 'moji@moji.com', 1);
-INSERT INTO customers (username, password, fname, lname, cellphone, email_addr, ads_flag)
-VALUE ('jimi', MD5('jimi'), 'Jamshid' , 'Esmal', '09171112223', 'jimi@jimi.com', 0);
-
-INSERT INTO cars (customer_id, make_model, color)
-VALUE (1, 'Pejo 206', 1);
-INSERT INTO cars (customer_id, make_model, color)
-VALUE (1, 'Pejo 405', 2);
-INSERT INTO cars (customer_id, make_model, color)
-VALUE (2, 'Jeep', 1);
 
 
 
