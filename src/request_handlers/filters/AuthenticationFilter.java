@@ -19,8 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import request_handlers.ResponseConstants.ResponseCode;
 import rm.parking_structure.City;
-import um.Customer;
-import um.CustomerManager;
+import um.User;
+import um.UserManager;
 import request_handlers.ResponseHelper;
 
 /**
@@ -59,7 +59,7 @@ public class AuthenticationFilter implements Filter {
     }
     
     public boolean authenticate(HttpServletRequest req, HttpServletResponse res) throws IOException {
-		Customer customer = CustomerManager.getCM().getCustomer(req);
+		User customer = UserManager.getCM().getUser(req);
 
 		if(customer == null) {
 			// TODO if customer is null city will not be known.

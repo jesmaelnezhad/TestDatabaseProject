@@ -5,23 +5,27 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import um.Customer;
+import um.User;
+import um.User.UserType;
 import utility.DBManager;
 
 public class Wallet {
+	public int id;
 	public int customerId;
 	public int balance;
 	
-	public Wallet(int customerId, int balance) {
+	public Wallet(int id, int customerId, int balance) {
+		this.id = id;
 		this.customerId = customerId;
 		this.balance = balance;
 	}
 	
-	public static Wallet fetchWallet(Customer customer) {
-		if(customer == null) {
+	public static Wallet fetchWallet(User customer) {
+		if(customer == null || customer.type != UserType.Customer) {
 			return null;
 		}
 		Wallet wallet = fetchWallet(customer.id);
@@ -35,12 +39,20 @@ public class Wallet {
 			}
 			PreparedStatement stmt;
 			try {
-				stmt = conn.prepareStatement(sql);
+				stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 				stmt.setInt(1, customer.id);
 				stmt.setInt(2, 0);
 				stmt.executeUpdate();
+				ResultSet rs = stmt.getGeneratedKeys();
+				int newId = 0;
+				if (rs.next()) {
+					  newId = rs.getInt(1);
+				}else {
+					return null;
+				}
+				rs.close();
 				stmt.close();
-				return new Wallet(customer.id , 0);
+				return new Wallet(newId, customer.id , 0);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -50,7 +62,7 @@ public class Wallet {
 	}
 	
 	public boolean save() {
-		String sql = "UPDATE customer_wallets SET balance=? WHERE customer_id=?;";
+		String sql = "UPDATE customer_wallets SET balance=? WHERE id=?;";
 		
 		Connection conn = DBManager.getDBManager().getConnection();
 		if(conn == null) {
@@ -60,7 +72,7 @@ public class Wallet {
 		try {
 			stmt = conn.prepareStatement(sql);
 			stmt.setInt(1, balance);
-			stmt.setInt(2, customerId);
+			stmt.setInt(2, id);
 			stmt.executeUpdate();
 			stmt.close();
 			return true;
@@ -87,8 +99,10 @@ public class Wallet {
 			ResultSet rs = stmt.executeQuery();
 			// Extract data from result set
 			while(rs.next()){
+				int id = rs.getInt("id");
 				int balance = rs.getInt("balance");
-				result = new Wallet(customerId, balance);
+				result = new Wallet(id, customerId, balance);
+				break;
 			}
 			rs.close();
 			stmt.close();

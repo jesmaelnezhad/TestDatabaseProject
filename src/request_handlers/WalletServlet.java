@@ -2,9 +2,6 @@ package request_handlers;
 
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -12,19 +9,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
 import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
-import rm.parking_structure.City;
-import rm.parking_structure.ParkingSpot;
-import rm.parking_structure.ParkingSpotContainer;
-import tm.WalletTransaction;
-import um.Customer;
-import um.CustomerManager;
+import um.User;
+import um.UserManager;
+import um.User.UserType;
 import utility.Constants;
-import utility.Point;
 
 /**
  * Servlet implementation class SearchServlet
@@ -71,8 +61,12 @@ public class WalletServlet extends HttpServlet {
 		}
 
 		ResourceManager rm = ResourceManager.getRM();
-		Customer customer = CustomerManager.getCM().getCustomer(request);
-
+		User customer = UserManager.getCM().getUser(request);
+		if(customer.type != UserType.Customer) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.REQUEST_NOT_SUPPORTED, response);
+			return;
+		}
+		
 		if(command.equals(Constants.COMMAND_TOPUP)) {
 
 			if(request.getParameter("amount") == null) {

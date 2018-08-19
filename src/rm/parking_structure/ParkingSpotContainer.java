@@ -17,9 +17,11 @@ import request_handlers.ResponseHelper;
 import request_handlers.ResponseConstants.ResponseCode;
 import rm.PriceRate;
 import rm.SensorInfoMaterializer;
+import rm.WorkingHour;
 import rm.basestations.Sensor;
 import rm.basestations.SensorId;
 import utility.Constants;
+import utility.KDTree;
 import utility.ParkingSpotStatus;
 import utility.Point;
 
@@ -29,7 +31,7 @@ import utility.Point;
  */
 public class ParkingSpotContainer {
 	// sector id to sector location
-	public Map<Integer, Point> sectorLocationIndex = new HashMap<>();
+	public KDTree<Sector> sectorsKDTree = new KDTree<>(2);
 	// TODO: these maps may need a lock themselves
 	public Map<Integer, Sector> sectorIndex = new HashMap<>();
 	
@@ -48,43 +50,45 @@ public class ParkingSpotContainer {
 	}
 	
 	// returns the list of all parking spots 
-	public JSONArray searchByProximity(Point center, double radius){
+	public JSONArray searchByRange(Point topLeft, Point bottomRight){
 		
 		JSONArray result = new JSONArray();
 		
+		double [] lows = new double[2];
+		double [] highs = new double[2];
 		
-		for(Map.Entry<Integer, Point> sectorEntry : sectorLocationIndex.entrySet()) {
-			if(Point.distance(sectorEntry.getValue(), center) <= radius) {
-				Sector sector = sectorIndex.get(sectorEntry.getKey());
-				// lock S on sector
-				ReadLock sectorLock = sector.lock.readLock();
-				///////// sector is safe for read ////////
-				// read sector info
-				JSONObject sectorJSONObj = sector.getMinimumJSONObject();
-				// read segments' info
-				List<Segment> segments = sector.getSegments();
-				JSONArray sectorSegments = new JSONArray();
-				for(Segment segment : segments) {
-					ReadLock segmentLock = segment.lock.readLock();
-					///////// segment is safe for read ////////
-					JSONObject segmentJSONObj = segment.getMinimumJSONObject();
-					sectorSegments.add(segmentJSONObj);
-					/////////
-					// unlock segment
-					segmentLock.unlock();
-				}
-				sectorJSONObj.put(Constants.SEGMENTS, sectorSegments);
-				result.add(sectorJSONObj);
-				/////////
-				// unlock sector
-				sectorLock.unlock();
+		lows[0] = (double)topLeft.x;
+		lows[1] = (double)topLeft.y;
+		
+		highs[0] = (double)bottomRight.x;
+		highs[1] = (double)bottomRight.y;
+		
+		List<Sector> inRangeSectors = sectorsKDTree.getRange(lows, highs);
+		for(Sector sector : inRangeSectors) {
+			// lock S on sector
+			ReadLock sectorLock = sector.lock.readLock();
+			///////// sector is safe for read ////////
+			// read sector info
+			JSONObject sectorJSONObj = sector.getMinimumJSONObject();
+			// read segments' info
+			List<Segment> segments = sector.getSegments();
+			JSONArray sectorSegments = new JSONArray();
+			for(Segment segment : segments) {
+				JSONObject segmentJSONObj = segment.getMinimumJSONObject();
+				sectorSegments.add(segmentJSONObj);
 			}
+			sectorJSONObj.put(Constants.SEGMENTS, sectorSegments);
+			result.add(sectorJSONObj);
+			/////////
+			// unlock sector
+			sectorLock.unlock();
 		}
+		
 		return result;
 	}
 	
 	// Get the information of a sector, segment, and|or a spot
-	public JSONObject getInfo(int sectorId, int segmentId, int spotId) {
+	public JSONObject getInfo(int sectorId) {
 		Sector sector = sectorIndex.get(sectorId);
 		if(sector == null) { 
 			return ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_INVALID);
@@ -102,42 +106,16 @@ public class ParkingSpotContainer {
 			priceRatesJSONArray.add(pr.getJSONObject());
 		}
 		sectorJSONObj.put(Constants.PRICE_RATES, priceRatesJSONArray);
-		// read segment info
-		if(segmentId == -1) {
-			/////////
-			// unlock sector
-			sectorLock.unlock();
-			sectorJSONObj = ResponseHelper.respondWithMessage(sectorJSONObj, false, ResponseCode.SEGMENT_ID_INVALID);
-			return sectorJSONObj;
+		
+		WorkingHour wh = sector.getWorkingHour();
+		sectorJSONObj.put(Constants.WORKING_HOUR, wh.getJSON());
+		
+		List<Segment> segments = sector.getSegments();
+		JSONArray segmentsJSONArray = new JSONArray();
+		for(Segment segment : segments) {
+			segmentsJSONArray.add(segment.getMinimumJSONObject());
 		}
-		// read segments' info
-		Segment segment = sector.getSegment(segmentId);
-		ReadLock segmentLock = segment.lock.readLock();
-		///////// segment is safe for read ////////
-		JSONObject segmentJSONObj = segment.getMinimumJSONObject();
-		sectorJSONObj.put(Constants.SEGMENT, segmentJSONObj);
-		// read spot info
-		if(spotId == -1) {
-			/////////
-			// unlock segment
-			segmentLock.unlock();
-			// unlock sector
-			sectorLock.unlock();
-			sectorJSONObj = ResponseHelper.respondWithMessage(sectorJSONObj, false, ResponseCode.SPOT_ID_INVALID);
-			return sectorJSONObj;
-		}
-		// read segments' info
-		ParkingSpot spot = segment.getSpot(spotId);
-		ReadLock spotLock = spot.lock.readLock();
-		///////// segment is safe for read ////////
-		JSONObject spotJSONObj = spot.getMinimumJSONObject();
-		sectorJSONObj.put(Constants.SPOT, spotJSONObj);
-		/////////
-		// unlock segment
-		spotLock.unlock();
-		/////////
-		// unlock segment
-		segmentLock.unlock();
+		sectorJSONObj.put(Constants.SEGMENTS, segmentsJSONArray);
 		/////////
 		// unlock sector
 		sectorLock.unlock();
@@ -145,90 +123,47 @@ public class ParkingSpotContainer {
 		return null;
 	}
 
-	// Get the information of a sector, segment, and|or a spot
-	public JSONObject calculatePrice(int sectorId, int segmentId, int priceRateId, int time) {
+	// Get the price of parking 'time' minutes in the given sector
+	public JSONObject calculatePrice(int sectorId, int time) {
 
 		JSONObject status = new JSONObject();
 		
 		Sector sector = sectorIndex.get(sectorId);
 		if(sector == null) { 
-			// TODO: there is something wrong. sectorId isn't valid.
-			status.put("status", "unsuccessful");
-			status.put("message", "sector id invalid.");
-			return status;
+			// there is something wrong. sectorId isn't valid.
+			return ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_INVALID);
 		}
 
 		// lock S on sector
 		ReadLock sectorLock = sector.lock.readLock();
 		///////// sector is safe for read ////////
+		boolean emptySpotExists = sector.availablePark < sector.parkCapacity;
+		if(! emptySpotExists) {
+			sectorLock.unlock();
+			return ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_CAPACITY_FULL);
+		}
 		// read sector info
 		JSONObject sectorJSONObj = sector.getMinimumJSONObject();
-		// read price rates
-		List<PriceRate> priceRates = sector.getPriceRates();
-		// read segment info
-		// read segments' info
-		Segment segment = sector.getSegment(segmentId);
-		if(segment == null) {
-			/////////
-			// unlock sector
-			sectorLock.unlock();
-			status.put("status", "unsuccessful");
-			status.put("message", "segment id invalid.");
-			return status;
-		}
-		ReadLock segmentLock = segment.lock.readLock();
-		///////// segment is safe for read ////////
-		JSONObject segmentJSONObj = segment.getMinimumJSONObject();
-		sectorJSONObj.put(Constants.SEGMENT, segmentJSONObj);
-		// check if there is an empty spot
-		List<ParkingSpot> spots = segment.getSpots();
-		boolean emptySpotExists = false;
-		for(ParkingSpot spot : spots) {
-			///////// spot is safe for read ////////
-			ReadLock lock = spot.lock.readLock();
-			// act on the first empty spot
-			if(spot.status == ParkingSpotStatus.EMPTY) {
-				emptySpotExists = true;
-			}
-			lock.unlock();
-			if(emptySpotExists) {
-				break;
-			}
-		}
-
-
-		if(emptySpotExists) {
-			PriceRate selectedRate = null;
+		// read the working hour and check if any price applies to the current time
+		WorkingHour wh = sector.getWorkingHour();
+		
+		if(wh.isWorkingNow()) {
+			// read price rates
+			List<PriceRate> priceRates = sector.getPriceRates();
+			
+			PriceRate selectedRate = priceRates.get(priceRates.size()-1);
 			for(PriceRate pr : priceRates) {
-				if(pr.id == priceRateId) {
+				if(pr.getFromInMinutes() <= time && pr.getToInMinutes() > time) {
 					selectedRate = pr;
+					break;
 				}
 			}
-			int calculatedPrice = 0;
-			/*
-			 * 
-			 * 
-			 * TODO: calculate price using selectedRate and time 
-			 * and append the price to sectorJSONObj
-			 * 
-			 * 
-			 */
+			int calculatedPrice = selectedRate.getPrice() * (time / 30);
+			
 			sectorJSONObj.put("price", calculatedPrice);
 		}else {
-			/////////
-			// unlock segment
-			segmentLock.unlock();
-			/////////
-			// unlock sector
-			sectorLock.unlock();
-			status.put("status", "unsuccessful");
-			status.put("message", "Segment capacity is full.");
-			return status;
-			
+			sectorJSONObj.put("price", 0);
 		}
-		/////////
-		// unlock segment
-		segmentLock.unlock();
 		/////////
 		// unlock sector
 		sectorLock.unlock();
@@ -237,11 +172,11 @@ public class ParkingSpotContainer {
 	}
 
 	// Get the information of a sector, segment, and|or a spot
-	public JSONObject rentSpot(int sectorId, int segmentId) {
+	public JSONObject rentSpot(int sectorId) {
 		
 		Sector sector = sectorIndex.get(sectorId);
 		if(sector == null) { 
-			// TODO: there is something wrong. sectorId isn't valid.
+			// there is something wrong. sectorId isn't valid.
 			return ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_INVALID);
 		}
 
@@ -252,58 +187,13 @@ public class ParkingSpotContainer {
 		///////// sector is safe for read ////////
 		// read sector info
 		transactionJSONObj.put(Constants.SECTOR_ID, sector.id);
-		// read segment info
-		// read segments' info
-		Segment segment = sector.getSegment(segmentId);
-		if(segment == null) {
-			/////////
-			// unlock sector
-			sectorLock.unlock();
-			return ResponseHelper.respondWithMessage(transactionJSONObj, 
-					false, ResponseCode.SEGMENT_ID_INVALID);
-		}
-		WriteLock segmentLock = segment.lock.writeLock();
-		///////// segment is safe for read ////////
-		transactionJSONObj.put(Constants.SEGMENT_ID, segment.id);
-		// check if there is an empty spot
-		List<ParkingSpot> spots = segment.getSpots();
-		for(ParkingSpot spot : spots) {
-			///////// spot is safe for read ////////
-			WriteLock lock = spot.lock.writeLock();
-			// act on the first empty spot
-			if(spot.status == ParkingSpotStatus.EMPTY) {
-				transactionJSONObj.put(Constants.SPOT_ID, spot.id);
-				// modifications for rent
-				spot.status = ParkingSpotStatus.FULL;
-				segment.availablePark --;
-				sector.availablePark --;
-				// record the change in DB
-				ParkingSpot.updateDB(spot);
-				
-				transactionJSONObj = ResponseHelper.respondWithStatus(transactionJSONObj, true);
-				/////////
-				// unlock the spot
-				lock.unlock();
-				/////////
-				// unlock segment
-				segmentLock.unlock();
-				/////////
-				// unlock sector
-				sectorLock.unlock();
-				
-				return transactionJSONObj;
-			}
-			lock.unlock();
-		}
+		sector.availablePark --;
+		
+		transactionJSONObj = ResponseHelper.respondWithStatus(transactionJSONObj, true);
 
-		/////////
-		// unlock segment
-		segmentLock.unlock();
-		/////////
 		// unlock sector
 		sectorLock.unlock();
-		return ResponseHelper.respondWithMessage(transactionJSONObj, 
-				false, ResponseCode.SEGMENT_CAPACITY_FULL);
+		return transactionJSONObj;
 	}
 	
 	// returns null if sectorId is not found
@@ -317,16 +207,14 @@ public class ParkingSpotContainer {
 	}
 	
 	// Get the information of a sector, segment, and|or a spot
-	public JSONObject freeSpot(int sectorId, int segmentId, int spotId) {
+	public JSONObject freeSpot(int sectorId) {
 
 		JSONObject transactionJSONObj = new JSONObject();
 		
 		Sector sector = sectorIndex.get(sectorId);
 		if(sector == null) { 
-			// TODO: there is something wrong. sectorId isn't valid.
-			transactionJSONObj.put("status", "unsuccessful");
-			transactionJSONObj.put("message", "sector id invalid.");
-			return transactionJSONObj;
+			// there is something wrong. sectorId isn't valid.
+			return ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_INVALID);
 		}
 
 		// lock S on sector
@@ -334,62 +222,13 @@ public class ParkingSpotContainer {
 		///////// sector is safe for read ////////
 		// read sector info
 		transactionJSONObj.put(Constants.SECTOR_ID, sector.id);
-		// read price rates
-		List<PriceRate> priceRates = sector.getPriceRates();
-		// read segment info
-		// read segments' info
-		Segment segment = sector.getSegment(segmentId);
-		if(segment == null) {
-			/////////
-			// unlock sector
-			sectorLock.unlock();
-			transactionJSONObj.put("status", "unsuccessful");
-			transactionJSONObj.put("message", "segment id invalid.");
-			return transactionJSONObj;
-		}
-		WriteLock segmentLock = segment.lock.writeLock();
-		///////// segment is safe for read ////////
-		transactionJSONObj.put(Constants.SEGMENT_ID, segment.id);
-		// check if there is an empty spot
-		List<ParkingSpot> spots = segment.getSpots();
-		for(ParkingSpot spot : spots) {
-			///////// spot is safe for read ////////
-			WriteLock lock = spot.lock.writeLock();
-			// act on the first empty spot
-			if(spot.id == spotId) {
-				transactionJSONObj.put(Constants.SPOT_ID, spot.id);
 
-				// modifications for rent
-				spot.status = ParkingSpotStatus.EMPTY;
-				segment.availablePark ++;
-				sector.availablePark ++;
-				// record the change in DB
-				ParkingSpot.updateDB(spot);
-				
-				transactionJSONObj.put("status", "successful");
-				/////////
-				// unlock the spot
-				lock.unlock();
-				/////////
-				// unlock segment
-				segmentLock.unlock();
-				/////////
-				// unlock sector
-				sectorLock.unlock();
-				
-				return transactionJSONObj;
-			}
-			lock.unlock();
-		}
+		sector.availablePark ++;
+		
+		transactionJSONObj = ResponseHelper.respondWithStatus(transactionJSONObj, true);
 
-		/////////
-		// unlock segment
-		segmentLock.unlock();
-		/////////
 		// unlock sector
 		sectorLock.unlock();
-		transactionJSONObj.put("status", "unsuccessful");
-		transactionJSONObj.put("message", "Parking spot not found.");
 		return transactionJSONObj;
 	}
 	

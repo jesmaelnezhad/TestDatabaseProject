@@ -16,21 +16,22 @@ import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
-import um.Customer;
-import um.CustomerManager;
+import um.User;
+import um.UserManager;
+import um.User.UserType;
 import utility.Constants;
 
 /**
  * Servlet implementation class SpotInfoServlet
  */
 @WebServlet("/SpotInfoServlet")
-public class SpotInfoServlet extends HttpServlet {
+public class SectorInfoServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public SpotInfoServlet() {
+    public SectorInfoServlet() {
         super();
     }
 
@@ -62,20 +63,17 @@ public class SpotInfoServlet extends HttpServlet {
 		    return;
 		}
 		int sectorId = Integer.parseInt(request.getParameter(Constants.SECTOR_ID));
-		int segmentId = -1;
-		if(request.getParameter(Constants.SEGMENT_ID) != null) {
-			segmentId = Integer.parseInt(request.getParameter(Constants.SEGMENT_ID));
-		}
-		int spotId = -1;
-		if(request.getParameter(Constants.SPOT_ID) != null) {
-			spotId = Integer.parseInt(request.getParameter(Constants.SPOT_ID));
-		}
-		ResourceManager rm = ResourceManager.getRM();
-		Customer customer = CustomerManager.getCM().getCustomer(request);
 		
-		City city = CustomerManager.getCM().getCity(request);
+		ResourceManager rm = ResourceManager.getRM();
+		User customer = UserManager.getCM().getUser(request);
+		if(customer.type != UserType.Customer) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.REQUEST_NOT_SUPPORTED, response);
+			return;
+		}
+		
+		City city = UserManager.getCM().getCity(request);
 
-	    ResponseHelper.respondWithJSONObject(rm.getInfo(city, sectorId, segmentId, spotId) , response);
+	    ResponseHelper.respondWithJSONObject(rm.getInfo(city, sectorId) , response);
 	}
 
 	/**

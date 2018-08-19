@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import rm.parking_structure.City;
-import um.CustomerManager;
+import um.UserManager;
 
 /**
  * Servlet Filter implementation class PrepareCityFilter
@@ -61,7 +61,7 @@ public class PrepareCityFilter implements Filter {
 	public boolean prepareCity(HttpServletRequest req, HttpServletResponse res) {
 		//TODO: find out what the city is and load the data structure if needed.
 		City city = null;//TODO
-		CustomerManager.getCM().setCity(req, city);
+		UserManager.getCM().setCity(req, city);
 		return true;
 	}
 

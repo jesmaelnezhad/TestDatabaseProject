@@ -18,6 +18,8 @@ public class ResponseConstants {
 	private Map<ResponseCode, String> messages = new HashMap<>();
 	
 	public enum ResponseCode{
+		PARAMETERS_NOT_COMPLETE,
+		REQUEST_NOT_SUPPORTED,
 		SECTOR_ID_MISSING,
 		SEGMENT_ID_MISSING,
 		CAR_ID_MISSING,
@@ -44,10 +46,13 @@ public class ResponseConstants {
 		PAYMENT_NOT_SUCCESSFUL,
 		INPUT_INFO_INCOMPLETE,
 		CUSTOMER_EXISTS,
-		UPDATE_SENSOR_INPUT_WRONG
+		UPDATE_SENSOR_INPUT_WRONG,
+		SECTOR_CAPACITY_FULL
 	}
 
 	private ResponseConstants() {
+		messages.put(ResponseCode.PARAMETERS_NOT_COMPLETE, "پارامتر های ورودی کامل نیستند.");
+		messages.put(ResponseCode.REQUEST_NOT_SUPPORTED, "Request is not supported for this type of user.");
 		messages.put(ResponseCode.SECTOR_ID_MISSING, "شناسه ی سکتور داده نشده است.");
 		messages.put(ResponseCode.SEGMENT_ID_MISSING, "شناسه ی سگمنت داده نشده است.");
 		messages.put(ResponseCode.CAR_ID_MISSING, "شناسه ی ماشین داده نشده است.");
@@ -75,6 +80,7 @@ public class ResponseConstants {
 		messages.put(ResponseCode.INPUT_INFO_INCOMPLETE, "اطلاعات ورودی کافی نیست.");
 		messages.put(ResponseCode.CUSTOMER_EXISTS, "مشتری با این مشخصات قبلا در سیستم ثبت شده است.");
 		messages.put(ResponseCode.UPDATE_SENSOR_INPUT_WRONG, "Four parallel arrays of id, fullFlag, lastTimeUpdated, and lastTimeChanged values must be given.");
+		messages.put(ResponseCode.SECTOR_CAPACITY_FULL, "ظرفیت این سکتور پر است.");
 	}
 	
 	public String getMessage(ResponseCode code) {

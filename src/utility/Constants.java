@@ -23,6 +23,10 @@ public class Constants {
 	public static final String RADIUS = "radius";
 	public static final String CENTER_X = "center_x";
 	public static final String CENTER_Y = "center_y";
+	public static final String TOP_LEFT_X = "top_left_x";
+	public static final String TOP_LEFT_Y = "top_left_y";
+	public static final String BOTTOM_RIGHT_X = "bottom_right_x";
+	public static final String BOTTOM_RIGHT_Y = "bottom_right_y";
 	public static final String SECTOR_ID = "sector_id";
 	public static final String SEGMENT_ID = "segment_id";
 	public static final String SPOT_ID = "spot_id";
@@ -38,6 +42,7 @@ public class Constants {
 	public static final String SIGNED_IN_CUSTOMER = "signed_in_customer";
 	public static final String CITY_IN_USE = "city_in_user";
 	public static final String PRICE_RATES = "price_rates";
+	public static final String WORKING_HOUR = "working_hour";
 	public static final String SEGMENT = "segment";
 	public static final String SPOT = "spot";
 	public static final String STATUS = "status";

@@ -15,8 +15,8 @@ import org.json.simple.JSONObject;
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import tm.TransactionManager;
-import um.Customer;
-import um.CustomerManager;
+import um.User;
+import um.UserManager;
 import utility.Constants;
 
 /**
@@ -53,7 +53,7 @@ public class TransactionServlet extends HttpServlet {
 		
 		// get transaction manager and customer objects
 		TransactionManager tm = TransactionManager.getTM(); // It is a unique object, remember
-		Customer customer = CustomerManager.getCM().getCustomer(request);
+		User customer = UserManager.getCM().getUser(request);
 		
 		// set the city for this transaction request
 		City city = null;

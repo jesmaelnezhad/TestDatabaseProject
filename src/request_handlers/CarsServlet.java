@@ -21,8 +21,9 @@ import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
 import rm.parking_structure.ParkingSpotContainer;
 import um.Car;
-import um.Customer;
-import um.CustomerManager;
+import um.User;
+import um.UserManager;
+import um.User.UserType;
 import utility.Constants;
 import utility.Point;
 
@@ -74,7 +75,11 @@ public class CarsServlet extends HttpServlet {
 		}
 		
 		ResourceManager rm = ResourceManager.getRM();
-		Customer customer = CustomerManager.getCM().getCustomer(request);
+		User customer = UserManager.getCM().getUser(request);
+		if(customer.type != UserType.Customer) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.REQUEST_NOT_SUPPORTED, response);
+			return;
+		}
 		
 		// search for sectors
 		JSONObject result = new JSONObject();
@@ -82,7 +87,7 @@ public class CarsServlet extends HttpServlet {
 			String makeModel = request.getParameter(Constants.MAKE_MODEL);
 			int color = Integer.parseInt(request.getParameter(Constants.COLOR));
 			String plateNumber = request.getParameter(Constants.PLATE_NUMBER);
-			Car newCar = CustomerManager.getCM().insertNewCar(customer, makeModel, color, plateNumber);
+			Car newCar = UserManager.getCM().insertNewCar(customer, makeModel, color, plateNumber);
 			if(newCar == null) {
 				result = ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
 			}else {
@@ -100,14 +105,14 @@ public class CarsServlet extends HttpServlet {
 			car.makeModel = makeModel;
 			car.color = color;
 			car.plateNumber = plateNumber;
-			Car editedCar = CustomerManager.getCM().editCar(car);
+			Car editedCar = UserManager.getCM().editCar(car);
 			if(editedCar == null) {
 				result = ResponseHelper.respondWithMessage(false, ResponseCode.CAR_ID_NOT_FOUND);
 			}else {
 				result = editedCar.getJSON();
 			}
 		}else if(Constants.COMMAND_GET_ALL.equals(command)) {
-			List<Car> cars = CustomerManager.getCM().fetchAllCars(customer);
+			List<Car> cars = UserManager.getCM().fetchAllCars(customer);
 			JSONArray results = new JSONArray();
 			for(Car car : cars) {
 				results.add(car.getJSON());

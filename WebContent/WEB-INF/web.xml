@@ -43,20 +43,20 @@
 	</filter-mapping>
 	
   <servlet>
-    <servlet-name>search-servlet</servlet-name>
-    <servlet-class>request_handlers/SearchServlet</servlet-class>
+    <servlet-name>search-area-servlet</servlet-name>
+    <servlet-class>request_handlers/SearchAreaServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>search-servlet</servlet-name>
-    <url-pattern>/search</url-pattern>
+    <servlet-name>search-area-servlet</servlet-name>
+    <url-pattern>/searcharea</url-pattern>
   </servlet-mapping>
   <servlet>
-    <servlet-name>spot-info-servlet</servlet-name>
-    <servlet-class>request_handlers/SpotInfoServlet</servlet-class>
+    <servlet-name>sector-info-servlet</servlet-name>
+    <servlet-class>request_handlers/SectorInfoServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>spot-info-servlet</servlet-name>
-    <url-pattern>/spotinfo</url-pattern>
+    <servlet-name>sector-info-servlet</servlet-name>
+    <url-pattern>/sectorinfo</url-pattern>
   </servlet-mapping>
   <servlet>
     <servlet-name>calc-price-servlet</servlet-name>

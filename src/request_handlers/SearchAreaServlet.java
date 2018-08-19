@@ -20,23 +20,24 @@ import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
 import rm.parking_structure.ParkingSpotContainer;
-import um.Customer;
-import um.CustomerManager;
+import um.User;
+import um.UserManager;
+import um.User.UserType;
 import utility.Constants;
 import utility.Point;
 
 /**
  * Servlet implementation class SearchServlet
  */
-@WebServlet("/SearchServlet")
-public class SearchServlet extends HttpServlet {
+@WebServlet("/SearchAreaServlet")
+public class SearchAreaServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public SearchServlet() {
+    public SearchAreaServlet() {
         super();
     }
 
@@ -64,19 +65,34 @@ public class SearchServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		int centerX = Integer.parseInt(request.getParameter(Constants.CENTER_X));
-		int centerY = Integer.parseInt(request.getParameter(Constants.CENTER_Y));
-		Point searchCenter = new Point(centerX, centerY);
-		double searchRadius = Double.parseDouble(request.getParameter(Constants.RADIUS));
+		if(request.getParameter(Constants.TOP_LEFT_X) == null
+				|| request.getParameter(Constants.TOP_LEFT_Y) == null
+				|| request.getParameter(Constants.BOTTOM_RIGHT_Y) == null
+				|| request.getParameter(Constants.BOTTOM_RIGHT_Y) == null) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.PARAMETERS_NOT_COMPLETE, response);
+			return;
+		}
+		
+		
+		int topLeftX = Integer.parseInt(request.getParameter(Constants.TOP_LEFT_X));
+		int topLeftY = Integer.parseInt(request.getParameter(Constants.TOP_LEFT_Y));
+		int bottomRightX = Integer.parseInt(request.getParameter(Constants.BOTTOM_RIGHT_X));
+		int bottomRightY = Integer.parseInt(request.getParameter(Constants.BOTTOM_RIGHT_Y));
+		Point topLeft = new Point(topLeftX, topLeftY);
+		Point bottomRight = new Point(bottomRightX, bottomRightY);
 		
 		
 		ResourceManager rm = ResourceManager.getRM();
-		Customer customer = CustomerManager.getCM().getCustomer(request);
+		User customer = UserManager.getCM().getUser(request);
+		if(customer.type != UserType.Customer) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.REQUEST_NOT_SUPPORTED, response);
+			return;
+		}
 		
-		City city = CustomerManager.getCM().getCity(request);
+		City city = UserManager.getCM().getCity(request);
 		
 	    ResponseHelper.respondWithJSONArray(
-	    		rm.searchByProximity(city, searchCenter, searchRadius), response);
+	    		rm.searchByRange(city, topLeft, bottomRight), response);
 	}
 
 	/**

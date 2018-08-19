@@ -65,7 +65,7 @@ Response {
 /************************************************************************/
 The response should be an array.
 
-The command 'transactions' in the wallet request is responsible for this request.
+The command 'transactions' in the 'wallet' request is responsible for this request.
 /************************************************************************/
 
 
@@ -144,6 +144,13 @@ Response {
         }
     ]
 }
+
+/************************************************************************/
+It is not efficient to return all this information for all found sectors in the 'searchArea' request. The full
+information of a sector must be asked through the 'sectorinfo' request after a list of sectors is returned by the
+'searchArea' request.
+/************************************************************************/
+
 
 8: ReserveSpot {POST} Authorized 
 Body {

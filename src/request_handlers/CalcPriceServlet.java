@@ -17,8 +17,8 @@ import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
 import tm.TransactionManager;
-import um.Customer;
-import um.CustomerManager;
+import um.User;
+import um.UserManager;
 import utility.Constants;
 
 /**
@@ -84,12 +84,12 @@ public class CalcPriceServlet extends HttpServlet {
 		int parkTime = Integer.parseInt(request.getParameter(Constants.PARK_TIME));
 
 		ResourceManager rm = ResourceManager.getRM();
-		Customer customer = CustomerManager.getCM().getCustomer(request);
+		User customer = UserManager.getCM().getUser(request);
 
-		City city = CustomerManager.getCM().getCity(request);
+		City city = UserManager.getCM().getCity(request);
 
 		ResponseHelper.respondWithJSONObject(
-				rm.calculatePrice(city, sectorId, segmentId, rateId, parkTime), response);
+				rm.calculatePrice(city, sectorId, parkTime), response);
 	}
 
 	/**

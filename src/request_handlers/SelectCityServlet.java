@@ -21,8 +21,9 @@ import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
 import rm.parking_structure.ParkingSpotContainer;
-import um.Customer;
-import um.CustomerManager;
+import um.User;
+import um.User;
+import um.UserManager;
 import utility.Constants;
 import utility.Point;
 
@@ -68,7 +69,7 @@ public class SelectCityServlet extends HttpServlet {
 		
 		
 		ResourceManager rm = ResourceManager.getRM();
-		Customer customer = CustomerManager.getCM().getCustomer(request);
+		User customer = UserManager.getCM().getUser(request);
 		
 		customer.selected_city = rm.loadCity(cityId);
 		if(customer.selected_city == null) {

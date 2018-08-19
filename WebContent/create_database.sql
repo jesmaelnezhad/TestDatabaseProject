@@ -49,6 +49,22 @@ CREATE TABLE IF NOT EXISTS cars
 	FOREIGN KEY(customer_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
 
+/*==== Pricing ====*/
+CREATE TABLE IF NOT EXISTS price_rates
+(
+	id INT NOT NULL AUTO_INCREMENT,
+	pricing VARCHAR(500) NOT NULL,/*the format of this field is a JSON array of objects like {int, int, int}*/
+	PRIMARY KEY(id)
+) ENGINE=INNODB;
+
+CREATE TABLE IF NOT EXISTS working_hours
+(
+	id INT NOT NULL AUTO_INCREMENT,
+	start_time TIME NOT NULL,
+	end_time TIME NOT NULL,
+	PRIMARY KEY(id)
+) ENGINE=INNODB;
+
 
 /*==== creating parking structural tables ====*/
 CREATE TABLE IF NOT EXISTS cities
@@ -61,19 +77,23 @@ CREATE TABLE IF NOT EXISTS cities
 CREATE TABLE IF NOT EXISTS sectors
 (
 	id INT NOT NULL AUTO_INCREMENT,
+	capacity INT NOT NULL,
 	city_id INT NOT NULL,
 	rep_x DOUBLE NOT NULL,
 	rep_y DOUBLE NOT NULL,
 	price_rate_id INT,
+	working_hour_id INT,
 	PRIMARY KEY(id),
 	FOREIGN KEY(city_id) REFERENCES cities(id),
-	FOREIGN KEY(price_rate_id) REFERENCES price_rates(id)
+	FOREIGN KEY(price_rate_id) REFERENCES price_rates(id),
+	FOREIGN KEY(working_hour_id) REFERENCES working_hours(id)
 ) ENGINE=INNODB;
 
 CREATE TABLE IF NOT EXISTS sector_segments
 (
 	id INT NOT NULL AUTO_INCREMENT,
 	sector_id INT NOT NULL,
+	capacity INT NOT NULL,
 	start_x DOUBLE NOT NULL,
 	start_y DOUBLE NOT NULL,
 	end_x DOUBLE NOT NULL,
@@ -94,17 +114,10 @@ CREATE TABLE IF NOT EXISTS spots
 	FOREIGN KEY(sensor_id) REFERENCES sensors(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
 
-/*==== Pricing ====*/
-CREATE TABLE IF NOT EXISTS price_rates
-(
-	id INT NOT NULL AUTO_INCREMENT,
-	pricing VARCHAR(500) NOT NULL,/*the format of this field is a JSON array of objects like {int, int, int}*/
-	PRIMARY KEY(id)
-) ENGINE=INNODB;
-
 /*==== Transactions and Reservations ====*/
 CREATE TABLE IF NOT EXISTS customer_wallets
 (
+        id INT NOT NULL,
         customer_id INT NOT NULL,
         balance INT NOT NULL DEFAULT 0,
         FOREIGN KEY(customer_id) REFERENCES users(id) ON DELETE CASCADE
@@ -128,6 +141,7 @@ CREATE TABLE IF NOT EXISTS transactions
     payer_id VARCHAR(100) NOT NULL,/*either contains a string of wallet_id or RFID of the payment*/
     reservation_id INT,
     price INT NOT NULL,	
+    transaction_date DATE NOT NULL,
     transaction_time TIME NOT NULL,
     description VARCHAR(100) NOT NULL,
     PRIMARY KEY(id),

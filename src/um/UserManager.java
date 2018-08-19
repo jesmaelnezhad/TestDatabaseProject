@@ -29,21 +29,21 @@ import utility.Photo;
  * @author jam
  *
  */
-public class CustomerManager {
+public class UserManager {
 
-	private static CustomerManager cm = null;
-	private CustomerManager() {
+	private static UserManager cm = null;
+	private UserManager() {
 		
 	}
 	
-	public static CustomerManager getCM() {
+	public static UserManager getCM() {
 		if(cm == null) {
-			cm = new CustomerManager();
+			cm = new UserManager();
 		}
 		return cm;
 	}
-	public Customer getCustomer(HttpServletRequest request) {
-		Customer customer = (Customer) request.getAttribute(Constants.SIGNED_IN_CUSTOMER);
+	public User getUser(HttpServletRequest request) {
+		User customer = (User) request.getAttribute(Constants.SIGNED_IN_CUSTOMER);
 		if(customer == null) {
 			// TODO: user is not signed in
 			return null;
@@ -60,7 +60,7 @@ public class CustomerManager {
 	}
 	
 	public void signOutCustomer(HttpServletRequest request) {
-		Customer customer = (Customer) request.getAttribute(Constants.SIGNED_IN_CUSTOMER);
+		User customer = (User) request.getAttribute(Constants.SIGNED_IN_CUSTOMER);
 		if(customer == null) {
 			return ;
 		}
@@ -71,7 +71,7 @@ public class CustomerManager {
 			String fname, String lname, String cellphone, String emailAddr, Part profileImage, int adsFlag) {
 		
 		
-		Customer newCustomer = insertNewCustomer(fname, 
+		User newCustomer = insertNewCustomer(fname, 
 				lname, cellphone, emailAddr, profileImage.getName(), adsFlag);
 		if(newCustomer == null) {
 			return ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_EXISTS);
@@ -88,7 +88,7 @@ public class CustomerManager {
 	}
 	
 	// returns null if customer exists
-	private Customer insertNewCustomer(String fname, String lname, String cellphone, 
+	private User insertNewCustomer(String fname, String lname, String cellphone, 
 			String emailAddr, String profileImage, int adsFlag) {
 		Connection conn = DBManager.getDBManager().getConnection();
 		String sql = "";
@@ -107,8 +107,8 @@ public class CustomerManager {
 			ResultSet rs = stmt.getGeneratedKeys();
 			if(rs.next()) {
 				int id = rs.getInt("id");
-				Customer newCustomer = 
-						new Customer(id, fname, lname, cellphone, emailAddr, profileImage, adsFlag);
+				User newCustomer = 
+						new User(id, fname, lname, cellphone, emailAddr, profileImage, adsFlag);
 				return newCustomer;
 			}
 		} catch (SQLException e) {
@@ -120,7 +120,7 @@ public class CustomerManager {
 	
 	public JSONObject signInCustomer(HttpServletRequest request, String username, String password) {
 		JSONObject result = new JSONObject();
-		Customer newCustomer = fetchCustomer(username, password);
+		User newCustomer = fetchCustomer(username, password);
 		if(newCustomer == null) {
 			result.put(Constants.STATUS, "unsuccessful");
 			result.put(Constants.MESSAGE, "User/Password don't match.");
@@ -130,7 +130,7 @@ public class CustomerManager {
 		return newCustomer.getUserProfile();
 	}
 	// returns null if username and password don't match
-	private Customer fetchCustomer(String username, String password) {
+	private User fetchCustomer(String username, String password) {
 		Connection conn = DBManager.getDBManager().getConnection();
 		PreparedStatement stmt;
 		try {
@@ -139,7 +139,7 @@ public class CustomerManager {
 			stmt.setString(1, username);
 			stmt.setString(1, password);
 
-			Customer newCustomer = null;
+			User newCustomer = null;
 			ResultSet rs = stmt.executeQuery();
 			if(rs.next()){
 				int id = rs.getInt("id");
@@ -150,7 +150,7 @@ public class CustomerManager {
 				String profileImage = rs.getString("profile_image");
 				int adsFlag = rs.getInt("ads_flag");
 				newCustomer = 
-						new Customer(id, fname, lname, cellphone, emailAddr, profileImage, adsFlag);
+						new User(id, fname, lname, cellphone, emailAddr, profileImage, adsFlag);
 			}else {
 				// username password don't match
 				newCustomer = null;
@@ -165,7 +165,7 @@ public class CustomerManager {
 		return null;
 	}
 	
-	public Car insertNewCar(Customer customer, String makeModel, int color, String plateNumber) {
+	public Car insertNewCar(User customer, String makeModel, int color, String plateNumber) {
 		Car newCar = null;
 		
 		Connection conn = DBManager.getDBManager().getConnection();
@@ -205,7 +205,7 @@ public class CustomerManager {
 		return editedCar;
 	}
 	
-	public List<Car> fetchAllCars(Customer customer){
+	public List<Car> fetchAllCars(User customer){
 		List<Car> cars = new ArrayList<>();
 		
 		Connection conn = DBManager.getDBManager().getConnection();

@@ -21,8 +21,8 @@ import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
 import rm.parking_structure.ParkingSpotContainer;
-import um.Customer;
-import um.CustomerManager;
+import um.User;
+import um.UserManager;
 import utility.Constants;
 import utility.Point;
 
@@ -68,11 +68,11 @@ public class SignOutServlet extends HttpServlet {
 		JSONObject result = new JSONObject();
 		
 		ResourceManager rm = ResourceManager.getRM();
-		Customer customer = CustomerManager.getCM().getCustomer(request);
+		User customer = UserManager.getCM().getUser(request);
 		
 		if(customer != null) {
 			// there is a signed in user. Sign out
-			CustomerManager.getCM().signOutCustomer(request);
+			UserManager.getCM().signOutCustomer(request);
 			result.put(Constants.STATUS, "successful");
 		}else {
 			result = ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN);

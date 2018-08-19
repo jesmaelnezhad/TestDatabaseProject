@@ -21,8 +21,8 @@ import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
 import rm.parking_structure.ParkingSpotContainer;
-import um.Customer;
-import um.CustomerManager;
+import um.User;
+import um.UserManager;
 import utility.Constants;
 import utility.Point;
 
@@ -87,13 +87,13 @@ public class SignUpServlet extends HttpServlet {
 		
 		
 		ResourceManager rm = ResourceManager.getRM();
-		Customer customer = CustomerManager.getCM().getCustomer(request);
+		User customer = UserManager.getCM().getUser(request);
 		
 		if(customer != null) {
-			CustomerManager.getCM().signOutCustomer(request);
+			UserManager.getCM().signOutCustomer(request);
 		}
 		
-	    ResponseHelper.respondWithJSONObject(CustomerManager.getCM().signUpCustomer(request,
+	    ResponseHelper.respondWithJSONObject(UserManager.getCM().signUpCustomer(request,
 				fname, lname, cellphone, emailAddr, profileImagePart, adsFlag), response);
 	}
 

@@ -4,58 +4,56 @@
 	"sectors":
 			[
 				{
-				 "id":"#segment ID#", 
+				 "id":"#sector ID#", 
 				 "center_location":"#X,Y#", 
 				 "segments":[
 				 				{"id":"#segment ID#", 
 				 				 "start_location":"#X,Y#", "end_location":"#X,Y#", 
-				 				 "capacity":"#Number of parking spots#",
-				 				 "sensor_spots":[
-				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
-				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
-				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"} ]
+				 				 "capacity":"#Number of parking spots#"
 				 				},
 				 				{"id":"#segment ID#", 
 				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
-				 				 "capacity":"#Number of parking spots#",
-				 				 "sensor_spots":[]
+				 				 "capacity":"#Number of parking spots#"
 				 				},
 				 				{"id":"#segment ID#", 
 				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
-				 				 "capacity":"#Number of parking spots#",
-				 				 "sensor_spots":[
-				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
-				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
-				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
-				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
-				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
-				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"} ]
+				 				 "capacity":"#Number of parking spots#"
 				 				}
-				 			]
+				 			],
+				 "spots":[
+	 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#", "local_spot_id":"#Number written on the ground#"},
+	 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#", "local_spot_id":"#Number written on the ground#"},
+	 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#", "local_spot_id":"#Number written on the ground#"} ],
+	 			 "price_rates":[
+	 			 				{"from":"#Multiples of 30 minutes#", "to":"#Multiples of 30 minutes#", "price":"#Integer in Rials#"},
+	 			 				{"from":"#Multiples of 30 minutes#", "to":"#Multiples of 30 minutes#", "price":"#Integer in Rials#"}],
+	 			 "working_hours":{"start":"#A daytime string#", "end":"#A daytime string#"}
 				},
 				{
-				 "id":"#segment ID#", 
+				 "id":"#sector ID#", 
 				 "center_location":"#X,Y#", 
 				 "segments":[
 				 				{"id":"#segment ID#", 
 				 				 "start_location":"#X,Y#", "end_location":"#X,Y#", 
-				 				 "capacity":"#Number of parking spots#",
-				 				 "sensor_spots":[]
+				 				 "capacity":"#Number of parking spots#"
 				 				},
 				 				{"id":"#segment ID#", 
 				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
-				 				 "capacity":"#Number of parking spots#",
-				 				 "sensor_spots":[
-				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"},
-				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"}]
+				 				 "capacity":"#Number of parking spots#"
 				 				},
 				 				{"id":"#segment ID#", 
 				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
-				 				 "capacity":"#Number of parking spots#",
-				 				 "sensor_spots":[
-				 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#"}]
+				 				 "capacity":"#Number of parking spots#"
 				 				}
-				 			]
+				 			],
+				 "spots":[
+	 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#", "local_spot_id":"#Number written on the ground#"},
+	 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#", "local_spot_id":"#Number written on the ground#"},
+	 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#", "local_spot_id":"#Number written on the ground#"} ],
+	 			 "price_rates":[
+	 			 				{"from":"#Multiples of 30 minutes#", "to":"#Multiples of 30 minutes#", "price":"#Integer in Rials#"},
+	 			 				{"from":"#Multiples of 30 minutes#", "to":"#Multiples of 30 minutes#", "price":"#Integer in Rials#"}],
+	 			 "working_hours":{"start":"#A daytime string#", "end":"#A daytime string#"}
 				}
 			]
 	},
@@ -65,58 +63,56 @@
 	"sectors":
 			[
 				{
-				 "id":"#segment ID#", 
+				 "id":"#sector ID#", 
 				 "center_location":"#X,Y#", 
 				 "segments":[
 				 				{"id":"#segment ID#", 
 				 				 "start_location":"#X,Y#", "end_location":"#X,Y#", 
-				 				 "capacity":"#Number of parking spots#",
-				 				 "sensor_spots":[
-				 				 			{"id":"#sensor id#"},
-				 				 			{"id":"#sensor id#"},
-				 				 			{"id":"#sensor id#"} ]
+				 				 "capacity":"#Number of parking spots#"
 				 				},
 				 				{"id":"#segment ID#", 
 				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
-				 				 "capacity":"#Number of parking spots#",
-				 				 "sensor_spots":[]
+				 				 "capacity":"#Number of parking spots#"
 				 				},
 				 				{"id":"#segment ID#", 
 				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
-				 				 "capacity":"#Number of parking spots#",
-				 				 "sensor_spots":[
-				 				 			{"id":"#sensor id#"},
-				 				 			{"id":"#sensor id#"},
-				 				 			{"id":"#sensor id#"},
-				 				 			{"id":"#sensor id#"},
-				 				 			{"id":"#sensor id#"},
-				 				 			{"id":"#sensor id#"} ]
+				 				 "capacity":"#Number of parking spots#"
 				 				}
-				 			]
+				 			],
+				 "spots":[
+	 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#", "local_spot_id":"#Number written on the ground#"},
+	 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#", "local_spot_id":"#Number written on the ground#"},
+	 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#", "local_spot_id":"#Number written on the ground#"} ],
+	 			 "price_rates":[
+	 			 				{"from":"#Multiples of 30 minutes#", "to":"#Multiples of 30 minutes#", "price":"#Integer in Rials#"},
+	 			 				{"from":"#Multiples of 30 minutes#", "to":"#Multiples of 30 minutes#", "price":"#Integer in Rials#"}],
+	 			 "working_hours":{"start":"#A daytime string#", "end":"#A daytime string#"}
 				},
 				{
-				 "id":"#segment ID#", 
+				 "id":"#sector ID#", 
 				 "center_location":"#X,Y#", 
 				 "segments":[
 				 				{"id":"#segment ID#", 
 				 				 "start_location":"#X,Y#", "end_location":"#X,Y#", 
-				 				 "capacity":"#Number of parking spots#",
-				 				 "sensor_spots":[]
+				 				 "capacity":"#Number of parking spots#"
 				 				},
 				 				{"id":"#segment ID#", 
 				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
-				 				 "capacity":"#Number of parking spots#",
-				 				 "sensor_spots":[
-				 				 			{"id":"#sensor id#"},
-				 				 			{"id":"#sensor id#"}]
+				 				 "capacity":"#Number of parking spots#"
 				 				},
 				 				{"id":"#segment ID#", 
 				 				 "start_location":"#X,Y#", "end_location":"#X,Y#",
-				 				 "capacity":"#Number of parking spots#",
-				 				 "sensor_spots":[
-				 				 			{"id":"#sensor id#"}]
+				 				 "capacity":"#Number of parking spots#"
 				 				}
-				 			]
+				 			],
+				 "spots":[
+	 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#", "local_spot_id":"#Number written on the ground#"},
+	 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#", "local_spot_id":"#Number written on the ground#"},
+	 				 			{"id":"#sensor id#", "pid":"#parkometer id#", "bid":"#basestation id#", "local_spot_id":"#Number written on the ground#"} ],
+	 			 "price_rates":[
+	 			 				{"from":"#Multiples of 30 minutes#", "to":"#Multiples of 30 minutes#", "price":"#Integer in Rials#"},
+	 			 				{"from":"#Multiples of 30 minutes#", "to":"#Multiples of 30 minutes#", "price":"#Integer in Rials#"}],
+	 			 "working_hours":{"start":"#A daytime string#", "end":"#A daytime string#"}
 				}
 			]
 	}

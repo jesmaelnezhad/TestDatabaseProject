@@ -17,8 +17,8 @@ import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
 import tm.TransactionManager;
-import um.Customer;
-import um.CustomerManager;
+import um.User;
+import um.UserManager;
 import utility.Constants;
 
 /**
@@ -85,9 +85,11 @@ public class RentSpotServlet extends HttpServlet {
 		int parkTime = Integer.parseInt(request.getParameter(Constants.PARK_TIME));
 		
 		ResourceManager rm = ResourceManager.getRM();
-		Customer customer = CustomerManager.getCM().getCustomer(request);
+		User customer = UserManager.getCM().getUser(request);
+		//TODO: the type of user should probably be basestation. This must be checked
+		// 		when we confirm this.
 		
-		City city = CustomerManager.getCM().getCity(request);
+		City city = UserManager.getCM().getCity(request);
 
 	    ResponseHelper.respondWithJSONObject(
 	    		rm.rentSpot(customer, city, sectorId, segmentId, carId, rateId, parkTime), response);

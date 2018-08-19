@@ -17,47 +17,51 @@ import org.json.simple.JSONObject;
  *
  */
 public class PriceRate {
-	public int id;
-	public String description;
-	public int price;
+	private int id;
+	private int from;
+	private int to;
+	private int price;
 	
-	private PriceRate(int id, String description, int price){
+	private PriceRate(int id, int from, int to, int price){
 		this.id = id;
-		this.description = description;
+		this.from = from;
+		this.to = to;
 		this.price = price;
+	}
+	
+	public int getFromInMinutes() {
+		return from * 30;
+	}
+	
+	public int getToInMinutes() {
+		return to * 30;
+	}
+	
+	public int getPrice() {
+		return price;
+	}
+	
+	public int getId() {
+		return id;
 	}
 	
 	
 	public String getJSON() {
-		String result = "{\"id\":"+id+", \"description\":\""+description+"\", \"price\":"+price+"}";
+		String result = "{\"from\":\""+getFromInMinutes()+"\", \"to\":\""+getToInMinutes()+"\" \"price\":"+price+"}";
 		return result;
+	}
+	
+	public static PriceRate readJSON(int id, JSONObject jsonObject) {
+		int from = (Integer)jsonObject.get("from");
+		int to = (Integer)jsonObject.get("to");
+		int price = (Integer)jsonObject.get("price");
+		return new PriceRate(id, from, to, price);
 	}
 	public JSONObject getJSONObject() {
 		JSONObject result = new JSONObject();
-		result.put("id", id);
-		result.put("description", description);
+		result.put("from", getFromInMinutes());
+		result.put("to", getToInMinutes());
 		result.put("price", price);
 		return result;
 	}	
-	
-	
-	public static ReentrantReadWriteLock all_ratesLock = new ReentrantReadWriteLock();
-	public static Map<Integer, PriceRate> all_rates = new HashMap<>();
-	
-	public static PriceRate getRate(ResultSet rs) throws SQLException {
-		WriteLock lock = all_ratesLock.writeLock();
-		int id  = rs.getInt("id");
-		String description = rs.getString("description");
-		int price = rs.getInt("price");
-		PriceRate rate = all_rates.get(id);
-		if(rate == null) {
-			rate = new PriceRate(id, description, price);
-			all_rates.put(id, rate);
-		}
-		
-		lock.unlock();
-		return rate;
-	}
-	
-	
 }

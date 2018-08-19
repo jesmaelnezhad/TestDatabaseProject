@@ -5,7 +5,11 @@
 	<title></title>
 	<meta name="generator" content="LibreOffice 5.1.6.2 (Linux)"/>
 	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="2018-08-11T02:51:26.399869653"/>
+	<meta name="changed" content="00:00:00"/>
+	<meta name="created" content="00:00:00">
+	<meta name="changed" content="2018-08-19T06:10:18.384023341">
+	<meta name="created" content="00:00:00">
+	<meta name="changed" content="2018-08-11T02:51:26.399869653">
 	<meta name="created" content="00:00:00">
 	<meta name="changed" content="00:00:00">
 	<meta name="created" content="00:00:00">
@@ -59,9 +63,9 @@
 			</td>
 			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><a href="../WebContent"><font color="#cccccc"><font face="Courier 10 Pitch">http://domain:port/signin?username=moji&amp;
-password=moji&amp;fname=Mojtaba&amp;
-lname=Arjomandi&amp;cellphone=09172223333&amp;
-email_addr=moji@moji.com&amp;ads_flag=1</font></font></a></p>
+				password=moji&amp;fname=Mojtaba&amp;
+				lname=Arjomandi&amp;cellphone=09172223333&amp;
+				email_addr=moji@moji.com&amp;ads_flag=1</font></font></a></p>
 			</td>
 			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><font color="#cccccc"><font face="Courier 10 Pitch">{“id”:1,
@@ -386,7 +390,7 @@ email_addr=moji@moji.com&amp;ads_flag=1</font></font></a></p>
 			</td>
 			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><font face="Courier 10 Pitch">{“transaction_id”:12,
-				“status”:”successful”, “amount”:2000,
+				“status”:”successful”, “price”:2000,
 				“balance”:240000}</font></p>
 			</td>
 			<td width="266" valign="top" bgcolor="#eeeeee" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: 1px solid #000000; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0.04in">
@@ -457,18 +461,22 @@ email_addr=moji@moji.com&amp;ads_flag=1</font></font></a></p>
 			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><font face="Courier 10 Pitch">[</font></p>
 				<p align="left"><font face="Courier 10 Pitch">{“id”:15,
-				“topup”:1, “date”:”1397/03/13”,
-				“description”:”topup”, “amount”:12000}, {“id”:15,
-				“topup”:0, “date”:”1397/04/25”,
-				“description”:”parking transaction”, “amount”:2000}</font></p>
+				“type”:”topUp”, “date”:”1397/03/13”,
+				“time”:”12:23:34” “description”:””,
+				“price”:12000}, {“id”:15, “type”:”paymentByWallet”,
+				“reservation_id”:14, “date”:”1397/04/25”,
+				“time”:”12:23:34” “description”:””,
+				“price”:2000}, {“id”:15, “type”:”paymentByRFCARD”,
+				“reservation_id”:14, “date”:”1397/04/25”,
+				“time”:”12:23:34” “description”:””, “price”:2000}</font></p>
 				<p align="left"><font face="Courier 10 Pitch">]</font></p>
 			</td>
 			<td width="266" valign="top" bgcolor="#eeeeee" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: 1px solid #000000; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0.04in">
 				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">Returns
 				a JSON array containing the history of all changes to the wallet.
-				If description is topup, it means this record corresponds to a
-				topup command; otherwise, the record corresponds to a park
-				transaction.</font></font></p>
+				If type is topUp, it means this record corresponds to a topUp
+				command; otherwise, the record corresponds to a park transaction
+				which could be payed by wallet or by RFCard.</font></font></p>
 			</td>
 		</tr>
 		<tr>
@@ -478,10 +486,10 @@ email_addr=moji@moji.com&amp;ads_flag=1</font></font></a></p>
 				</p>
 			</td>
 			<td width="120" bgcolor="#cccc99" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="center"><font face="Courier 10 Pitch">search</font></p>
+				<p align="center"><font face="Courier 10 Pitch">searcharea</font></p>
 			</td>
 			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="left"><a href="../WebContent"><font face="Courier 10 Pitch">http://domain:port/search?center_x=10&amp;center_y=10&amp;radius=10</font></a></p>
+				<p align="left"><a href="../WebContent"><font face="Courier 10 Pitch">http://domain:port/searcharea?center_x=10&amp;center_y=10&amp;radius=10</font></a></p>
 			</td>
 			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><font face="Courier 10 Pitch">[</font></p>
@@ -510,7 +518,7 @@ email_addr=moji@moji.com&amp;ads_flag=1</font></font></a></p>
 				</p>
 			</td>
 			<td width="120" bgcolor="#cccc99" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="center"><font face="Courier 10 Pitch">search</font></p>
+				<p align="center"><font face="Courier 10 Pitch">searcharea</font></p>
 			</td>
 			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><br/>
@@ -534,7 +542,7 @@ email_addr=moji@moji.com&amp;ads_flag=1</font></font></a></p>
 				</p>
 			</td>
 			<td width="120" bgcolor="#cccc99" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="center"><font face="Courier 10 Pitch">spotinfo</font></p>
+				<p align="center"><font face="Courier 10 Pitch">sectorinfo</font></p>
 			</td>
 			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><a href="../WebContent"><font face="Courier 10 Pitch">http://domain:port/spotinfo?sector_id=1</font></a></p>
@@ -559,7 +567,7 @@ email_addr=moji@moji.com&amp;ads_flag=1</font></font></a></p>
 				</p>
 			</td>
 			<td width="120" bgcolor="#cccc99" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="center"><font face="Courier 10 Pitch">spotinfo</font></p>
+				<p align="center"><font face="Courier 10 Pitch">sectorinfo</font></p>
 			</td>
 			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><a href="../WebContent"><font face="Courier 10 Pitch">http://domain:port/spotinfo?sector_id=1&amp;segment_id=1</font></a></p>
@@ -588,21 +596,23 @@ email_addr=moji@moji.com&amp;ads_flag=1</font></font></a></p>
 				</p>
 			</td>
 			<td width="120" bgcolor="#cccc99" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="center"><font face="Courier 10 Pitch">spotinfo</font></p>
+				<p align="center"><font face="Courier 10 Pitch">sectorinfo</font></p>
 			</td>
 			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><font face="Courier 10 Pitch"><a href="../WebContent">http://domain:port/spotinfo?sector_id=1&amp;segment_i</a><a href="../WebContent">d</a><a href="../WebContent">=1&amp;spot_id=8</a></font></p>
 			</td>
 			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><font face="Courier 10 Pitch">{“id”:1,
-				“location_x”:5, “location_y”:5, “park_capacity”:10,
+				“location_x”:5, “location_y”:5, “park_capacity”:12,
 				“available_park”:8, “price_rates”:[{“id”:1,
-				“description”:”cheap”, “price”:2000}, {“id”:2,
-				“description”:”Morning”, “price”:3000}],
-				“segment”:{“id”:1, “park_capacity”:5,
-				“available_park”:3}, “spot”:{“id”:8,
-				“base_station_id”:13, “parkometer_id”:12, “sensor_id”:24,
-				“status”:”FULL”}}</font></p>
+				“from”:120, “to”:240 “price”:2000}, {“id”:2,
+				“from”:240, “to”:360 “price”:3000}],
+				“working_hour”:{“start”:”12:00:00”,
+				“end”:”22:00:00”}, “segments”:[{“id”:1,
+				“park_capacity”:5, “start”:{“x”:124534, “y”:1242543},
+				“end”:{“x”:35254322, “y”:53534234}}, {“id”:3,
+				“park_capacity”:7, “start”:{“x”:124534, “y”:1242543},
+				“end”:{“x”:35254322, “y”:53534234}}]}</font></p>
 			</td>
 			<td width="266" valign="top" bgcolor="#eeeeee" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: 1px solid #000000; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0.04in">
 				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">This
@@ -624,7 +634,7 @@ email_addr=moji@moji.com&amp;ads_flag=1</font></font></a></p>
 				</p>
 			</td>
 			<td width="120" bgcolor="#cccc99" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="center"><font face="Courier 10 Pitch">spotinfo</font></p>
+				<p align="center"><font face="Courier 10 Pitch">sectorinfo</font></p>
 			</td>
 			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><br/>
@@ -648,7 +658,7 @@ email_addr=moji@moji.com&amp;ads_flag=1</font></font></a></p>
 				</p>
 			</td>
 			<td width="120" bgcolor="#cccc99" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="center"><font face="Courier 10 Pitch">spotinfo</font></p>
+				<p align="center"><font face="Courier 10 Pitch">sectorinfo</font></p>
 			</td>
 			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><br/>
@@ -657,13 +667,13 @@ email_addr=moji@moji.com&amp;ads_flag=1</font></font></a></p>
 			</td>
 			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><font face="Courier 10 Pitch">{
-				“status”:”unsuccessful”, “message”:
-				“sector/segment/spot id is invalid.”}</font></p>
+				“status”:”unsuccessful”, “message”: “sector id is
+				invalid.”}</font></p>
 			</td>
 			<td width="266" valign="top" bgcolor="#eeeeee" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: 1px solid #000000; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0.04in">
 				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">The
-				case where the given sector/segment/spot id is not found in the
-				data structure.</font></font></p>
+				case where the given sector id is not found in the data
+				structure.</font></font></p>
 			</td>
 		</tr>
 		<tr>

@@ -1,11 +1,11 @@
 <%@page import="org.json.simple.JSONObject"%>
 <%@page import="rm.basestations.Sensor"%>
 <%@page import="rm.ResourceManager"%>
-<%@page import="um.CustomerManager"%>
+<%@page import="um.UserManager"%>
 <%@page import="request_handlers.ResponseConstants.ResponseCode"%>
 <%@page import="request_handlers.ResponseHelper"%>
 <%@page import="rm.parking_structure.City"%>
-<%@page import="um.Customer"%>
+<%@page import="um.User"%>
 <%@page import="rm.basestations.SensorId"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
@@ -41,14 +41,14 @@
 	</tr>
 </table>
 <%
-String sensorIdString = request.getParameter("id");
+	String sensorIdString = request.getParameter("id");
 if(sensorIdString != null){
 	int sensorId = -1;
 	try{
 		sensorId = Integer.parseInt(sensorIdString);
 		
 	}catch(NumberFormatException e){
-			%>
+%>
 		<table width="972" cellpadding="4" cellspacing="0">
 			<col width="962">
 			<tr>
@@ -62,17 +62,17 @@ if(sensorIdString != null){
 			</tr>
 		</table>
 		<%
-	}
-	
-	ResourceManager rm = ResourceManager.getRM();
-	Customer customer = CustomerManager.getCM().getCustomer(request);
-	
-	City city = null;
-	if(customer != null) {
-		city = customer.selected_city;
-	}
-	if(customer == null){
-			%>
+			}
+			
+			ResourceManager rm = ResourceManager.getRM();
+			User customer = UserManager.getCM().getUser(request);
+			
+			City city = null;
+			if(customer != null) {
+				city = customer.selected_city;
+			}
+			if(customer == null){
+		%>
 		<table width="972" cellpadding="4" cellspacing="0">
 			<col width="962">
 			<tr>

@@ -17,10 +17,9 @@ import org.json.simple.JSONObject;
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpot;
-import tm.ParkTransaction;
 import tm.TransactionManager;
-import um.Customer;
-import um.CustomerManager;
+import um.User;
+import um.UserManager;
 import utility.Constants;
 
 /**
@@ -71,7 +70,7 @@ public class ParkInfoServlet extends HttpServlet {
 		}
 		
 		TransactionManager tm = TransactionManager.getTM();
-		Customer customer = CustomerManager.getCM().getCustomer(request);
+		User customer = UserManager.getCM().getUser(request);
 		
 		if(customer == null) {
 			// customer must be known to fetch current park transactions
