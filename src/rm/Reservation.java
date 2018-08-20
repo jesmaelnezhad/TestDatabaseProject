@@ -238,7 +238,18 @@ public class Reservation {
 	}
 	
 	
-	
+	/**
+	 * 
+	 * @param carId
+	 * @param sensorId
+	 * @return list of all matching reservations in the database. Empty list if there are none.
+	 */
+	public static List<Reservation> findReservation(int carId, int sensorId) {
+		List<Reservation> results = new ArrayList<>();
+		// TODO: find if there are any reservations with this carId or this sensorId
+		//       and add them to 'results'
+		return results;
+	}
 		
 
 	

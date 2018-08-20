@@ -57,4 +57,18 @@ public class Car {
 		result.put("plate_number", plateNumber);
 		return result;
 	}
+	
+	
+	/**
+	 * 
+	 * @param plateNumber
+	 * @return the matching Car object or null of no such record is found.
+	 */
+	public static Car findCarByPlateNumber(String plateNumber) {
+		if(plateNumber == null) {
+			return null;
+		}
+		// TODO: find and return the Car object whose plateNumber equals to the given argument.
+		return null;
+	}
 }
