@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.json.simple.JSONObject;
 
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.TopLevelAttribute;
-
 import utility.DBManager;
 
 public class Transaction {

@@ -126,6 +126,7 @@ CREATE TABLE IF NOT EXISTS customer_wallets
 CREATE TABLE IF NOT EXISTS reservations
 (
 	id int NOT NULL AUTO_INCREMENT,
+	type ENUM('none', 'localSpotId','sectorId', 'sensorId') NOT NULL DEFAULT 'none',
 	location_id INT,/*local_spot_id or sector_id or sensor_id*/
 	car_id INT,/*car_id in the cases where the reservation determines the car.*/
 	start_time TIME NOT NULL,
