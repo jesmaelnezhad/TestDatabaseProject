@@ -67,12 +67,12 @@
     <url-pattern>/calcprice</url-pattern>
   </servlet-mapping>
   <servlet>
-    <servlet-name>rent-spot-servlet</servlet-name>
-    <servlet-class>request_handlers/RentSpotServlet</servlet-class>
+    <servlet-name>reserve-servlet</servlet-name>
+    <servlet-class>request_handlers/ReserveServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>rent-spot-servlet</servlet-name>
-    <url-pattern>/rentspot</url-pattern>
+    <servlet-name>Reserve-servlet</servlet-name>
+    <url-pattern>/reserve</url-pattern>
   </servlet-mapping>
   <servlet>
     <servlet-name>park-info-servlet</servlet-name>

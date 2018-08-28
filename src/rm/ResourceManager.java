@@ -1,11 +1,13 @@
 package rm;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,11 +17,14 @@ import org.json.simple.JSONObject;
 
 import request_handlers.ResponseConstants.ResponseCode;
 import request_handlers.ResponseHelper;
+import rm.Reservation.ReservationType;
+import rm.basestations.SensorId;
 import rm.parking_structure.City;
-import rm.parking_structure.ParkingSpot;
 import rm.parking_structure.ParkingSpotContainer;
 import rm.parking_structure.Sector;
+import tm.Transaction;
 import tm.TransactionManager;
+import tm.Wallet;
 import um.User;
 import utility.Constants;
 import utility.DBManager;
@@ -57,83 +62,144 @@ public class ResourceManager {
 	}
 	
 	
-	// TODO: must be replaced with several overloads of a new method called 'reserve'.
-//	public JSONObject rentSpot(User customer, City city, int sectorId, int segmentId, int carId, int rateId, int time) {
-//		
-//		
-//		ParkingSpotContainer container = citySpots.get(city);
-//		if(container == null) {
-//			// TODO: city must be loaded from database or city is wrong
-//			// currently, we just return an empty result
-//			// prepare output
-//			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
-//		}
-//		JSONObject spotInfoJSONObj = container.rentSpot(sectorId, segmentId);
-//		if(spotInfoJSONObj == null || 
-//				((String)spotInfoJSONObj.get(Constants.STATUS)).equals("unsuccessful")) {
-//			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
-//		}
-//		// price
-//		// read price rates
-//		List<PriceRate> priceRates = container.getSectorPriceRates(sectorId);
-//		PriceRate selectedRate = null;
-//		for(PriceRate pr : priceRates) {
-//			if(pr.id == rateId) {
-//				selectedRate = pr;
-//			}
-//		}
-//		int calculatedPrice = 0;
-//		/*
-//		 * 
-//		 * 
-//		 * TODO: calculate price using selectedRate and time
-//		 * 
-//		 * 
-//		 */
-//		
-//		// record parkTransaction
-//		TransactionManager tm = TransactionManager.getTM();
-//		ParkTransaction transaction = 
-//				tm.recordNewParkTransaction(customer, carId, spotInfoJSONObj, time, rateId);
-//		if(transaction == null) {
-//			// release the spot
-//			int spotId = (Integer)spotInfoJSONObj.get(Constants.SPOT_ID);
-//			container.freeSpot(sectorId, segmentId, spotId);
-//
-//			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
-//		}
-//		
-//		JSONObject walletTransaction = customer.pay(calculatedPrice, transaction.id);
-//		
-//		if(walletTransaction == null || 
-//				((String)walletTransaction.get(Constants.STATUS)).equals("unsuccessful")) {
-//			// delete park transaction
-//			tm.deleteParkTransaction(transaction.id);
-//			// release the spot
-//			int spotId = (Integer)spotInfoJSONObj.get(Constants.SPOT_ID);
-//			container.freeSpot(sectorId, segmentId, spotId);
-//			// prepare output
-//			if(walletTransaction == null) {
-//				return ResponseHelper.respondWithMessage(false, ResponseCode.PAYMENT_NOT_SUCCESSFUL);
-//			}else {
-//				return walletTransaction;
-//			}
-//		}
-//		
-//		JSONObject result = new JSONObject();
-//		result.put(Constants.RESOURCE, spotInfoJSONObj);
-//		result.put(Constants.PAYMENT, walletTransaction);
-//		
-//		return result;
-//	}
+	// must be replaced with several overloads of a new method called 'reserve'.
 	
+	public JSONObject reserve(User customer, City city,
+			ReservationType type, int localSpotIdOrSectorIdOrSensorId, int carId, Time startTime, int timeLength) {
+		
+		ParkingSpotContainer container = citySpots.get(city);
+		if(container == null) {
+			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
+		}
+		// 0. calculate price
+		int price = 0;
+		if(type == ReservationType.LocalSpotId) {
+			
+			Spot spot = Spot.fetchSpotByLocalSpotId(container, localSpotIdOrSectorIdOrSensorId);
+			if(spot == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.SPOT_NOT_FOUND);
+			}
+			price = container.calcPrice(spot.sector, timeLength);
+		}else if(type == ReservationType.SectorId) {
+			Sector sector = container.getSectorById(localSpotIdOrSectorIdOrSensorId);
+			price = container.calcPrice(sector, timeLength);			
+		}
+		
+		// 1. save a reservation record
+		Reservation newReservation = null;
+		
+		if(type == ReservationType.LocalSpotId) {
+			newReservation =
+					Reservation.saveNewReservation(carId, localSpotIdOrSectorIdOrSensorId, 
+							true, startTime, timeLength);
+		}else if(type == ReservationType.SectorId) {
+			newReservation =
+					Reservation.saveNewReservation(carId, localSpotIdOrSectorIdOrSensorId, 
+							false, startTime, timeLength);
+		}
+
+		if(newReservation == null) {
+			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+		}
+		
+		// 2. pay with wallet
+		JSONObject result = new JSONObject();
+		result.put("transaction", customer.pay(price, newReservation.id));
+		Wallet wallet = Wallet.fetchWallet(customer); 
+		if(wallet.balance < price) {
+			return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_BALANCE_NOT_ENOUGH);
+		}
+		wallet.balance -= price;
+		if(! wallet.save()) {
+			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+		}
+		result.put("reservation", newReservation.toJSON());
+		// 3. return reservation results;
+		return result;
+		
+	}
+	
+	public JSONObject reserve(User customer, City city,
+			int sensorId, String rfId, Time startTime, int timeLength) {
+		
+		ParkingSpotContainer container = citySpots.get(city);
+		if(container == null) {
+			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
+		}
+		// 0. calculate price
+		Spot spot = Spot.fetchSpotBySensorId(container, SensorId.toSensorId(sensorId));
+		if(spot == null) {
+			return ResponseHelper.respondWithMessage(false, ResponseCode.SPOT_NOT_FOUND);
+		}
+		int price = container.calcPrice(spot.sector, timeLength);
+		
+		// 1. save a reservation record
+		Reservation newReservation =
+				Reservation.saveNewReservation(sensorId, 
+						false, startTime, timeLength);
+
+		if(newReservation == null) {
+			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+		}
+		
+		// 2. pay with wallet
+		JSONObject result = new JSONObject();
+		Calendar currenttime = Calendar.getInstance();
+	    Date now = new Date((currenttime.getTime()).getTime());
+	    Time nowTime = new Time(currenttime.getTime().getTime());
+		Transaction transaction = Transaction.saveNewRFCardTransaction(rfId, newReservation.id, 
+				now, nowTime, "", price);
+		if(transaction == null) {
+			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+		}
+		result.put("transaction", transaction.toJSON());
+		result.put("reservation", newReservation.toJSON());
+		// 3. return reservation results;
+		return result;
+		
+	}
+	
+	public JSONObject reserve(User customer, City city,
+			int carId, Time startTime, int timeLength) {
+		
+		ParkingSpotContainer container = citySpots.get(city);
+		if(container == null) {
+			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
+		}
+		// 0. calculate price
+		int price = container.calcPrice(null, timeLength);
+		
+		// 1. save a reservation record
+		Reservation newReservation = 
+				Reservation.saveNewReservation(carId, true, startTime, timeLength);
+
+		if(newReservation == null) {
+			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+		}
+		
+		// 2. pay with wallet
+		JSONObject result = new JSONObject();
+		result.put("transaction", customer.pay(price, newReservation.id));
+		Wallet wallet = Wallet.fetchWallet(customer); 
+		if(wallet.balance < price) {
+			return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_BALANCE_NOT_ENOUGH);
+		}
+		wallet.balance -= price;
+		if(! wallet.save()) {
+			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+		}
+		result.put("reservation", newReservation.toJSON());
+		// 3. return reservation results;
+		return result;
+	}
+
+	
+
 	public JSONObject calculatePrice(City city, int sectorId, int time) {
 		
 		
 		ParkingSpotContainer container = citySpots.get(city);
 		if(container == null) {
-			// TODO: city must be loaded from database or city is wrong
-			// currently, we just return an empty result
 			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
 		}
 		return container.calculatePrice(sectorId, time);
@@ -145,8 +211,6 @@ public class ResourceManager {
 		
 		ParkingSpotContainer container = citySpots.get(city);
 		if(container == null) {
-			// TODO: city must be loaded from database or city is wrong
-			// currently, we just return an empty result
 			return result;
 		}
 		return container.getInfo(sectorId);
@@ -159,8 +223,6 @@ public class ResourceManager {
 		
 		ParkingSpotContainer container = citySpots.get(city);
 		if(container == null) {
-			// TODO: city must be loaded from database or city is wrong
-			// currently, we just return an empty list
 			return result;
 		}
 		return container.searchByRange(topLeft, bottomRight);
@@ -168,20 +230,6 @@ public class ResourceManager {
 	
 	public boolean checkSpot() {
 		return true;
-	}
-	
-	public static String getJSON(List<ParkingSpot> spotsList) {
-		
-		// create a JSON list
-		String result = "[";
-		for(int i = 0 ; i < spotsList.size(); ++i) {
-			result += spotsList.get(i).getJSONShort();
-			if(i != spotsList.size() - 1) {
-				result += ",";
-			}
-		}
-		result += "]";
-		return result;
 	}
 	
 	public JSONObject updateSensors(City city, 

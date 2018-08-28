@@ -15,7 +15,6 @@ import org.json.simple.JSONObject;
 import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
 import rm.parking_structure.City;
-import rm.parking_structure.ParkingSpot;
 import tm.TransactionManager;
 import um.User;
 import um.UserManager;
@@ -65,23 +64,15 @@ public class CalcPriceServlet extends HttpServlet {
 			ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_MISSING, response);
 			return;
 		}
-		if(request.getAttribute(Constants.SEGMENT_ID) == null) {
-			ResponseHelper.respondWithMessage(false, ResponseCode.SEGMENT_ID_MISSING, response);
-			return;
-		}
-		if(request.getAttribute(Constants.RATE_ID) == null) {
-			ResponseHelper.respondWithMessage(false, ResponseCode.RATE_ID_MISSING, response);
-			return;
-		}
 		if(request.getAttribute(Constants.PARK_TIME) == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.PARK_TIME_MISSING, response);
 			return;
 		}
 
 		int sectorId = Integer.parseInt(request.getParameter(Constants.SECTOR_ID));
-		int segmentId = Integer.parseInt(request.getParameter(Constants.SEGMENT_ID));
-		int rateId = Integer.parseInt(request.getParameter(Constants.RATE_ID));
 		int parkTime = Integer.parseInt(request.getParameter(Constants.PARK_TIME));
+		// Park time is an integer which is the number of half-hours requested for park.
+		parkTime *= 30; 
 
 		ResourceManager rm = ResourceManager.getRM();
 		User customer = UserManager.getCM().getUser(request);

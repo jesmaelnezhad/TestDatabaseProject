@@ -16,7 +16,6 @@ import org.json.simple.JSONObject;
 
 import rm.ResourceManager;
 import rm.parking_structure.City;
-import rm.parking_structure.ParkingSpot;
 import tm.TransactionManager;
 import um.User;
 import um.UserManager;

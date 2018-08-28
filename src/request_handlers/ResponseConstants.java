@@ -34,6 +34,7 @@ public class ResponseConstants {
 		TOPUP_VALUE_INVALID,
 		CUSTOMER_NOT_SIGNED_IN,
 		CITY_NOT_FOUND,
+		SPOT_NOT_FOUND,
 		WALLET_NOT_FOUND,
 		COMMAND_MISSING,
 		NOT_POSSIBLE,
@@ -47,7 +48,11 @@ public class ResponseConstants {
 		INPUT_INFO_INCOMPLETE,
 		CUSTOMER_EXISTS,
 		UPDATE_SENSOR_INPUT_WRONG,
-		SECTOR_CAPACITY_FULL
+		SECTOR_CAPACITY_FULL,
+		RESERVATION_TYPE_MISSING,
+		RESERVATION_TIME_MISSING,
+		RESERVATION_TYPE_UNDEFINED,
+		LOCAL_SPOT_ID_MISSING
 	}
 
 	private ResponseConstants() {
@@ -67,6 +72,7 @@ public class ResponseConstants {
 		messages.put(ResponseCode.TOPUP_VALUE_INVALID, "مقدار داده شده صحیح نمیباشد.");
 		messages.put(ResponseCode.CUSTOMER_NOT_SIGNED_IN, "مشتری وارد نشده است.");
 		messages.put(ResponseCode.CITY_NOT_FOUND, "شهر مورد نظر مشخص نیست.");
+		messages.put(ResponseCode.SPOT_NOT_FOUND, "محل مورد نظر یافت نشد.");
 		messages.put(ResponseCode.WALLET_NOT_FOUND, "کیف پول مورد نظر مشخص نیست.");
 		messages.put(ResponseCode.COMMAND_MISSING, "دستور مورد نظر داده نشده است.");
 		messages.put(ResponseCode.NOT_POSSIBLE, "امکان پذیر نمیباشد.");
@@ -81,6 +87,10 @@ public class ResponseConstants {
 		messages.put(ResponseCode.CUSTOMER_EXISTS, "مشتری با این مشخصات قبلا در سیستم ثبت شده است.");
 		messages.put(ResponseCode.UPDATE_SENSOR_INPUT_WRONG, "Four parallel arrays of id, fullFlag, lastTimeUpdated, and lastTimeChanged values must be given.");
 		messages.put(ResponseCode.SECTOR_CAPACITY_FULL, "ظرفیت این سکتور پر است.");
+		messages.put(ResponseCode.RESERVATION_TYPE_MISSING, "نوع رزرو مشخص نشده است.");
+		messages.put(ResponseCode.RESERVATION_TIME_MISSING, "زمان رزرو مشخص نشده است.");
+		messages.put(ResponseCode.RESERVATION_TYPE_UNDEFINED, "نوع رزرو اشتباه مشخص شده است.");
+		messages.put(ResponseCode.LOCAL_SPOT_ID_MISSING, "شماره مکان پارک داده نشده است.");
 	}
 	
 	public String getMessage(ResponseCode code) {

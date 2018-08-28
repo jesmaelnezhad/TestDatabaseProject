@@ -5,7 +5,11 @@
 	<title></title>
 	<meta name="generator" content="LibreOffice 5.1.6.2 (Linux)"/>
 	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="00:00:00"/>
+	<meta name="changed" content="2018-08-28T13:40:33.738622648"/>
+	<meta name="created" content="00:00:00">
+	<meta name="changed" content="2018-08-25T01:29:24.806449704">
+	<meta name="created" content="00:00:00">
+	<meta name="changed" content="00:00:00">
 	<meta name="created" content="00:00:00">
 	<meta name="changed" content="2018-08-19T06:10:18.384023341">
 	<meta name="created" content="00:00:00">
@@ -686,22 +690,20 @@
 				<p align="center"><font face="Courier 10 Pitch">calcprice</font></p>
 			</td>
 			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="left"><a href="../WebContent"><font face="Courier 10 Pitch">http://domain:port/calcprice?sector_id=1&amp;segment_id=1&amp;rate_id=1&amp;park_time=4</font></a></p>
+				<p align="left"><a href="../WebContent"><font face="Courier 10 Pitch">http://domain:port/calcprice?sector_id=1&amp;park_time=4</font></a></p>
 			</td>
 			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><font face="Courier 10 Pitch">{“id”:1,
 				“location_x”:5, “location_y”:5, “park_capacity”:10,
-				“available_park”:8, “price”:20000, “segment”:{“id”:1,
-				“park_capacity”:5, “available_park”:3}}</font></p>
+				“available_park”:8, “price”:20000}</font></p>
 			</td>
 			<td width="266" valign="top" bgcolor="#eeeeee" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: 1px solid #000000; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0.04in">
 				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">Returns
-				a sector object that includes sector info, segment object, and an
-				attribute called price which gives the calculated price for the
-				given time.</font></font></p>
+				a sector object that includes sector info and an attribute called
+				price which gives the calculated price for the given time.</font></font></p>
 				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">NOTE:
-				park_time is the number of quarters requested, for example 4 is
-				equal to 1 hour.</font></font></p>
+				park_time is the number of half-hours requested, for example 4 is
+				equal to 2 hour.</font></font></p>
 			</td>
 		</tr>
 		<tr>
@@ -720,8 +722,8 @@
 			</td>
 			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><font face="Courier 10 Pitch">{
-				“status”:”unsuccessful”, “message”: “sector/segment
-				id must be given.”}</font></p>
+				“status”:”unsuccessful”, “message”: “Sector id must
+				be given.”}</font></p>
 			</td>
 			<td width="266" valign="top" bgcolor="#eeeeee" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: 1px solid #000000; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0.04in">
 				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">Both
@@ -744,7 +746,7 @@
 			</td>
 			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><font face="Courier 10 Pitch">{
-				“status”:”unsuccessful”, “message”: “segment
+				“status”:”unsuccessful”, “message”: “Sector
 				capacity is full.”}</font></p>
 			</td>
 			<td width="266" valign="top" bgcolor="#eeeeee" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: 1px solid #000000; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0.04in">
@@ -759,22 +761,23 @@
 				</p>
 			</td>
 			<td width="120" bgcolor="#cccc99" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="center"><font face="Courier 10 Pitch">rentspot</font></p>
+				<p align="center"><font face="Courier 10 Pitch">reserve</font></p>
 			</td>
 			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="left"><a href="../WebContent"><font face="Courier 10 Pitch">http://domain:port/rentspot?sector_id=1&amp;segment_id=1&amp;car_id=1&amp;rate_id=1&amp;park_time=4</font></a></p>
+				<p align="left"><a href="../WebContent"><font face="Courier 10 Pitch">http://domain:port/</font><font face="Courier 10 Pitch">reserve?type=1&amp;time_length=60&amp;local_spot_id=</font></a><font face="Courier 10 Pitch"><a href="../WebContent">2</a><a href="../WebContent">4235423&amp;car_id=42423</a></font></p>
 			</td>
 			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><font face="Courier 10 Pitch">{
-				“resource”:{“sector_id”:1, “segment_id”:1,
-				“spot_id”:1}, “payment”:{“status”:”successful”,
-				“transaction_id”:1, “price”:20000} }</font></p>
+				“transaction”:{“transaction_id”:4242,
+				“status”:”successful”, “price”:200000},
+				“reservation”:{“id”:3321, “type”:”localSpotId”,
+				“car_id”:42423 “location_id”:24235423,
+				“start_time”:”12:23:34”, “60”} }</font></p>
 			</td>
 			<td width="266" valign="top" bgcolor="#eeeeee" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: 1px solid #000000; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0.04in">
-				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">A
-				transaction object that has (1) resource object containing the
-				information of the rented parking spot, and (2) payment object
-				containing the results and info of the payment.</font></font></p>
+				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">Reservation
+				type 1 which is placed by giving the local-spot-id and the
+				car-id.</font></font></p>
 			</td>
 		</tr>
 		<tr>
@@ -784,21 +787,21 @@
 				</p>
 			</td>
 			<td width="120" bgcolor="#cccc99" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="center"><font face="Courier 10 Pitch">rentspot</font></p>
+				<p align="center"><font face="Courier 10 Pitch">reserve</font></p>
 			</td>
 			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="left"><br/>
-
-				</p>
+				<p align="left"><a href="../WebContent"><font face="Courier 10 Pitch">http://domain:port/</font><font face="Courier 10 Pitch">reserve?type=2&amp;time_length=60&amp;</font></a><font face="Courier 10 Pitch"><a href="../WebContent">car_id=42423</a></font></p>
 			</td>
 			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><font face="Courier 10 Pitch">{
-				“status”:”unsuccessful”, “message”: “sector/segment
-				id must be given.”}</font></p>
+				“transaction”:{“transaction_id”:4242,
+				“status”:”successful”, “price”:200000},
+				“reservation”:{“id”:3321, “type”:”none”,
+				“car_id”:42423, “start_time”:”12:23:34”, “60”} }</font></p>
 			</td>
 			<td width="266" valign="top" bgcolor="#eeeeee" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: 1px solid #000000; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0.04in">
-				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">Both
-				sector id and segment id are required for this command.</font></font></p>
+				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">Reservation
+				type 2 which is placed by giving the car-id only. Fast park.</font></font></p>
 			</td>
 		</tr>
 		<tr>
@@ -808,21 +811,22 @@
 				</p>
 			</td>
 			<td width="120" bgcolor="#cccc99" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="center"><font face="Courier 10 Pitch">rentspot</font></p>
+				<p align="center"><font face="Courier 10 Pitch">reserve</font></p>
 			</td>
 			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="left"><br/>
-
-				</p>
+				<p align="left"><a href="../WebContent"><font face="Courier 10 Pitch">http://domain:port/</font><font face="Courier 10 Pitch">reserve?type=3&amp;time_length=60&amp;sector_id=24423&amp;</font></a><font face="Courier 10 Pitch"><a href="../WebContent">car_id=42423</a></font></p>
 			</td>
 			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><font face="Courier 10 Pitch">{
-				“status”:”unsuccessful”, “message”: “segment
-				capacity is full.”}</font></p>
+				“transaction”:{“transaction_id”:4242,
+				“status”:”successful”, “price”:200000},
+				“reservation”:{“id”:3321, “type”:”sectorId”,
+				“location_id”:24423,“car_id”:42423,
+				“start_time”:”12:23:34”, “60”} }</font></p>
 			</td>
 			<td width="266" valign="top" bgcolor="#eeeeee" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: 1px solid #000000; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0.04in">
-				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">This
-				segment is full and there are no spots to rent.</font></font></p>
+				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">Reservation
+				type 3 which is placed by giving the car-id and the sector id.</font></font></p>
 			</td>
 		</tr>
 		<tr>
@@ -832,24 +836,67 @@
 				</p>
 			</td>
 			<td width="120" bgcolor="#cccc99" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="center"><font face="Courier 10 Pitch">rentspot</font></p>
+				<p align="center"><font face="Courier 10 Pitch">reserve</font></p>
 			</td>
 			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
-				<p align="left"><br/>
-
-				</p>
+				<p align="left"><a href="../WebContent"><font face="Courier 10 Pitch">http://domain:port/</font><font face="Courier 10 Pitch">reserve?type=4&amp;time_length=60&amp;sensor_id=24423</font></a></p>
 			</td>
 			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
 				<p align="left"><font face="Courier 10 Pitch">{
-				“status”:”unsuccessful”, “message”: “payment not
-				successful.”}</font></p>
+				“transaction”:{“transaction_id”:4242,
+				“status”:”successful”, “price”:200000},
+				“reservation”:{“id”:3321, “type”:”sensorId”,
+				“location_id”:24423, “start_time”:”12:23:34”, “60”}
+				}</font></p>
 			</td>
 			<td width="266" valign="top" bgcolor="#eeeeee" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: 1px solid #000000; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0.04in">
-				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">Happens
-				for example when there is not enough balance in the wallet.</font></font></p>
-				<p align="center" style="text-decoration: none"><font color="#ff0000"><font face="Courier 10 Pitch">NOTE:
-				Payment logic is not complete. We first need to know more about
-				wallet.</font></font></p>
+				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">Reservation
+				type 3 which is placed by giving the sensor id by the basestation
+				user.</font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="61" bgcolor="#ffffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1.25pt solid #000000; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
+				<p align="center"><br/>
+
+				</p>
+			</td>
+			<td width="120" bgcolor="#cccc99" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
+				<p align="center"><font face="Courier 10 Pitch">reserve</font></p>
+			</td>
+			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
+				<p align="left"><a href="../WebContent"><font face="Courier 10 Pitch">http://domain:port/</font><font face="Courier 10 Pitch">reserve?type=1&amp;time_length=60&amp;local_spot_id=24235423&amp;car_id=42423</font></a></p>
+			</td>
+			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
+				<p align="left"><font face="Courier 10 Pitch">{
+				“status”:”unsuccessful”, “message”:”Wallet balance
+				not enough.” }</font></p>
+			</td>
+			<td width="266" valign="top" bgcolor="#eeeeee" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: 1px solid #000000; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0.04in">
+				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">The
+				user must be signed in before he/she can make a reservation.</font></font></p>
+			</td>
+		</tr>
+		<tr>
+			<td width="61" bgcolor="#ffffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1.25pt solid #000000; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
+				<p align="center"><br/>
+
+				</p>
+			</td>
+			<td width="120" bgcolor="#cccc99" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
+				<p align="center"><font face="Courier 10 Pitch">reserve</font></p>
+			</td>
+			<td width="322" valign="top" bgcolor="#99ffcc" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
+				<p align="left"><a href="../WebContent"><font face="Courier 10 Pitch">http://domain:port/</font><font face="Courier 10 Pitch">reserve?type=1&amp;time_length=60&amp;local_spot_id=24235423&amp;car_id=42423</font></a></p>
+			</td>
+			<td width="397" valign="top" bgcolor="#ccffff" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: none; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0in">
+				<p align="left"><font face="Courier 10 Pitch">{
+				“status”:”unsuccessful”, “message”:”Customer not
+				signed in.” }</font></p>
+			</td>
+			<td width="266" valign="top" bgcolor="#eeeeee" style="border-top: none; border-bottom: 1.25pt solid #000000; border-left: 1px double #111111; border-right: 1px solid #000000; padding-top: 0in; padding-bottom: 0.04in; padding-left: 0.04in; padding-right: 0.04in">
+				<p align="center"><font color="#ff6600"><font face="Courier 10 Pitch">The
+				user must be signed in before he/she can make a reservation.</font></font></p>
 			</td>
 		</tr>
 		<tr>

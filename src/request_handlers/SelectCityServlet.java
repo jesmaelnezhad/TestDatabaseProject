@@ -19,7 +19,6 @@ import org.omg.CORBA.portable.ResponseHandler;
 import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
 import rm.parking_structure.City;
-import rm.parking_structure.ParkingSpot;
 import rm.parking_structure.ParkingSpotContainer;
 import um.User;
 import um.User;
