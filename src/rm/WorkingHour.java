@@ -29,4 +29,14 @@ public class WorkingHour {
 	    Time nowTime = new Time(currenttime.getTime().getTime());
 	    return nowTime.equals(startTime) || nowTime.equals(endTime) || (nowTime.after(startTime) && nowTime.before(endTime));
 	}
+	
+	// time left in minutes
+	public int getTimeLengthLeftWorking() {
+		Calendar currenttime = Calendar.getInstance();
+	    Time nowTime = new Time(currenttime.getTime().getTime());
+	    if(! endTime.after(nowTime)) {
+	    	return 0;
+	    }
+	    return (int)((endTime.getTime() - nowTime.getTime())/60);
+	}
 }

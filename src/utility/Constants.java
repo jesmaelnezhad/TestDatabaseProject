@@ -50,6 +50,7 @@ public class Constants {
 	public static final String MESSAGE_CODE = "message_code";
 	public static final String ON_GOING = "on_going";
 	public static final String COMMAND = "command";
+	public static final String TYPE = "type";
 	public static final String COMMAND_ADD = "add";
 	public static final String COMMAND_EDIT = "edit";
 	public static final String COMMAND_GET_ALL = "getall";
@@ -59,6 +60,7 @@ public class Constants {
 	public static final String MSG_CUSTOMER_NOT_SIGHNED_IN = "Customer not signed in";
 	public static final String COMMAND_SAVE = "save";
 	public static final String SENSOR_ID = "sensor_id";
+	public static final String LOCAL_SPOT_ID = "local_spot_id";
 	public static final String PRICE = "price";
 	public static final String TIME = "time";
 	public static final String RESOURCE = "resource";

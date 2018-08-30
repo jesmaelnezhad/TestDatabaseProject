@@ -44,8 +44,10 @@ public class ParkingSpotContainer {
 		this.materializer.start();
 	}
 	
-	public ParkingSpot getSpotById(int spotId) {
-		// TODO
+	public Sector getSectorById(int sectorId) {
+		if(sectorIndex.containsKey(sectorId)) {
+			return sectorIndex.get(sectorId);
+		}
 		return null;
 	}
 	
@@ -145,25 +147,8 @@ public class ParkingSpotContainer {
 		// read sector info
 		JSONObject sectorJSONObj = sector.getMinimumJSONObject();
 		// read the working hour and check if any price applies to the current time
-		WorkingHour wh = sector.getWorkingHour();
-		
-		if(wh.isWorkingNow()) {
-			// read price rates
-			List<PriceRate> priceRates = sector.getPriceRates();
-			
-			PriceRate selectedRate = priceRates.get(priceRates.size()-1);
-			for(PriceRate pr : priceRates) {
-				if(pr.getFromInMinutes() <= time && pr.getToInMinutes() > time) {
-					selectedRate = pr;
-					break;
-				}
-			}
-			int calculatedPrice = selectedRate.getPrice() * (time / 30);
-			
-			sectorJSONObj.put("price", calculatedPrice);
-		}else {
-			sectorJSONObj.put("price", 0);
-		}
+		int price = calcPrice(sector, time);
+		sectorJSONObj.put("price", price);
 		/////////
 		// unlock sector
 		sectorLock.unlock();
@@ -171,6 +156,36 @@ public class ParkingSpotContainer {
 		return sectorJSONObj;
 	}
 
+	public int calcPrice(Sector sector, int timeLength) {
+		if(sector == null) {
+			// TODO use highest price rate
+			return 0;
+		}
+		
+		WorkingHour wh = sector.getWorkingHour();
+		
+		if(wh.isWorkingNow()) {
+			int timeLeft = wh.getTimeLengthLeftWorking();
+			if(timeLeft < timeLength) {
+				timeLength = timeLeft;
+			}
+			// read price rates
+			List<PriceRate> priceRates = sector.getPriceRates();
+			
+			PriceRate selectedRate = priceRates.get(priceRates.size()-1);
+			for(PriceRate pr : priceRates) {
+				if(pr.getFromInMinutes() <= timeLength && pr.getToInMinutes() > timeLength) {
+					selectedRate = pr;
+					break;
+				}
+			}
+			int calculatedPrice = selectedRate.getPrice() * (timeLength / 30);
+			
+			return calculatedPrice;
+		}else {
+			return 0;
+		}
+	}
 	// Get the information of a sector, segment, and|or a spot
 	public JSONObject rentSpot(int sectorId) {
 		

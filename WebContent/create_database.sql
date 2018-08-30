@@ -159,6 +159,16 @@ CREATE TABLE IF NOT EXISTS sensors
 	PRIMARY KEY(id)
 ) ENGINE=INNODB;
 
+CREATE TABLE IF NOT EXISTS spots
+(
+	sector_id INT NOT NULL,
+	local_spot_id INT,
+	sensor_id INT,
+	FOREIGN KEY(sector_id) REFERENCES sectors(id) ON DELETE CASCADE
+/*	FOREIGN KEY(sensor_id) REFERENCES sensors(id) ON DELETE CASCADE*/
+) ENGINE=INNODB;
+
+
 /* Test Data */
 
 

@@ -13,7 +13,6 @@ import java.util.List;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import rm.parking_structure.ParkingSpot;
 import um.Car;
 import um.User;
 import utility.Constants;
@@ -39,12 +38,6 @@ public class TransactionManager {
 //	public JSONArray getAllParkTransactions(Customer customer){
 //	public void deleteParkTransaction(int transactionId) {
 
-	
-	public static double calcPrice(ParkingSpot spot, int rateId, int time) {
-		
-		// TODO
-		return 0.0;
-	}
 	
 	// TODO: saves the event of somebody paying for a spot at a parkometer.
 	// saves it in data base.

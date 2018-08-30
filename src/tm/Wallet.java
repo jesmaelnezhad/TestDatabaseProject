@@ -82,7 +82,7 @@ public class Wallet {
 		return false;
 	}
 	
-	public static Wallet fetchWallet(int customerId) {
+	private static Wallet fetchWallet(int customerId) {
 		
 		Wallet result = null;
 		
