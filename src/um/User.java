@@ -63,13 +63,26 @@ public class User {
 	public String profileImage;
 	public int ads_flag;
 	
-	public City selected_city = null;
-
 	public User(int id, String fname, 
 			String lname, String cellphone_number, String email_addr, String profileImage,
 			int ads_flag) {
 		this.id = id;
 		this.username = this.password = "";
+		this.type = UserType.Customer;
+		this.fname = fname;
+		this.lname = lname;
+		this.cellphone_number = cellphone_number;
+		this.email_addr = email_addr;
+		this.ads_flag = ads_flag;
+		this.profileImage = profileImage;
+	}
+	
+	public User(int id, String username, String password, String fname, 
+			String lname, String cellphone_number, String email_addr, String profileImage,
+			int ads_flag) {
+		this.id = id;
+		this.username = username;
+		this.password = password;
 		this.type = UserType.Customer;
 		this.fname = fname;
 		this.lname = lname;
@@ -203,9 +216,9 @@ public class User {
 	}
 	
 	public JSONObject getUserProfile() {
-		assert(type == UserType.Customer);
 		JSONObject profile = new JSONObject();
 		profile.put("id", id);
+		profile.put(Constants.USERNAME, username);
 		profile.put(Constants.FIRST_NAME, fname);
 		profile.put(Constants.LAST_NAME, lname);
 		profile.put(Constants.CELL_PHONE, cellphone_number);

@@ -18,6 +18,7 @@ import org.json.simple.JSONObject;
 import request_handlers.ResponseConstants.ResponseCode;
 import request_handlers.ResponseHelper;
 import rm.Reservation.ReservationType;
+import rm.basestations.Sensor;
 import rm.basestations.SensorId;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpotContainer;
@@ -28,6 +29,7 @@ import tm.Wallet;
 import um.User;
 import utility.Constants;
 import utility.DBManager;
+import utility.Logger;
 import utility.Point;
 
 public class ResourceManager {
@@ -38,8 +40,31 @@ public class ResourceManager {
 	private ResourceManager() {
 		//TODO: initialization
 	}
+	
+	// returns true only if the file is actually parsed and loaded.
+	public boolean loadFromFile(String filePath) {
+		// TODO: 1. we must check for the existence of file filePath+'.idx'
+		//          if this file doesn't exist, 
+		// 									we must parse and load the file
+		// 									and save a file filePath+'.idx'
+		
+		
+		return false;
+	}
+	
 	public void loadFromDB() {
 		//TODO: initialization
+	}
+	
+	public void loadCities(List<String> cityNames) {
+		for(String cityName : cityNames) {
+			City cityObj = City.fetchCityByName(cityName);
+			if(cityObj != null) {
+				loadCity(cityObj);
+			}else {
+				Logger.getLogger().log("City " + cityName + " could not be loaded. It does not exist in the database.");
+			}
+		}
 	}
 	
 	public City loadCity(int cityId) {
@@ -48,9 +73,19 @@ public class ResourceManager {
 				return city;
 			}
 		}
-		City newCity = null;
+		City newCity = City.fetchCityById(cityId);
+		return loadCity(newCity);
+	}
+	
+	public City loadCity(City city_) {
+		for(City city : citySpots.keySet()) {
+			if(city.id == city_.id) {
+				return city;
+			}
+		}
+
 		// TODO: load a city from database
-		return newCity;
+		return city_;
 	}
 	
 	private static ResourceManager rm = null;
@@ -244,6 +279,33 @@ public class ResourceManager {
 		return container.updateSensors(sensorIds, fullFlags, lastTimeChanged, lastTimeUpdated);
 	}
 	
+	public JSONObject updateSensors(int[] sensorIds, boolean[] fullFlags, 
+			Time[] lastTimeChanged, Time[] lastTimeUpdated) {
+		JSONObject result = new JSONObject();
+		JSONArray updatedSensors = new JSONArray();
+		
+		for(int i = 0 ; i < sensorIds.length; i++) {
+			int sensorIdInt = sensorIds[i];
+			boolean fullFlag = fullFlags[i];
+			Time t1 = lastTimeChanged[i];
+			Time t2 = lastTimeUpdated[i];
+			
+			Sensor sensor = Sensor.fetchSensorById(sensorIdInt);
+			if(sensor == null) {
+				sensor = Sensor.insertSensor(sensorIdInt, fullFlag, t1, t2);
+				if(sensor == null) {
+					return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+				}
+			}else {
+				sensor.update(fullFlag, t1, t2);
+				Sensor.updateSensor(sensorIdInt, sensor);
+			}
+			updatedSensors.add(sensorIdInt);
+		}
+		result.put("updated_sensors", updatedSensors);
+		return result;
+	}
+	
 	public JSONObject readSensor(City city, int sensorId) {
 		ParkingSpotContainer container = citySpots.get(city);
 		if(container == null) {
@@ -251,5 +313,17 @@ public class ResourceManager {
 		}
 		return container.readSensor(sensorId);
 	}
+	
+	public JSONObject readSensor(int sensorId) {
+		Sensor sensor = Sensor.fetchSensorById(sensorId);
+		if(sensor == null) {
+			return ResponseHelper.respondWithMessage(false, ResponseCode.SENSOR_ID_INVALID);
+		}
+		JSONObject sensorObj = sensor.toJSON();
+		sensorObj.put("id", sensorId);
+		return sensorObj;
+	}
+	
+	
 
 }

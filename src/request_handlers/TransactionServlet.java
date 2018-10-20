@@ -58,7 +58,7 @@ public class TransactionServlet extends HttpServlet {
 		// set the city for this transaction request
 		City city = null;
 		if (customer != null) {
-			city = customer.selected_city; 
+//			city = customer.selected_city; 
 			// TODO: Not implemented in customer object yet 
 		} else {
 			// TODO: if customer is null city will not be known. (jamshid this is implemented below, right?)

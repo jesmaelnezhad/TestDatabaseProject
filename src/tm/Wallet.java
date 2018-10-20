@@ -48,10 +48,14 @@ public class Wallet {
 				if (rs.next()) {
 					  newId = rs.getInt(1);
 				}else {
+					rs.close();
+					stmt.close();
+					DBManager.getDBManager().closeConnection();
 					return null;
 				}
 				rs.close();
 				stmt.close();
+				DBManager.getDBManager().closeConnection();
 				return new Wallet(newId, customer.id , 0);
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -75,6 +79,7 @@ public class Wallet {
 			stmt.setInt(2, id);
 			stmt.executeUpdate();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -106,6 +111,7 @@ public class Wallet {
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

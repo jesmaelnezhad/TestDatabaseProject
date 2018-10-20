@@ -136,10 +136,14 @@ public class Transaction {
 			if (rs.next()) {
 				  newId = rs.getInt(1);
 			}else {
+				rs.close();
+				stmt.close();
+				DBManager.getDBManager().closeConnection();				
 				return null;
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 			return new Transaction(newId, walletId,
 					transactionDate, transactionTime, description, price);
 		} catch (SQLException e) {
@@ -178,6 +182,7 @@ public class Transaction {
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 			return new Transaction(newId, rfId, reservationId,
 					transactionDate, transactionTime, description, price);
 		} catch (SQLException e) {
@@ -212,10 +217,14 @@ public class Transaction {
 			if (rs.next()) {
 				  newId = rs.getInt(1);
 			}else {
+				rs.close();
+				stmt.close();
+				DBManager.getDBManager().closeConnection();
 				return null;
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 			return new Transaction(newId, walletId, reservationId,
 					transactionDate, transactionTime, description, price);
 		} catch (SQLException e) {
@@ -237,6 +246,7 @@ public class Transaction {
 			stmt.setInt(1, id);
 			stmt.executeUpdate();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -294,6 +304,7 @@ public class Transaction {
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -353,6 +364,7 @@ public class Transaction {
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

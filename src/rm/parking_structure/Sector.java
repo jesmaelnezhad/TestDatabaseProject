@@ -126,6 +126,7 @@ public class Sector {
 				} catch (ParseException e) {
 					rs.close();
 					stmt.close();
+					DBManager.getDBManager().closeConnection();
 					return null;
 				}
 				for(int i = 0 ; i < priceRatesJSONObjs.size(); i++) {
@@ -135,6 +136,7 @@ public class Sector {
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -164,6 +166,7 @@ public class Sector {
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -193,6 +196,7 @@ public class Sector {
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

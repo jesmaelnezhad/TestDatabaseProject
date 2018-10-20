@@ -9,6 +9,9 @@ package utility;
  */
 public class Constants {
 
+	public static final String LOGIN_TYPE = "login_type";
+	public static final String USERNAME = "username";
+	public static final String PASSWORD = "password";
 	public static final String TRANSACTION_MANAGER = "transaction_manager";
 	public static final String USER_PROFILE_IMAGES = "user_profile_images";
 	public static final String COMMAND_TOPUP = "topup";

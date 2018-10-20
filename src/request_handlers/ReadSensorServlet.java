@@ -56,8 +56,13 @@ public class ReadSensorServlet extends HttpServlet {
 		
 		City city = UserManager.getCM().getCity(request);
 		
-		ResponseHelper.respondWithJSONObject(rm.readSensor(city, sensorId), response);
+//		ResponseHelper.respondWithJSONObject(rm.readSensor(city, sensorId), response);
+		ResponseHelper.respondWithJSONObject(rm.readSensor(sensorId), response);
 	    return;
+	}
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doGet(request, response);
 	}
 
 }

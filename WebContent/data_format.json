@@ -117,10 +117,9 @@
 			]
 	}
 ]
-
-=========================================================================================
-Note: in each segment object, there is a capacity which shows the number 
-of parking spots that fit in that segment. There is also an array called
-sensor_spots in a segment object which is a list of sensor ids that correspond 
-to the spots of that segment. Since not all spots have sensors, the length of 
-the sensor_spots array must always be less than or equal to the capacity attribute.
+//=========================================================================================
+//Note: in each segment object, there is a capacity which shows the number 
+//of parking spots that fit in that segment. There is also an array called
+//sensor_spots in a segment object which is a list of sensor ids that correspond 
+//to the spots of that segment. Since not all spots have sensors, the length of 
+//the sensor_spots array must always be less than or equal to the capacity attribute.

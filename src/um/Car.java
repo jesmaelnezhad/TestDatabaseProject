@@ -34,15 +34,16 @@ public class Car {
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setInt(1, this.id);
 			ResultSet rs = stmt.executeQuery();
-			while(rs.next()){
+			if(rs.next()){
 				//Retrieve by column name
 				this.makeModel = rs.getString("make_model");
 				this.color = rs.getInt("color");
 				this.plateNumber = rs.getString("plate_number");
-				return;
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
+			return;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

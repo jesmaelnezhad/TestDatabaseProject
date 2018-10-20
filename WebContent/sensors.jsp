@@ -1,3 +1,6 @@
+<%@page import="java.util.List"%>
+<%@page import="request_handlers.filters.PrepareCityFilter"%>
+<%@page import="request_handlers.filters.AuthenticationFilter"%>
 <%@page import="org.json.simple.JSONObject"%>
 <%@page import="rm.basestations.Sensor"%>
 <%@page import="rm.ResourceManager"%>
@@ -24,6 +27,71 @@
 </head>
 <body lang="en-US" dir="ltr">
 
+<%
+boolean isAuthenticated = AuthenticationFilter.authenticate(request, response);
+%>
+<%
+if(! isAuthenticated){
+%>
+<table width="972" cellpadding="4" cellspacing="0">
+	<col width="962">
+	<tr>
+		<td width="962" valign="top" style="border: 1px solid #000000; padding: 0.04in">
+			<p align="center"><font size="5" style="font-size: 20pt">Login to the system:</font></p><br/>
+			<center>
+			<form id="login_form" name="login_form">
+				<input type="text" placeholder="Enter username here." name="username" id="username" />
+				<input type="password" name="password" id="password" />
+				<input type="button" onClick="submitLoginForm()" value="Login"/>
+			</form>
+			</center><br/>
+
+		</td>
+	</tr>
+</table>
+<hr/>
+<%
+}else{
+	%>
+			<form id="logout_form" name="logout_form">
+				<input type="button" onClick="submitLogoutForm()" value="Logout"/>
+			</form>
+	<%
+	
+	
+	boolean citySelected = PrepareCityFilter.isCitySelected(request, response);
+	if(! citySelected){
+		// TODO: show select city page
+		List<City> allCities = City.fetchAllCities();
+		%>
+	<table width="972" cellpadding="4" cellspacing="0">
+		<col width="962">
+		<tr>
+			<td width="962" valign="top"
+				style="border: 1px solid #000000; padding: 0.04in">
+				<p align="center">
+					<font size="5" style="font-size: 20pt">Select the city:</font>
+				</p>
+				<br />
+				<center>
+					<form id="select_city_form" name="select_city_form">
+						<select id="city_id" name="city_id">
+						<%for(City city : allCities){ %>
+							<option value="<%=city.id%>"><%=city.name%></option>
+						<%} %>
+						</select>
+						 <input type="button" onClick="submitCityForm()" value="Select City" />
+					</form>
+				</center>
+				<br />
+
+			</td>
+		</tr>
+	</table>
+	<hr />
+	<%
+	}else{
+%>
 <table width="972" cellpadding="4" cellspacing="0">
 	<col width="962">
 	<tr>
@@ -62,50 +130,34 @@ if(sensorIdString != null){
 			</tr>
 		</table>
 		<%
-			}
+	}
 			
-			ResourceManager rm = ResourceManager.getRM();
-			User customer = UserManager.getCM().getUser(request);
-			
-			City city = null;
-			if(customer != null) {
-				city = customer.selected_city;
-			}
-			if(customer == null){
-		%>
-		<table width="972" cellpadding="4" cellspacing="0">
-			<col width="962">
-			<tr>
-				<td width="962" valign="top"
-					style="border: 1px solid #000000; padding: 0.04in">
-					<p align="center">
-						<font size="5" style="font-size: 20pt;color:red">Authentication required.</font>
-					</p>
-					<br />
-				</td>
-			</tr>
-		</table>
-		<%
-	}else if(city == null){
-			%>
-		<table width="972" cellpadding="4" cellspacing="0">
-			<col width="962">
-			<tr>
-				<td width="962" valign="top"
-					style="border: 1px solid #000000; padding: 0.04in">
-					<p align="center">
-						<font size="5" style="font-size: 20pt;color:red">City of this request is not determined.</font>
-					</p>
-					<br />
-				</td>
-			</tr>
-		</table>
-		<%
-	}else if(sensorId != -1){
-		
+	ResourceManager rm = ResourceManager.getRM();
+	User customer = UserManager.getCM().getUser(request);
+	
+	City city = UserManager.getCM().getCity(request);
+	if(sensorId != -1){
 		SensorId sensorIdObj = SensorId.toSensorId(sensorId);
-		JSONObject sensorJSON = rm.readSensor(city, sensorId);
+		JSONObject sensorJSON = rm.readSensor(sensorId);
+		if("unsuccessful".equals(sensorJSON.get("status"))){
+			%>
+					<table width="972" cellpadding="4" cellspacing="0">
+			<col width="962">
+			<tr>
+				<td width="962" valign="top"
+					style="border: 1px solid #000000; padding: 0.04in">
+					<p align="center">
+						<font size="5" style="font-size: 20pt;color:red">Sensor ID is invalid.</font>
+					</p>
+					<br />
+				</td>
+			</tr>
+		</table>
+			<%
+		}else{
 		boolean full = (Boolean)sensorJSON.get("full");
+		String lastChanged = (String)sensorJSON.get("last_changed");
+		String lastUpdated = (String)sensorJSON.get("last_updated");
 		
 %>
 <table width="972" cellpadding="4" cellspacing="0" style="page-break-before: auto">
@@ -205,7 +257,7 @@ if(sensorIdString != null){
 						time changed</font></p>
 					</td>
 					<td width="364" style="border: none; padding: 0in">
-						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt"><%=sensorJSON.get("lastTimeUpdated") %></font></p>
+						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt"><%=lastChanged %></font></p>
 					</td>
 				</tr>
 				<tr valign="top">
@@ -214,7 +266,7 @@ if(sensorIdString != null){
 						time updated</font></p>
 					</td>
 					<td width="364" style="border: none; padding: 0in">
-						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt"><%=sensorJSON.get("lastTimeUpdated") %></font></p>
+						<p style="margin-left: 0.16in"><font size="5" style="font-size: 18pt"><%=lastUpdated %></font></p>
 					</td>
 				</tr>
 				<tr valign="top">
@@ -234,10 +286,70 @@ if(sensorIdString != null){
 	</tr>
 </table>
 <%
+		}
 
 	}
 }
-
+	}
+}
 %>
+
+<script type="text/javascript">
+function submitLoginForm(){
+	var username = document.getElementById("username").value;
+	var password = document.getElementById("password").value;
+	if(username=='' || password == ''){
+		alert("Username or password field is empty.");
+		return;
+	}
+	var dataString = "login_type=basestation&username=" + username + "&password=" + password;
+	var xhttp = new XMLHttpRequest();
+	xhttp.open("POST", "./signin", false);
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dataString);
+	var responseObj = JSON.parse(xhttp.responseText);
+	if(responseObj["status"] == 'unsuccessful'){
+		alert(xhttp.responseText);
+		return;
+	}else{
+		alert(JSON.stringify(responseObj));
+	}
+	location.reload(true);
+}
+
+function submitCityForm(){
+	var cityId = document.getElementById("city_id").value;
+	var dataString = "city_id=" + cityId ;
+	var xhttp = new XMLHttpRequest();
+	xhttp.open("POST", "./selectcity", false);
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dataString);
+	var responseObj = JSON.parse(xhttp.responseText);
+	if(responseObj["status"] == 'unsuccessful'){
+		alert(xhttp.responseText);
+		return;
+	}else{
+		alert(JSON.stringify(responseObj));
+	}
+	location.reload(true);
+}
+
+function submitLogoutForm(){
+	var dataString = "" ;
+	var xhttp = new XMLHttpRequest();
+	xhttp.open("POST", "./signout", false);
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(dataString);
+	var responseObj = JSON.parse(xhttp.responseText);
+	if(responseObj["status"] == 'unsuccessful'){
+		alert(xhttp.responseText);
+		return;
+	}else{
+		alert(JSON.stringify(responseObj));
+	}
+	location.reload(true);
+}
+
+</script>
 </body>
 </html>

@@ -52,7 +52,7 @@ public class Spot {
 			stmt.setInt(1, localSpotId);
 			ResultSet rs = stmt.executeQuery();
 			// Extract data from result set
-			while (rs.next()) {
+			if (rs.next()) {
 				int sectorId = rs.getInt("sector_id");
 				Sector sector = container.getSectorById(sectorId);
 				SensorId sensorId = null;
@@ -63,9 +63,10 @@ public class Spot {
 				
 				
 				result = new Spot(sector, localSpotId, sensorId);
-				rs.close();
-				stmt.close();
 			}
+			rs.close();
+			stmt.close();
+			DBManager.getDBManager().closeConnection();			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -89,7 +90,7 @@ public class Spot {
 			stmt.setInt(1, sensorId.toInt());
 			ResultSet rs = stmt.executeQuery();
 			// Extract data from result set
-			while (rs.next()) {
+			if (rs.next()) {
 				int sectorId = rs.getInt("sector_id");
 				Sector sector = container.getSectorById(sectorId);
 				int localSpotId = -1;
@@ -98,9 +99,10 @@ public class Spot {
 					localSpotId = localSpotId_;
 				}
 				result = new Spot(sector, localSpotId, sensorId);
-				rs.close();
-				stmt.close();
 			}
+			rs.close();
+			stmt.close();
+			DBManager.getDBManager().closeConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

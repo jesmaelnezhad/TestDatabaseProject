@@ -85,18 +85,18 @@ public class ParkInfoServlet extends HttpServlet {
 		    return;
 		}
 
-		JSONArray transactions = null;
-		if(ongoing) {
-			transactions = tm.getCurrentParkTransactions(customer);
-		}else {
-			transactions = tm.getAllParkTransactions(customer);
-		}
-		
-	      // Set response content type
-	    response.setContentType("text/html");
-	    PrintWriter out = response.getWriter();
-		
-	    out.println(transactions.toJSONString());
+//		JSONArray transactions = null;
+//		if(ongoing) {
+//			transactions = tm.getCurrentParkTransactions(customer);
+//		}else {
+//			transactions = tm.getAllParkTransactions(customer);
+//		}
+//		
+//	      // Set response content type
+//	    response.setContentType("text/html");
+//	    PrintWriter out = response.getWriter();
+//		
+//	    out.println(transactions.toJSONString());
 		
 	}
 

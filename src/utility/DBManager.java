@@ -6,6 +6,7 @@ package utility;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * @author jam
@@ -15,30 +16,32 @@ import java.sql.SQLException;
 public class DBManager {
 	private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
 	private static final String DB_URL="jdbc:mysql://localhost:3306/parking_system";
-	private static final String USER = "root";
-	private static final String PASS = "jamshid";
+	private static final String USER = "parking_admin";
+	private static final String PASS = "parkingadminpassword";
 	//
 	private Connection conn = null;
+	private int connectionUsersCount = 1;
 	//
 	private DBManager() {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			// Open a connection
-			conn = DriverManager.getConnection(DB_URL, USER, PASS);
+			conn = DBManager.createNewConnection();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	public Connection createNewConnection() {
+	public static Connection createNewConnection() {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			// Open a connection
-			return DriverManager.getConnection(DB_URL, USER, PASS);
+			Connection conn =  DriverManager.getConnection(DB_URL, USER, PASS);
+			Statement stmt = conn.createStatement();
+			stmt.executeQuery("SET NAMES utf8");
+			stmt.close();
+			return conn;
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -54,14 +57,14 @@ public class DBManager {
 			try {
 				Class.forName("com.mysql.jdbc.Driver");
 				// Open a connection
-				conn = DriverManager.getConnection(DB_URL, USER, PASS);
+				conn = DBManager.createNewConnection();
+				connectionUsersCount = 1;
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+		}else {
+			connectionUsersCount ++;
 		}
 		return conn;
 	}
@@ -73,6 +76,23 @@ public class DBManager {
 			manager = new DBManager();
 		}
 		return manager;
+	}
+	
+	public void closeConnection() {
+		if(conn != null) {
+			if(connectionUsersCount > 1) {
+				connectionUsersCount --;
+			}else {
+				try {
+					conn.close();
+					conn = null;
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					conn = null;
+				}
+			}
+		}
 	}
 	
 	

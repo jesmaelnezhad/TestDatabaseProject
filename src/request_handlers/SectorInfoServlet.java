@@ -23,7 +23,7 @@ import utility.Constants;
 /**
  * Servlet implementation class SpotInfoServlet
  */
-@WebServlet("/SpotInfoServlet")
+@WebServlet("/SectorInfoServlet")
 public class SectorInfoServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        

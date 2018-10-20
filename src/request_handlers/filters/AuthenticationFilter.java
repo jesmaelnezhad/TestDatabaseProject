@@ -26,7 +26,7 @@ import request_handlers.ResponseHelper;
 /**
  * RequestBlockingFilter class to block requests to MovieHut.com.
  */
-@WebFilter("/AuthenticationFilter")
+//@WebFilter("/AuthenticationFilter")
 public class AuthenticationFilter implements Filter {
 
     private ServletContext context;
@@ -55,10 +55,12 @@ public class AuthenticationFilter implements Filter {
 
         if(authenticate(req, res)) {
         	chain.doFilter(request, response);
+        }else {
+        	ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, res);
         }
     }
     
-    public boolean authenticate(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    public static boolean authenticate(HttpServletRequest req, HttpServletResponse res) throws IOException {
 		User customer = UserManager.getCM().getUser(req);
 
 		if(customer == null) {
@@ -66,7 +68,6 @@ public class AuthenticationFilter implements Filter {
 			// TODO : redirect to use authentication
 			// TODO if customer is null city will not be known.
 			// TODO : redirect to use authentication
-			ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_NOT_SIGNED_IN, res);
 			return false;
 		}
     	return true;

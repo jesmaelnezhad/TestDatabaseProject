@@ -43,28 +43,24 @@ public class UserManager {
 		return cm;
 	}
 	public User getUser(HttpServletRequest request) {
-		User customer = (User) request.getAttribute(Constants.SIGNED_IN_CUSTOMER);
-		if(customer == null) {
-			// TODO: user is not signed in
-			return null;
-		}
+		User customer = (User) request.getSession().getAttribute(Constants.SIGNED_IN_CUSTOMER);
 		return customer;
 	}
 	
 	public City getCity(HttpServletRequest request) {
-		return (City) request.getAttribute(Constants.CITY_IN_USE);
+		return (City) request.getSession().getAttribute(Constants.CITY_IN_USE);
 	}
 	
 	public void setCity(HttpServletRequest request, City city) {
-		request.setAttribute(Constants.CITY_IN_USE, city);
+		request.getSession().setAttribute(Constants.CITY_IN_USE, city);
 	}
 	
 	public void signOutCustomer(HttpServletRequest request) {
-		User customer = (User) request.getAttribute(Constants.SIGNED_IN_CUSTOMER);
+		User customer = (User) request.getSession().getAttribute(Constants.SIGNED_IN_CUSTOMER);
 		if(customer == null) {
 			return ;
 		}
-		request.removeAttribute(Constants.SIGNED_IN_CUSTOMER);
+		request.getSession().removeAttribute(Constants.SIGNED_IN_CUSTOMER);
 	}
 	
 	public JSONObject signUpCustomer(HttpServletRequest request, 
@@ -83,7 +79,7 @@ public class UserManager {
 			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
 		}
 		
-		request.setAttribute(Constants.SIGNED_IN_CUSTOMER, newCustomer);
+		request.getSession().setAttribute(Constants.SIGNED_IN_CUSTOMER, newCustomer);
 		return newCustomer.getUserProfile();
 	}
 	
@@ -105,12 +101,15 @@ public class UserManager {
 			stmt.setInt(6, adsFlag);
 			stmt.executeUpdate();
 			ResultSet rs = stmt.getGeneratedKeys();
+			User newCustomer = null;
 			if(rs.next()) {
 				int id = rs.getInt("id");
-				User newCustomer = 
+				newCustomer = 
 						new User(id, fname, lname, cellphone, emailAddr, profileImage, adsFlag);
-				return newCustomer;
 			}
+			rs.close();
+			stmt.close();
+			DBManager.getDBManager().closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -118,26 +117,23 @@ public class UserManager {
 		return null;
 	}
 	
-	public JSONObject signInCustomer(HttpServletRequest request, String username, String password) {
-		JSONObject result = new JSONObject();
-		User newCustomer = fetchCustomer(username, password);
+	public JSONObject signInUser(HttpServletRequest request, String username, String password) {
+		User newCustomer = fetchUser(username, password);
 		if(newCustomer == null) {
-			result.put(Constants.STATUS, "unsuccessful");
-			result.put(Constants.MESSAGE, "User/Password don't match.");
-			return result;
+			return ResponseHelper.respondWithMessage(false, ResponseCode.USERNAME_PASSWORD_NOT_MATCHING);
 		}
-		request.setAttribute(Constants.SIGNED_IN_CUSTOMER, newCustomer);
+		request.getSession().setAttribute(Constants.SIGNED_IN_CUSTOMER, newCustomer);
 		return newCustomer.getUserProfile();
 	}
 	// returns null if username and password don't match
-	private User fetchCustomer(String username, String password) {
+	private User fetchUser(String username, String password) {
 		Connection conn = DBManager.getDBManager().getConnection();
 		PreparedStatement stmt;
 		try {
-			String sql = "SELECT id FROM customers WHERE username=? AND password=MD5(?);";
+			String sql = "SELECT * FROM users WHERE username=? AND password=MD5(?);";
 			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, username);
-			stmt.setString(1, password);
+			stmt.setString(2, password);
 
 			User newCustomer = null;
 			ResultSet rs = stmt.executeQuery();
@@ -150,13 +146,14 @@ public class UserManager {
 				String profileImage = rs.getString("profile_image");
 				int adsFlag = rs.getInt("ads_flag");
 				newCustomer = 
-						new User(id, fname, lname, cellphone, emailAddr, profileImage, adsFlag);
+						new User(id, username, password, fname, lname, cellphone, emailAddr, profileImage, adsFlag);
 			}else {
 				// username password don't match
 				newCustomer = null;
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 			return newCustomer;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -190,6 +187,7 @@ public class UserManager {
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -226,6 +224,7 @@ public class UserManager {
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -18,6 +18,7 @@ public class ResponseConstants {
 	private Map<ResponseCode, String> messages = new HashMap<>();
 	
 	public enum ResponseCode{
+		USERNAME_PASSWORD_NOT_MATCHING,
 		PARAMETERS_NOT_COMPLETE,
 		REQUEST_NOT_SUPPORTED,
 		SECTOR_ID_MISSING,
@@ -34,6 +35,7 @@ public class ResponseConstants {
 		TOPUP_VALUE_INVALID,
 		CUSTOMER_NOT_SIGNED_IN,
 		CITY_NOT_FOUND,
+		CITY_NOT_SELECTED,
 		SPOT_NOT_FOUND,
 		WALLET_NOT_FOUND,
 		COMMAND_MISSING,
@@ -52,10 +54,12 @@ public class ResponseConstants {
 		RESERVATION_TYPE_MISSING,
 		RESERVATION_TIME_MISSING,
 		RESERVATION_TYPE_UNDEFINED,
-		LOCAL_SPOT_ID_MISSING
+		LOCAL_SPOT_ID_MISSING,
+		LOGIN_TYPE_MISSING
 	}
 
 	private ResponseConstants() {
+		messages.put(ResponseCode.USERNAME_PASSWORD_NOT_MATCHING, "Username and password do not match.");
 		messages.put(ResponseCode.PARAMETERS_NOT_COMPLETE, "پارامتر های ورودی کامل نیستند.");
 		messages.put(ResponseCode.REQUEST_NOT_SUPPORTED, "Request is not supported for this type of user.");
 		messages.put(ResponseCode.SECTOR_ID_MISSING, "شناسه ی سکتور داده نشده است.");
@@ -72,6 +76,7 @@ public class ResponseConstants {
 		messages.put(ResponseCode.TOPUP_VALUE_INVALID, "مقدار داده شده صحیح نمیباشد.");
 		messages.put(ResponseCode.CUSTOMER_NOT_SIGNED_IN, "مشتری وارد نشده است.");
 		messages.put(ResponseCode.CITY_NOT_FOUND, "شهر مورد نظر مشخص نیست.");
+		messages.put(ResponseCode.CITY_NOT_SELECTED, "City is not selected.");
 		messages.put(ResponseCode.SPOT_NOT_FOUND, "محل مورد نظر یافت نشد.");
 		messages.put(ResponseCode.WALLET_NOT_FOUND, "کیف پول مورد نظر مشخص نیست.");
 		messages.put(ResponseCode.COMMAND_MISSING, "دستور مورد نظر داده نشده است.");
@@ -91,6 +96,7 @@ public class ResponseConstants {
 		messages.put(ResponseCode.RESERVATION_TIME_MISSING, "زمان رزرو مشخص نشده است.");
 		messages.put(ResponseCode.RESERVATION_TYPE_UNDEFINED, "نوع رزرو اشتباه مشخص شده است.");
 		messages.put(ResponseCode.LOCAL_SPOT_ID_MISSING, "شماره مکان پارک داده نشده است.");
+		messages.put(ResponseCode.LOGIN_TYPE_MISSING, "login_type parameter is missing. It should be one of the following three values: customer, police, basestation");
 	}
 	
 	public String getMessage(ResponseCode code) {

@@ -132,10 +132,14 @@ public class Reservation {
 			if (rs.next()) {
 				newId = rs.getInt(1);
 			}else {
+				rs.close();
+				stmt.close();
+				DBManager.getDBManager().closeConnection();
 				return null;
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 			return new Reservation(newId, carId, locationId, getLocalSpotId, startTime, timeLength);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -179,6 +183,7 @@ public class Reservation {
 			}
 			rs.close();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 			return new Reservation(newId, carSensorId, getCarId, startTime, timeLength);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -200,6 +205,7 @@ public class Reservation {
 			stmt.setInt(1, id);
 			stmt.executeUpdate();
 			stmt.close();
+			DBManager.getDBManager().closeConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -231,6 +237,7 @@ public class Reservation {
 				rs.close();
 				stmt.close();
 			}
+			DBManager.getDBManager().closeConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

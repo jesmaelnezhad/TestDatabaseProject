@@ -22,7 +22,7 @@ import utility.Constants;
 /**
  * Servlet implementation class UpdateSensor
  */
-@WebServlet("/UpdateSensorServlet")
+@WebServlet("/UpdateSensorsServlet")
 public class UpdateSensorsServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -72,7 +72,7 @@ public class UpdateSensorsServlet extends HttpServlet {
 		
 		Time [] lastUpdatedTimes = new Time[lastTimeUpdatedStrings.length];
 		for(int i = 0 ; i < lastTimeUpdatedStrings.length; i++) {
-			lastChangedTimes[i] = Time.valueOf(lastTimeUpdatedStrings[i]);
+			lastUpdatedTimes[i] = Time.valueOf(lastTimeUpdatedStrings[i]);
 		}
 		
 		
@@ -83,8 +83,11 @@ public class UpdateSensorsServlet extends HttpServlet {
 		
 		City city = UserManager.getCM().getCity(request);
 		
+//	    ResponseHelper.respondWithJSONObject(
+//	    		rm.updateSensors(city, sensorIds, fullFlags, lastChangedTimes, lastUpdatedTimes) , response);
+		
 	    ResponseHelper.respondWithJSONObject(
-	    		rm.updateSensors(city, sensorIds, fullFlags, lastChangedTimes, lastUpdatedTimes) , response);
+	    		rm.updateSensors(sensorIds, fullFlags, lastChangedTimes, lastUpdatedTimes) , response);
 	    return;
 		
 	}

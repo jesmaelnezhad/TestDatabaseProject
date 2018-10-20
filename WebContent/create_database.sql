@@ -17,6 +17,8 @@ mysql -u parking_admin -p
 
 /*======== CREATING THE DATABASE ========*/
 CREATE DATABASE parking_system;
+CREATE DATABASE parking_system CHARACTER SET utf8
+  COLLATE utf8_general_ci;;
 USE parking_system;
 
 /*======== CREATING THE TABLES  ========*/
@@ -170,7 +172,11 @@ CREATE TABLE IF NOT EXISTS spots
 
 
 /* Test Data */
-
+INSERT INTO users(type, username, password) VALUE ("basestation", "basestation", MD5("basestationpassword"));
+INSERT INTO cities(name) VALUE ("تهران");
+INSERT INTO cities(name) VALUE ("شیراز");
+INSERT INTO cities(name) VALUE ("بابلسر");
+INSERT INTO cities(name) VALUE ("مشهد");
 
 
 

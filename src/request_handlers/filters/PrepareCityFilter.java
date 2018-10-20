@@ -14,13 +14,15 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import request_handlers.ResponseHelper;
+import request_handlers.ResponseConstants.ResponseCode;
 import rm.parking_structure.City;
 import um.UserManager;
 
 /**
  * Servlet Filter implementation class PrepareCityFilter
  */
-@WebFilter("/PrepareCityFilter")
+//@WebFilter("/PrepareCityFilter")
 public class PrepareCityFilter implements Filter {
 
     private List<String> excludedUrls;
@@ -53,16 +55,23 @@ public class PrepareCityFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 
-        if(prepareCity(req, res)) {
+    	// TODO: we should check here and see if the request is searchArea
+    	//       we must find the city from the request.
+        
+        // for all other requests ...
+        if(isCitySelected(req, res)) {
         	chain.doFilter(request, response);
+        }else {
+        	ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_SELECTED, res);
         }
 	}
 	
-	public boolean prepareCity(HttpServletRequest req, HttpServletResponse res) {
-		//TODO: find out what the city is and load the data structure if needed.
-		City city = null;//TODO
-		UserManager.getCM().setCity(req, city);
-		return true;
+	public static boolean isCitySelected(HttpServletRequest req, HttpServletResponse res) {
+		City city = UserManager.getCM().getCity(req);
+		if(city != null) {
+			return true;
+		}
+		return false;
 	}
 
 	/**

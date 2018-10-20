@@ -14,11 +14,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.omg.CORBA.portable.ResponseHandler;
 
+import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpotContainer;
 import um.User;
+import um.User.UserType;
 import um.UserManager;
 import utility.Constants;
 import utility.Point;
@@ -63,21 +66,38 @@ public class SignInServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-//		String username = (String) request.getAttribute(Constants.USERNAME);
-//		String password = (String) request.getAttribute(Constants.PASSWORD);
-		String username = "";
-		String password = "";
-		
-		
-		ResourceManager rm = ResourceManager.getRM();
-		User customer = UserManager.getCM().getUser(request);
-		
-		if(customer != null) {
-			// there is a signed in user. Sign out
-			UserManager.getCM().signOutCustomer(request);
+		String typeStr = (String) request.getParameter(Constants.LOGIN_TYPE);
+		if(typeStr == null) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.LOGIN_TYPE_MISSING, response);
+			return;
 		}
-		ResponseHelper.respondWithJSONObject(
-				UserManager.getCM().signInCustomer(request, username, password), response);
+		UserType type = UserType.fromString(typeStr);
+		switch (type) {
+		case Customer:
+			
+			break;
+		case Police:
+			
+			break;
+			
+		case Basestation:
+		{
+			ResourceManager rm = ResourceManager.getRM();
+			User customer = UserManager.getCM().getUser(request);
+			
+			if(customer != null) {
+				// there is a signed in user. Sign out
+				UserManager.getCM().signOutCustomer(request);
+			}
+			
+			String username = (String) request.getParameter(Constants.USERNAME);
+			String password = (String) request.getParameter(Constants.PASSWORD);
+			
+			ResponseHelper.respondWithJSONObject(
+					UserManager.getCM().signInUser(request, username, password), response);
+			break;
+		}
+		}
 	}
 
 	/**
