@@ -7,11 +7,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import rm.basestations.Sensor;
 import um.User;
 import utility.DBManager;
 
@@ -107,6 +109,43 @@ public class City {
 			return results;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static City insertNewCity(String name){
+		City newCity = City.fetchCityByName(name);
+		if(newCity != null) {
+			return newCity;
+		}
+		
+		Connection conn = DBManager.getDBManager().getConnection();
+		String sql = "";
+		PreparedStatement stmt;
+		try {
+			sql = "INSERT INTO cities (name) VALUE (?);";
+			stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			stmt.setString(1, name);
+			stmt.executeUpdate();
+
+			
+			ResultSet rs = stmt.getGeneratedKeys();
+			int newId = 0;
+			if (rs.next()) {
+				  newId = rs.getInt(1);
+			}else {
+				rs.close();
+				stmt.close();
+				DBManager.getDBManager().closeConnection();
+				return null;
+			}
+			rs.close();
+			
+			stmt.close();
+			DBManager.getDBManager().closeConnection();
+			return new City(newId, name);
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return null;

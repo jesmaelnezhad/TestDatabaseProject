@@ -1,5 +1,8 @@
 package rm;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -11,9 +14,12 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import request_handlers.ResponseConstants.ResponseCode;
 import request_handlers.ResponseHelper;
@@ -43,13 +49,155 @@ public class ResourceManager {
 	
 	// returns true only if the file is actually parsed and loaded.
 	public boolean loadFromFile(String filePath) {
-		// TODO: 1. we must check for the existence of file filePath+'.idx'
+		// TODO: We must check for the existence of file filePath+'.idx'
 		//          if this file doesn't exist, 
 		// 									we must parse and load the file
 		// 									and save a file filePath+'.idx'
 		
 		
+		// 1. look for the index file
+		File indexFile = new File(filePath + ".idx");
+		if(! indexFile.exists()) {
+			try {
+				// 2. parse and load the content of this file into the database
+				Scanner dataFileScanner = new Scanner(new FileInputStream(filePath));
+				String dataContent = "";
+				while(dataFileScanner.hasNext()) {
+					dataContent += dataFileScanner.nextLine();
+				}
+				dataFileScanner.close();
+				JSONArray cityObjects = (JSONArray) new JSONParser().parse(dataContent);
+				for(int c = 0 ; c < cityObjects.size(); c++) {
+					JSONObject cityObject = (JSONObject) cityObjects.get(c);
+					boolean result = parseLoadCityJSONObject(cityObject);
+					if(! result) {
+						String cityName = (String) cityObject.get("city");
+						Logger.getLogger().log("Cannot load the city " + cityName + " from file " + filePath);
+					}
+				}
+				
+			} catch (FileNotFoundException e) {
+				Logger.getLogger().log("Cannot open the data file " + filePath);
+				return false;
+			} catch (ParseException e) {
+				Logger.getLogger().log("Cannot parse the data from the file " + filePath);
+				return false;
+			}
+		}//else{
+			// this file is parsed and loaded before.
+		//}
+		
 		return false;
+	}
+	
+	public boolean parseLoadCityJSONObject(JSONObject cityObject) {
+		String cityName = (String) cityObject.get("city");
+		if(cityName == null) {
+			return false;
+		}
+		// 1. Find the city object from the database, and if it doesn't exist insert a new one
+		City city = City.insertNewCity(cityName);
+		
+		// 2. Iterate over the sector objects and add them to the database or update the existing
+		//    record in the database.
+		JSONArray sectorsArray = (JSONArray) cityObject.get("sectors");
+		if(sectorsArray == null) {
+			return false;
+		}
+		for(int sec = 0 ; sec < sectorsArray.size(); sec++) {
+			JSONObject sectorObject = (JSONObject) sectorsArray.get(sec);
+			if(sectorObject == null) {
+				Logger.getLogger().log("Sector info not readable. Sector number " + sec + " in city " + cityName);
+				continue;
+			}
+			Integer sectorId = Integer.parseInt((String)sectorObject.get("id"))	;
+			String locationStr = (String) sectorObject.get("center_location");
+			JSONArray segmentsArray = (JSONArray) sectorObject.get("segments");
+			JSONArray spotsArray = (JSONArray) sectorObject.get("spots");
+			JSONArray priceRatesArray = (JSONArray) sectorObject.get("price_rates");
+			JSONObject workingHoursObject = (JSONObject) sectorObject.get("working_hours");
+			if(sectorId == null || locationStr == null || 
+					segmentsArray == null || spotsArray == null || 
+					priceRatesArray == null || workingHoursObject == null) {
+				Logger.getLogger().log("Sector info incomplete. Sector number " + sec + " in city " + cityName);
+				continue;
+			}
+			
+			// TODO : iterating on all segments
+			for(int seg = 0 ; seg < segmentsArray.size(); seg++) {
+				JSONObject segmentObject = (JSONObject) segmentsArray.get(seg);
+				if(segmentObject == null) {
+					Logger.getLogger().log("Segment info not readable. Segment number " + 
+												seg + " in sector " + sec + " in city " + cityName);
+					continue;
+				}
+				Integer segmentId = Integer.parseInt((String)segmentObject.get("id"));
+				String startLocStr = (String) segmentObject.get("start_location");
+				String endLocStr = (String) segmentObject.get("end_location");
+				Integer capacity = Integer.parseInt((String)segmentObject.get("capacity"));
+				if(segmentId == null || startLocStr == null || endLocStr == null || capacity == null) {
+					Logger.getLogger().log("Segment info incomplete. Segment number " + 
+							seg + " in sector " + sec + " in city " + cityName);
+					continue;					
+				}
+				
+				// TODO : use segment info here ....
+			}
+			
+			// TODO : iterating on all spots
+			for(int sp = 0 ; sp < spotsArray.size(); sp++) {
+				JSONObject spotObject = (JSONObject) spotsArray.get(sp);
+				if(spotObject == null) {
+					Logger.getLogger().log("Spot info not readable. Spot number " + 
+												sp + " in sector " + sec + " in city " + cityName);
+					continue;
+				}
+				Integer id = Integer.parseInt((String)spotObject.get("id"));
+				Integer pid = Integer.parseInt((String)spotObject.get("pid"));
+				Integer bid = Integer.parseInt((String)spotObject.get("bid"));
+				Integer localSpotId = Integer.parseInt((String)spotObject.get("local_spot_id"));
+				if(id == null || pid == null || bid == null || localSpotId == null) {
+					Logger.getLogger().log("Spot info incomplete. Spot number " + 
+							sp + " in sector " + sec + " in city " + cityName);
+					continue;
+				}
+				
+				// TODO : use spot info here ....
+				
+			}
+			
+			// TODO : iterating on all price rates
+			for(int pr = 0 ; pr < priceRatesArray.size(); pr++) {
+				JSONObject priceRateObject = (JSONObject) priceRatesArray.get(pr);
+				if(priceRateObject == null) {
+					Logger.getLogger().log("Price rate info not readable. Price rate number " + 
+												pr + " in sector " + sec + " in city " + cityName);
+					continue;
+				}
+				Integer from = Integer.parseInt((String)priceRateObject.get("from"));
+				Integer to = Integer.parseInt((String)priceRateObject.get("to"));
+				Integer price = Integer.parseInt((String)priceRateObject.get("price"));
+				if(from == null || to == null || price == null) {
+					Logger.getLogger().log("Price rate info incomplete. Price rate number " + 
+							pr + " in sector " + sec + " in city " + cityName);
+					continue;
+				}
+				
+				// TODO : use price rate info here ....
+			}
+			
+			// TODO: use working hour info
+			String workingHourStartStr = (String) workingHoursObject.get("start");
+			String workingHourEndStr = (String) workingHoursObject.get("end");
+			if(workingHourStartStr == null || workingHourEndStr == null) {
+				Logger.getLogger().log("Working hour info incomplete. Sector " + sec + " in city " + cityName);
+				continue;
+			}
+			
+		}
+		
+		return false;
+		
 	}
 	
 	public void loadFromDB() {
