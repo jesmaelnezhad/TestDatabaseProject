@@ -82,7 +82,6 @@ public class City {
 			DBManager.getDBManager().closeConnection();
 			return city;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;

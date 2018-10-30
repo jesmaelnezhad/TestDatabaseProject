@@ -3,58 +3,62 @@ package rm;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.StringTokenizer;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import jdk.internal.util.xml.impl.Pair;
 import request_handlers.ResponseConstants.ResponseCode;
 import request_handlers.ResponseHelper;
+import rm.PriceRate.PriceRating;
 import rm.Reservation.ReservationType;
 import rm.basestations.Sensor;
 import rm.basestations.SensorId;
 import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpotContainer;
 import rm.parking_structure.Sector;
+import rm.parking_structure.Segment;
+import sun.util.locale.StringTokenIterator;
 import tm.Transaction;
 import tm.TransactionManager;
 import tm.Wallet;
 import um.User;
 import utility.Constants;
 import utility.DBManager;
+import utility.Locker;
 import utility.Logger;
+import utility.Permit;
 import utility.Point;
 
-public class ResourceManager {
+public class ResourceManager implements Locker{
 
 	// A mapping from cities to the container of their parking spots
-	public Map<City, ParkingSpotContainer> citySpots = new HashMap<City, ParkingSpotContainer>();
+	private Map<City, ParkingSpotContainer> citySpots = new HashMap<City, ParkingSpotContainer>();
+	private ReentrantReadWriteLock citySpotsMapLock = new ReentrantReadWriteLock();
+
 	
-	private ResourceManager() {
-		//TODO: initialization
-	}
+	private ResourceManager() {}
 	
 	// returns true only if the file is actually parsed and loaded.
 	public boolean loadFromFile(String filePath) {
-		// TODO: We must check for the existence of file filePath+'.idx'
-		//          if this file doesn't exist, 
-		// 									we must parse and load the file
-		// 									and save a file filePath+'.idx'
-		
-		
 		// 1. look for the index file
 		File indexFile = new File(filePath + ".idx");
 		if(! indexFile.exists()) {
@@ -76,12 +80,20 @@ public class ResourceManager {
 					}
 				}
 				
+				// 3. Make a .idx file to know this file is loaded.
+				if(! indexFile.createNewFile()) {
+					Logger.getLogger().log("Index file cannot be stored on disk.");
+				}
+				
 			} catch (FileNotFoundException e) {
 				Logger.getLogger().log("Cannot open the data file " + filePath);
 				return false;
 			} catch (ParseException e) {
 				Logger.getLogger().log("Cannot parse the data from the file " + filePath);
 				return false;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}//else{
 			// this file is parsed and loaded before.
@@ -106,24 +118,30 @@ public class ResourceManager {
 		}
 		for(int sec = 0 ; sec < sectorsArray.size(); sec++) {
 			JSONObject sectorObject = (JSONObject) sectorsArray.get(sec);
+			Sector newSector = new Sector();
+			
 			if(sectorObject == null) {
 				Logger.getLogger().log("Sector info not readable. Sector number " + sec + " in city " + cityName);
 				continue;
 			}
-			Integer sectorId = Integer.parseInt((String)sectorObject.get("id"))	;
+			newSector.id = Integer.parseInt((String)sectorObject.get("id"))	;
 			String locationStr = (String) sectorObject.get("center_location");
+			StringTokenizer st = new StringTokenizer(locationStr, ",");
+			double sectorX = Double.parseDouble(st.nextToken());
+			double sectorY = Double.parseDouble(st.nextToken());
+			newSector.sectorLocation = new Point(sectorX, sectorY);
+			
 			JSONArray segmentsArray = (JSONArray) sectorObject.get("segments");
 			JSONArray spotsArray = (JSONArray) sectorObject.get("spots");
 			JSONArray priceRatesArray = (JSONArray) sectorObject.get("price_rates");
 			JSONObject workingHoursObject = (JSONObject) sectorObject.get("working_hours");
-			if(sectorId == null || locationStr == null || 
+			if(newSector.id == null || locationStr == null || 
 					segmentsArray == null || spotsArray == null || 
 					priceRatesArray == null || workingHoursObject == null) {
 				Logger.getLogger().log("Sector info incomplete. Sector number " + sec + " in city " + cityName);
 				continue;
 			}
-			
-			// TODO : iterating on all segments
+			newSector.parkCapacity = 0;
 			for(int seg = 0 ; seg < segmentsArray.size(); seg++) {
 				JSONObject segmentObject = (JSONObject) segmentsArray.get(seg);
 				if(segmentObject == null) {
@@ -134,6 +152,7 @@ public class ResourceManager {
 				Integer segmentId = Integer.parseInt((String)segmentObject.get("id"));
 				String startLocStr = (String) segmentObject.get("start_location");
 				String endLocStr = (String) segmentObject.get("end_location");
+
 				Integer capacity = Integer.parseInt((String)segmentObject.get("capacity"));
 				if(segmentId == null || startLocStr == null || endLocStr == null || capacity == null) {
 					Logger.getLogger().log("Segment info incomplete. Segment number " + 
@@ -141,10 +160,22 @@ public class ResourceManager {
 					continue;					
 				}
 				
-				// TODO : use segment info here ....
+				st = new StringTokenizer(startLocStr, ",");
+				double segmentX = Double.parseDouble(st.nextToken());
+				double segmentY = Double.parseDouble(st.nextToken());
+				Point segStart = new Point(segmentX, segmentY);
+				st = new StringTokenizer(endLocStr, ",");
+				segmentX = Double.parseDouble(st.nextToken());
+				segmentY = Double.parseDouble(st.nextToken());
+				Point segEnd = new Point(segmentX, segmentY);
+				
+				Segment segment = new Segment(segmentId, newSector.id, capacity, segStart, segEnd);
+				newSector.parkCapacity  += capacity;
+				newSector.getSegments().add(segment);
+				segment.saveInDB();
 			}
+			newSector.setAvailablePark(newSector.parkCapacity);
 			
-			// TODO : iterating on all spots
 			for(int sp = 0 ; sp < spotsArray.size(); sp++) {
 				JSONObject spotObject = (JSONObject) spotsArray.get(sp);
 				if(spotObject == null) {
@@ -162,11 +193,15 @@ public class ResourceManager {
 					continue;
 				}
 				
-				// TODO : use spot info here ....
-				
+				// For each spot, we should first prepare the sensor object.
+				SensorId sensorId = new SensorId(id, pid, bid);
+				Sensor sensor = Sensor.fetchOrInsertSensor(city.id, sensorId.toInt());
+
+				Spot newSpot = new Spot(newSector.id, (int)localSpotId, sensorId);
+				newSpot.save();
 			}
 			
-			// TODO : iterating on all price rates
+			List<PriceRate> priceRates = new ArrayList<>();
 			for(int pr = 0 ; pr < priceRatesArray.size(); pr++) {
 				JSONObject priceRateObject = (JSONObject) priceRatesArray.get(pr);
 				if(priceRateObject == null) {
@@ -182,26 +217,44 @@ public class ResourceManager {
 							pr + " in sector " + sec + " in city " + cityName);
 					continue;
 				}
-				
-				// TODO : use price rate info here ....
+				PriceRate priceRate = new PriceRate(from, to, price);
+				priceRates.add(priceRate);
 			}
+			PriceRating priceRating = PriceRate.savePriceRates(priceRates);
+			if(priceRating == null) {
+				continue;
+			}
+			newSector.setPriceRates(priceRating.id, priceRates);
 			
-			// TODO: use working hour info
+			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
 			String workingHourStartStr = (String) workingHoursObject.get("start");
+			long startTimeMS;
+			try {
+				startTimeMS = sdf.parse(workingHourStartStr).getTime();
+			} catch (java.text.ParseException e) {
+				startTimeMS = 0;
+			}
+			Time startTime = new Time(startTimeMS);
 			String workingHourEndStr = (String) workingHoursObject.get("end");
+			long endTimeMS;
+			try {
+				endTimeMS = sdf.parse(workingHourEndStr).getTime();
+			} catch (java.text.ParseException e) {
+				endTimeMS = 0;
+			}
+			Time endTime = new Time(endTimeMS);
 			if(workingHourStartStr == null || workingHourEndStr == null) {
 				Logger.getLogger().log("Working hour info incomplete. Sector " + sec + " in city " + cityName);
 				continue;
 			}
+			WorkingHour workingHour = WorkingHour.saveWorkingHour(startTime, endTime);
+			newSector.setWorkingHour(workingHour);
 			
+			newSector.city = city;
+			// save the sector in DB;
+			newSector.save();
 		}
-		
 		return false;
-		
-	}
-	
-	public void loadFromDB() {
-		//TODO: initialization
 	}
 	
 	public void loadCities(List<String> cityNames) {
@@ -216,25 +269,53 @@ public class ResourceManager {
 	}
 	
 	public City loadCity(int cityId) {
-		for(City city : citySpots.keySet()) {
-			if(city.id == cityId) {
-				return city;
+		
+		Permit citySpotsPermit = null;
+		try {
+			citySpotsPermit = this.getWritePermit();
+			
+			for(City city : citySpots.keySet()) {
+				if(city.id == cityId) {
+					return city;
+				}
 			}
+			City newCity = City.fetchCityById(cityId);
+			return loadCityNoLock(newCity);
+			
+		}finally {
+			citySpotsPermit.unlock();
 		}
-		City newCity = City.fetchCityById(cityId);
-		return loadCity(newCity);
+
 	}
 	
 	public City loadCity(City city_) {
+		Permit citySpotsPermit = null;
+		try {
+			citySpotsPermit = this.getWritePermit();
+			return loadCityNoLock(city_);
+
+		}finally {
+			citySpotsPermit.unlock();
+		}
+	}
+
+	private City loadCityNoLock(City city_) {
 		for(City city : citySpots.keySet()) {
 			if(city.id == city_.id) {
 				return city;
 			}
 		}
-
-		// TODO: load a city from database
+		
+		// create new data container for this new city
+		// 1. Fetch all sectors of a city from the database and create the index
+		Map<Integer, Sector> sectorIndex = Sector.fetchByCityId(city_.id);
+		// 2. Create the container object
+		ParkingSpotContainer container = new ParkingSpotContainer(sectorIndex);
+		citySpots.put(city_, container);
 		return city_;
 	}
+	
+
 	
 	private static ResourceManager rm = null;
 	public static ResourceManager getRM() {
@@ -250,226 +331,265 @@ public class ResourceManager {
 	public JSONObject reserve(User customer, City city,
 			ReservationType type, int localSpotIdOrSectorIdOrSensorId, int carId, Time startTime, int timeLength) {
 		
-		ParkingSpotContainer container = citySpots.get(city);
-		if(container == null) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
-		}
-		// 0. calculate price
-		int price = 0;
-		if(type == ReservationType.LocalSpotId) {
-			
-			Spot spot = Spot.fetchSpotByLocalSpotId(container, localSpotIdOrSectorIdOrSensorId);
-			if(spot == null) {
-				return ResponseHelper.respondWithMessage(false, ResponseCode.SPOT_NOT_FOUND);
-			}
-			price = container.calcPrice(spot.sector, timeLength);
-		}else if(type == ReservationType.SectorId) {
-			Sector sector = container.getSectorById(localSpotIdOrSectorIdOrSensorId);
-			price = container.calcPrice(sector, timeLength);			
-		}
-		
-		// 1. save a reservation record
-		Reservation newReservation = null;
-		
-		if(type == ReservationType.LocalSpotId) {
-			newReservation =
-					Reservation.saveNewReservation(carId, localSpotIdOrSectorIdOrSensorId, 
-							true, startTime, timeLength);
-		}else if(type == ReservationType.SectorId) {
-			newReservation =
-					Reservation.saveNewReservation(carId, localSpotIdOrSectorIdOrSensorId, 
-							false, startTime, timeLength);
-		}
+		Permit citySpotsPermit = null;
+		try {
+			citySpotsPermit = this.getReadPermit();
 
-		if(newReservation == null) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+			ParkingSpotContainer container = citySpots.get(city);
+			if(container == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
+			}
+			// 0. calculate price
+			int price = 0;
+			if(type == ReservationType.LocalSpotId) {
+				
+				Spot spot = Spot.fetchSpotByLocalSpotId(localSpotIdOrSectorIdOrSensorId);
+				if(spot == null) {
+					return ResponseHelper.respondWithMessage(false, ResponseCode.SPOT_NOT_FOUND);
+				}
+				
+				price = container.calcPrice(container.getSectorById(spot.sectorId), timeLength);
+			}else if(type == ReservationType.SectorId) {
+				Sector sector = container.getSectorById(localSpotIdOrSectorIdOrSensorId);
+				price = container.calcPrice(sector, timeLength);			
+			}
+			
+			// 1. save a reservation record
+			Reservation newReservation = null;
+			
+			if(type == ReservationType.LocalSpotId) {
+				newReservation =
+						Reservation.saveNewReservation(carId, localSpotIdOrSectorIdOrSensorId, 
+								true, startTime, timeLength);
+			}else if(type == ReservationType.SectorId) {
+				newReservation =
+						Reservation.saveNewReservation(carId, localSpotIdOrSectorIdOrSensorId, 
+								false, startTime, timeLength);
+			}
+
+			if(newReservation == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+			}
+			
+			// 2. pay with wallet
+			JSONObject result = new JSONObject();
+			result.put("transaction", customer.pay(price, newReservation.id));
+			Wallet wallet = Wallet.fetchWallet(customer); 
+			if(wallet.balance < price) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_BALANCE_NOT_ENOUGH);
+			}
+			wallet.balance -= price;
+			if(! wallet.save()) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+			}
+			result.put("reservation", newReservation.toJSON());
+			// 3. return reservation results;
+			return result;
+
+		}finally {
+			citySpotsPermit.unlock();
 		}
-		
-		// 2. pay with wallet
-		JSONObject result = new JSONObject();
-		result.put("transaction", customer.pay(price, newReservation.id));
-		Wallet wallet = Wallet.fetchWallet(customer); 
-		if(wallet.balance < price) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_BALANCE_NOT_ENOUGH);
-		}
-		wallet.balance -= price;
-		if(! wallet.save()) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
-		}
-		result.put("reservation", newReservation.toJSON());
-		// 3. return reservation results;
-		return result;
-		
 	}
 	
 	public JSONObject reserve(User customer, City city,
 			int sensorId, String rfId, Time startTime, int timeLength) {
 		
-		ParkingSpotContainer container = citySpots.get(city);
-		if(container == null) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
-		}
-		// 0. calculate price
-		Spot spot = Spot.fetchSpotBySensorId(container, SensorId.toSensorId(sensorId));
-		if(spot == null) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.SPOT_NOT_FOUND);
-		}
-		int price = container.calcPrice(spot.sector, timeLength);
-		
-		// 1. save a reservation record
-		Reservation newReservation =
-				Reservation.saveNewReservation(sensorId, 
-						false, startTime, timeLength);
+		Permit citySpotsPermit = null;
+		try {
+			citySpotsPermit = this.getReadPermit();
+			
+			ParkingSpotContainer container = citySpots.get(city);
+			if(container == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
+			}
+			// 0. calculate price
+			Spot spot = Spot.fetchSpotBySensorId(SensorId.toSensorId(sensorId));
+			if(spot == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.SPOT_NOT_FOUND);
+			}
+			int price = container.calcPrice(container.getSectorById(spot.sectorId), timeLength);
+			
+			// 1. save a reservation record
+			Reservation newReservation =
+					Reservation.saveNewReservation(sensorId, 
+							false, startTime, timeLength);
 
-		if(newReservation == null) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+			if(newReservation == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+			}
+			
+			// 2. pay with wallet
+			JSONObject result = new JSONObject();
+			Calendar currenttime = Calendar.getInstance();
+		    Date now = new Date((currenttime.getTime()).getTime());
+		    Time nowTime = new Time(currenttime.getTime().getTime());
+			Transaction transaction = Transaction.saveNewRFCardTransaction(rfId, newReservation.id, 
+					now, nowTime, "", price);
+			if(transaction == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+			}
+			result.put("transaction", transaction.toJSON());
+			result.put("reservation", newReservation.toJSON());
+			// 3. return reservation results;
+			return result;
+		}finally {
+			citySpotsPermit.unlock();
 		}
-		
-		// 2. pay with wallet
-		JSONObject result = new JSONObject();
-		Calendar currenttime = Calendar.getInstance();
-	    Date now = new Date((currenttime.getTime()).getTime());
-	    Time nowTime = new Time(currenttime.getTime().getTime());
-		Transaction transaction = Transaction.saveNewRFCardTransaction(rfId, newReservation.id, 
-				now, nowTime, "", price);
-		if(transaction == null) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
-		}
-		result.put("transaction", transaction.toJSON());
-		result.put("reservation", newReservation.toJSON());
-		// 3. return reservation results;
-		return result;
 		
 	}
 	
 	public JSONObject reserve(User customer, City city,
 			int carId, Time startTime, int timeLength) {
-		
-		ParkingSpotContainer container = citySpots.get(city);
-		if(container == null) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
-		}
-		// 0. calculate price
-		int price = container.calcPrice(null, timeLength);
-		
-		// 1. save a reservation record
-		Reservation newReservation = 
-				Reservation.saveNewReservation(carId, true, startTime, timeLength);
+		Permit citySpotsPermit = null;
+		try {
+			citySpotsPermit = this.getReadPermit();
+			
+			ParkingSpotContainer container = citySpots.get(city);
+			if(container == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
+			}
+			// 0. calculate price
+			int price = container.calcPrice(null, timeLength);
+			
+			// 1. save a reservation record
+			Reservation newReservation = 
+					Reservation.saveNewReservation(carId, true, startTime, timeLength);
 
-		if(newReservation == null) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+			if(newReservation == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+			}
+			
+			// 2. pay with wallet
+			JSONObject result = new JSONObject();
+			result.put("transaction", customer.pay(price, newReservation.id));
+			Wallet wallet = Wallet.fetchWallet(customer); 
+			if(wallet.balance < price) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_BALANCE_NOT_ENOUGH);
+			}
+			wallet.balance -= price;
+			if(! wallet.save()) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
+			}
+			result.put("reservation", newReservation.toJSON());
+			// 3. return reservation results;
+			return result;
+
+		}finally {
+			citySpotsPermit.unlock();
 		}
-		
-		// 2. pay with wallet
-		JSONObject result = new JSONObject();
-		result.put("transaction", customer.pay(price, newReservation.id));
-		Wallet wallet = Wallet.fetchWallet(customer); 
-		if(wallet.balance < price) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.WALLET_BALANCE_NOT_ENOUGH);
-		}
-		wallet.balance -= price;
-		if(! wallet.save()) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
-		}
-		result.put("reservation", newReservation.toJSON());
-		// 3. return reservation results;
-		return result;
+
 	}
 
 	
 
 	public JSONObject calculatePrice(City city, int sectorId, int time) {
-		
-		
-		ParkingSpotContainer container = citySpots.get(city);
-		if(container == null) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
+		Permit citySpotsPermit = null;
+		try {
+			citySpotsPermit = this.getReadPermit();
+			ParkingSpotContainer container = citySpots.get(city);
+			if(container == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
+			}
+			return container.calculatePrice(sectorId, time);
+		}finally {
+			citySpotsPermit.unlock();
 		}
-		return container.calculatePrice(sectorId, time);
 	}
 	
 	public JSONObject getInfo(City city, int sectorId) {
 		
-		JSONObject result = new JSONObject();
-		
-		ParkingSpotContainer container = citySpots.get(city);
-		if(container == null) {
-			return result;
+		Permit citySpotsPermit = null;
+		try {
+			citySpotsPermit = this.getReadPermit();
+			
+			JSONObject result = new JSONObject();
+			
+			ParkingSpotContainer container = citySpots.get(city);
+			if(container == null) {
+				return result;
+			}
+			return container.getInfo(sectorId);
+		}finally {
+			citySpotsPermit.unlock();
 		}
-		return container.getInfo(sectorId);
+		
 	}
 	// Search for sectors
 	// Returns a JSONArray which is an array of JSONObjects which are sectors
 	public JSONArray searchByRange(City city, Point topLeft, Point bottomRight){
 		
-		JSONArray result = new JSONArray();
-		
-		ParkingSpotContainer container = citySpots.get(city);
-		if(container == null) {
-			return result;
+		Permit citySpotsPermit = null;
+		try {
+			citySpotsPermit = this.getReadPermit();
+			
+			JSONArray result = new JSONArray();
+			
+			ParkingSpotContainer container = citySpots.get(city);
+			if(container == null) {
+				return result;
+			}
+			return container.searchByRange(topLeft, bottomRight);
+
+		}finally {
+			citySpotsPermit.unlock();
 		}
-		return container.searchByRange(topLeft, bottomRight);
+
 	}
 	
 	public boolean checkSpot() {
 		return true;
 	}
 	
-	public JSONObject updateSensors(City city, 
-			int[] sensorIds, boolean[] fullFlags, 
-			Time[] lastTimeChanged, Time[] lastTimeUpdated) {
-		ParkingSpotContainer container = citySpots.get(city);
-		
-		if(container == null) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
-		}
-		
-		return container.updateSensors(sensorIds, fullFlags, lastTimeChanged, lastTimeUpdated);
-	}
 	
-	public JSONObject updateSensors(int[] sensorIds, boolean[] fullFlags, 
+	public JSONObject updateSensors(City city, int[] sensorIds, boolean[] fullFlags, 
 			Time[] lastTimeChanged, Time[] lastTimeUpdated) {
-		JSONObject result = new JSONObject();
-		JSONArray updatedSensors = new JSONArray();
-		
-		for(int i = 0 ; i < sensorIds.length; i++) {
-			int sensorIdInt = sensorIds[i];
-			boolean fullFlag = fullFlags[i];
-			Time t1 = lastTimeChanged[i];
-			Time t2 = lastTimeUpdated[i];
+		Permit citySpotsPermit = null;
+		try {
+			citySpotsPermit = this.getReadPermit();
 			
-			Sensor sensor = Sensor.fetchSensorById(sensorIdInt);
-			if(sensor == null) {
-				sensor = Sensor.insertSensor(sensorIdInt, fullFlag, t1, t2);
-				if(sensor == null) {
-					return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
-				}
-			}else {
-				sensor.update(fullFlag, t1, t2);
-				Sensor.updateSensor(sensorIdInt, sensor);
+			ParkingSpotContainer container = citySpots.get(city);
+			if(container == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
 			}
-			updatedSensors.add(sensorIdInt);
+			return container.updateSensors(city.id, sensorIds, fullFlags, lastTimeChanged, lastTimeUpdated);
+		}finally {
+			citySpotsPermit.unlock();
 		}
-		result.put("updated_sensors", updatedSensors);
-		return result;
 	}
 	
 	public JSONObject readSensor(City city, int sensorId) {
-		ParkingSpotContainer container = citySpots.get(city);
-		if(container == null) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
+		Permit citySpotsPermit = null;
+		try {
+			citySpotsPermit = this.getReadPermit();
+			
+			ParkingSpotContainer container = citySpots.get(city);
+			if(container == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
+			}
+			return container.readSensor(sensorId);
+		}finally {
+			citySpotsPermit.unlock();
 		}
-		return container.readSensor(sensorId);
 	}
 	
-	public JSONObject readSensor(int sensorId) {
-		Sensor sensor = Sensor.fetchSensorById(sensorId);
-		if(sensor == null) {
-			return ResponseHelper.respondWithMessage(false, ResponseCode.SENSOR_ID_INVALID);
-		}
-		JSONObject sensorObj = sensor.toJSON();
-		sensorObj.put("id", sensorId);
-		return sensorObj;
+//	public JSONObject readSensor(int sensorId) {
+//		Sensor sensor = Sensor.fetchSensorById(sensorId);
+//		if(sensor == null) {
+//			return ResponseHelper.respondWithMessage(false, ResponseCode.SENSOR_ID_INVALID);
+//		}
+//		JSONObject sensorObj = sensor.toJSON();
+//		sensorObj.put("id", sensorId);
+//		return sensorObj;
+//	}
+
+	@Override
+	public Permit getReadPermit() {
+		return new Permit(citySpotsMapLock.readLock());
+	}
+	
+	@Override
+	public Permit getWritePermit() {
+		return new Permit(citySpotsMapLock.writeLock());
 	}
 	
 	

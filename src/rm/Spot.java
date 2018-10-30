@@ -13,33 +13,85 @@ import rm.parking_structure.Sector;
 import utility.DBManager;
 
 public class Spot {
-	public Sector sector;
-	public int localSpotId;
-	public SensorId sensorId;
+	public int	sectorId;
+	public int localSpotId = -1;
+	public SensorId sensorId = null;
 	
-	private Spot(Sector sector, int localSpotId, SensorId sensorId) {
-		this.sector = sector;
+	public Spot(int sectorId, int localSpotId, SensorId sensorId) {
+		this.sectorId = sectorId;
 		this.localSpotId = localSpotId;
 		this.sensorId = sensorId;
 	}
 	
-	private Spot(Sector sector, int localSpotId) {
-		this.sector = sector;
+	public Spot(int sectorId, int localSpotId) {
+		this.sectorId = sectorId;
 		this.localSpotId = localSpotId;
 		this.sensorId = null;
 	}
 	
-	private Spot(Sector sector, SensorId sensorId) {
-		this.sector = sector;
+	public Spot(int sectorId, SensorId sensorId) {
+		this.sectorId = sectorId;
 		this.localSpotId = -1;
 		this.sensorId = sensorId;
 	}
 	
-	public static Spot fetchSpotByLocalSpotId(ParkingSpotContainer container, int localSpotId) {
-		if(container == null) {
+	//save object in DB or update the existing record
+	public void save() {
+		Spot spot = fetchSpot(this.sectorId, this.localSpotId, this.sensorId);
+		if(spot != null) {
+			return;
+		}
+		// insert
+		String sql = "INSERT INTO spots "
+				+ "(sector_id, local_spot_id, sensor_id) "
+				+ "VALUE (?, ?, ?);";
+		Connection conn = DBManager.getDBManager().getConnection();
+		if (conn == null) {
+			return;
+		}
+		PreparedStatement stmt;
+		try {
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, this.sectorId);
+			stmt.setInt(2, this.localSpotId);
+			stmt.setInt(3, this.sensorId==null?null:this.sensorId.toInt());
+			stmt.executeUpdate();
+			stmt.close();
+			DBManager.getDBManager().closeConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return ;
+	}
+	
+	public static Spot fetchSpot(int sectorId, int localSpotId, SensorId sensorId) {
+		Spot result = null;
+		String sql = "SELECT * FROM spots WHERE sector_id=? AND local_spot_id=? AND sensor_id=?;";
+		Connection conn = DBManager.getDBManager().getConnection();
+		if (conn == null) {
 			return null;
 		}
-		
+		PreparedStatement stmt;
+		try {
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, sectorId);
+			stmt.setInt(2, localSpotId);
+			stmt.setInt(3, sensorId==null?null:sensorId.toInt());
+			ResultSet rs = stmt.executeQuery();
+			// Extract data from result set
+			if (rs.next()) {
+				result = new Spot(sectorId, localSpotId, sensorId);
+			}
+			rs.close();
+			stmt.close();
+			DBManager.getDBManager().closeConnection();			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public static Spot fetchSpotByLocalSpotId(int localSpotId) {
 		Spot result = null;
 		String sql = "SELECT * FROM spots WHERE local_spot_id=?";
 		Connection conn = DBManager.getDBManager().getConnection();
@@ -54,7 +106,6 @@ public class Spot {
 			// Extract data from result set
 			if (rs.next()) {
 				int sectorId = rs.getInt("sector_id");
-				Sector sector = container.getSectorById(sectorId);
 				SensorId sensorId = null;
 				int sensorId_ = rs.getInt("sensor_id");
 				if(! rs.wasNull()) {
@@ -62,7 +113,7 @@ public class Spot {
 				}
 				
 				
-				result = new Spot(sector, localSpotId, sensorId);
+				result = new Spot(sectorId, localSpotId, sensorId);
 			}
 			rs.close();
 			stmt.close();
@@ -73,8 +124,8 @@ public class Spot {
 		return result;
 	}
 	
-	public static Spot fetchSpotBySensorId(ParkingSpotContainer container, SensorId sensorId) {
-		if(container == null || sensorId == null) {
+	public static Spot fetchSpotBySensorId(SensorId sensorId) {
+		if(sensorId == null) {
 			return null;
 		}
 		
@@ -92,13 +143,12 @@ public class Spot {
 			// Extract data from result set
 			if (rs.next()) {
 				int sectorId = rs.getInt("sector_id");
-				Sector sector = container.getSectorById(sectorId);
 				int localSpotId = -1;
 				int localSpotId_ = rs.getInt("local_spot_id");
 				if(! rs.wasNull()) {
 					localSpotId = localSpotId_;
 				}
-				result = new Spot(sector, localSpotId, sensorId);
+				result = new Spot(sectorId, localSpotId, sensorId);
 			}
 			rs.close();
 			stmt.close();

@@ -11,12 +11,12 @@
   </welcome-file-list>
   <context-param>
     <param-name>dataFilePaths</param-name>
-    <param-value>/home/jam/Parking/data.csv</param-value>
+    <param-value>/home/jam/eclipse-workspace/TestDatabaseProject/data.json</param-value>
     <!-- <param-value>/home/jam/Parking/data.csv,/home/jam/Parking/data_tehran.csv</param-value> -->
   </context-param>
   <context-param>
     <param-name>citiesToLoad</param-name>
-    <param-value>tehran,babolsar</param-value>
+    <param-value>Tehran</param-value>
   </context-param>
   <listener>
     <listener-class>server.Server</listener-class>
