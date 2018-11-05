@@ -64,11 +64,12 @@ public class UserManager {
 	}
 	
 	public JSONObject signUpCustomer(HttpServletRequest request, 
-			String fname, String lname, String cellphone, String emailAddr, Part profileImage, int adsFlag) {
+			String fname, String lname, String cellphone, String emailAddr, Part profileImage, int adsFlag, 
+			String password) {
 		
 		
 		User newCustomer = insertNewCustomer(fname, 
-				lname, cellphone, emailAddr, profileImage.getName(), adsFlag);
+				lname, cellphone, emailAddr, profileImage.getName(), adsFlag, password);
 		if(newCustomer == null) {
 			return ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_EXISTS);
 		}
@@ -85,13 +86,13 @@ public class UserManager {
 	
 	// returns null if customer exists
 	private User insertNewCustomer(String fname, String lname, String cellphone, 
-			String emailAddr, String profileImage, int adsFlag) {
+			String emailAddr, String profileImage, int adsFlag, String password) {
 		Connection conn = DBManager.getDBManager().getConnection();
 		String sql = "";
 		PreparedStatement stmt;
 		try {
-			sql = "INSERT INTO customers (fname, lname, cellphone, email_addr, profile_image, ads_flag)"
-					+ "VALUE (?, ?, ?, ?, ?, ?);";
+			sql = "INSERT INTO users (fname, lname, cellphone, email_addr, profile_image, ads_flag, username, password)"
+					+ "VALUE (?, ?, ?, ?, ?, ?, ?, mD5(?));";
 			stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			stmt.setString(1, fname);
 			stmt.setString(2, lname);
@@ -99,13 +100,15 @@ public class UserManager {
 			stmt.setString(4, emailAddr);
 			stmt.setString(5, profileImage);
 			stmt.setInt(6, adsFlag);
+			stmt.setString(7, cellphone);
+			stmt.setString(8, password);
 			stmt.executeUpdate();
 			ResultSet rs = stmt.getGeneratedKeys();
 			User newCustomer = null;
 			if(rs.next()) {
 				int id = rs.getInt("id");
 				newCustomer = 
-						new User(id, fname, lname, cellphone, emailAddr, profileImage, adsFlag);
+						new User(id, cellphone, password, fname, lname, cellphone, emailAddr, profileImage, adsFlag);
 			}
 			rs.close();
 			stmt.close();
