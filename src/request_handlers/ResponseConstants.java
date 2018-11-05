@@ -55,7 +55,9 @@ public class ResponseConstants {
 		RESERVATION_TIME_MISSING,
 		RESERVATION_TYPE_UNDEFINED,
 		LOCAL_SPOT_ID_MISSING,
-		LOGIN_TYPE_MISSING
+		LOGIN_TYPE_MISSING,
+		VERIFICATION_STEP_NOT_STARTED,
+		INCORRECT_VERIFICATION_CODE
 	}
 
 	private ResponseConstants() {
@@ -97,6 +99,8 @@ public class ResponseConstants {
 		messages.put(ResponseCode.RESERVATION_TYPE_UNDEFINED, "نوع رزرو اشتباه مشخص شده است.");
 		messages.put(ResponseCode.LOCAL_SPOT_ID_MISSING, "شماره مکان پارک داده نشده است.");
 		messages.put(ResponseCode.LOGIN_TYPE_MISSING, "login_type parameter is missing. It should be one of the following three values: customer, police, basestation");
+		messages.put(ResponseCode.VERIFICATION_STEP_NOT_STARTED, "مراحل تایید کاربر از طریق پیام کوتاه انجام نشده است.");
+		messages.put(ResponseCode.INCORRECT_VERIFICATION_CODE, "کد تایید وارد شده صحیح نمی باشد.");
 	}
 	
 	public String getMessage(ResponseCode code) {
