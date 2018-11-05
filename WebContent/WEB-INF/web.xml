@@ -12,6 +12,7 @@
   <context-param>
     <param-name>dataFilePaths</param-name>
     <param-value>/home/jam/eclipse-workspace/TestDatabaseProject/data.json</param-value>
+    <!-- <param-value>/root/data/data.json</param-value>-->
     <!-- <param-value>/home/jam/Parking/data.csv,/home/jam/Parking/data_tehran.csv</param-value> -->
   </context-param>
   <context-param>
