@@ -89,8 +89,8 @@ public class SignInServlet extends HttpServlet {
 //	    try {
 //			requestParams = (JSONObject) new JSONParser().parse(requestParametersStr);
 //		} catch (ParseException e) {
-//			// ERROR: Response format should be JSON
-//			ResponseHelper.respondWithMessage(false, ResponseCode.LOGIN_TYPE_MISSING, response);
+//			// ERROR: Request format should be JSON
+//			ResponseHelper.respondWithMessage(false, ResponseCode.REQUEST_FORMAT_NOT_JSON, response);
 //			return;
 //		}
 //	    // TODO: get the parammeters from the parameters obj
