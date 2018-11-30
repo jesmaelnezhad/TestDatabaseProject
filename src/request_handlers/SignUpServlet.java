@@ -1,10 +1,12 @@
 package request_handlers;
 
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+import javax.print.attribute.standard.RequestingUserName;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,6 +23,8 @@ import java.sql.Statement;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import request_handlers.ResponseConstants.ResponseCode;
 import rm.ResourceManager;
@@ -70,17 +74,55 @@ public class SignUpServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		// get parameters as json object
+		StringBuilder sb = new StringBuilder();
+		BufferedReader reader = request.getReader();
+		try {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				sb.append(line).append('\n');
+			}
+		} finally {
+			reader.close();
+		}
+		
+		response.getWriter().write("Query String is : " + request.getQueryString() + 
+				"\n\n\n\nBody of the request is : " + sb.toString());
+		return;
+	}
+		
+		/** 
+		String requestParametersStr = sb.toString();
+		
+		JSONObject requestParams = null;
+		try {
+			requestParams = (JSONObject) new JSONParser().parse(requestParametersStr);
+		} catch (ParseException e) {
+			// TODO: handle exception
+			// ERROR: request format should be JSON
+			ResponseHelper.respondWithMessage(false, ResponseCode.REQUEST_FORMAT_NOT_JSON, response);
+			return;
+		}
+		
+		
 		/** 
 		 * There are two types of sign up request call, one is full of data and the other has just cell phone
-		 */
+		 
 		boolean codeVerification = false;
-		if (request.getParameter(Constants.CELL_PHONE) != null) {
+		// if (request.getParameter(Constants.CELL_PHONE) != null) {
+		if (requestParams.get(Constants.CELL_PHONE) != null) {
 			codeVerification = true;
-			if (request.getParameter(Constants.FIRST_NAME) != null || 
-					request.getParameter(Constants.LAST_NAME) != null || 
-					request.getParameter(Constants.EMAIL_ADDR) != null ||
-					request.getParameter(Constants.ADS_FLAG) != null || 
-					request.getParameter(Constants.PASSWORD) != null) {
+			// if (request.getParameter(Constants.FIRST_NAME) != null || 
+					// request.getParameter(Constants.LAST_NAME) != null || 
+					// request.getParameter(Constants.EMAIL_ADDR) != null ||
+					// request.getParameter(Constants.ADS_FLAG) != null || 
+					// request.getParameter(Constants.PASSWORD) != null) {
+			if (requestParams.get(Constants.FIRST_NAME) != null || 
+					requestParams.get(Constants.LAST_NAME) != null ||
+					requestParams.get(Constants.EMAIL_ADDR) != null ||
+					requestParams.get(Constants.ADS_FLAG) != null ||
+					requestParams.get(Constants.PASSWORD) != null) {
 				codeVerification = false;
 			}
 		}
@@ -88,7 +130,8 @@ public class SignUpServlet extends HttpServlet {
 			// TODO: generate a random code and send it to the phone number provided
 			// set a code and put parameters in session
 			String password = "12345";
-			String cellphone = (String) request.getParameter(Constants.CELL_PHONE);
+			// String cellphone = (String) request.getParameter(Constants.CELL_PHONE);
+			String cellphone = (String) requestParams.get(Constants.CELL_PHONE);
 			
 			// retrieve info from DB whether this user name exists in DB or not
 			boolean userExist = false;
@@ -142,26 +185,40 @@ public class SignUpServlet extends HttpServlet {
 		
 		// now I want to receive a full data sign-up request
 		// with the password I have set before
-		if(request.getParameter(Constants.FIRST_NAME) == null ||
-				request.getParameter(Constants.LAST_NAME) == null ||
-				request.getParameter(Constants.CELL_PHONE) == null ||
-				request.getParameter(Constants.EMAIL_ADDR) == null ||
-				request.getPart(Constants.PROFILE_IMAGE) == null || 
-				request.getParameter(Constants.ADS_FLAG) == null || 
-				request.getParameter(Constants.PASSWORD) == null) {
+		// if(request.getParameter(Constants.FIRST_NAME) == null ||
+				// request.getParameter(Constants.LAST_NAME) == null ||
+				// request.getParameter(Constants.CELL_PHONE) == null ||
+				// request.getParameter(Constants.EMAIL_ADDR) == null ||
+				// request.getPart(Constants.PROFILE_IMAGE) == null || 
+				// request.getParameter(Constants.ADS_FLAG) == null || 
+				// request.getParameter(Constants.PASSWORD) == null) {
+		if(requestParams.get(Constants.FIRST_NAME) == null ||
+				requestParams.get(Constants.LAST_NAME) == null ||
+				requestParams.get(Constants.CELL_PHONE) == null ||
+				requestParams.get(Constants.EMAIL_ADDR) == null ||
+				requestParams.getPart(Constants.PROFILE_IMAGE) == null || 
+				requestParams.get(Constants.ADS_FLAG) == null || 
+				requestParams.get(Constants.PASSWORD) == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.INPUT_INFO_INCOMPLETE, response);
 			return;
 		}
 		
 		// I know that data is complete, so first check it with parameters in the session 
 		// and then if it is OK, put it in the database and set this user as signed in user in session
-		String fname = (String) request.getParameter(Constants.FIRST_NAME);
-		String lname = (String) request.getParameter(Constants.LAST_NAME);
-		String cellphone = (String) request.getParameter(Constants.CELL_PHONE);
-		String emailAddr = (String) request.getParameter(Constants.EMAIL_ADDR);
-		Part profileImagePart = request.getPart(Constants.PROFILE_IMAGE);
-		int adsFlag = Integer.parseInt(request.getParameter(Constants.ADS_FLAG));
-		String password = (String) request.getParameter(Constants.PASSWORD);
+		// String fname = (String) request.getParameter(Constants.FIRST_NAME);
+		String fname = (String) requestParams.get(Constants.FIRST_NAME);
+		// String lname = (String) request.getParameter(Constants.LAST_NAME);
+		String lname = (String) requestParams.get(Constants.LAST_NAME);
+		// String cellphone = (String) request.getParameter(Constants.CELL_PHONE);
+		String cellphone = (String) requestParams.get(Constants.CELL_PHONE);
+		// String emailAddr = (String) request.getParameter(Constants.EMAIL_ADDR);
+		String emailAddr = (String) requestParams.get(Constants.EMAIL_ADDR);
+		// Part profileImagePart = request.getPart(Constants.PROFILE_IMAGE);
+		Part profileImagePart = requestParams.getPart(Constants.PROFILE_IMAGE);
+		// int adsFlag = Integer.parseInt(request.getParameter(Constants.ADS_FLAG));
+		int adsFlag = Integer.parseInt((String) requestParams.get(Constants.ADS_FLAG));
+		// String password = (String) request.getParameter(Constants.PASSWORD);
+		String password = (String) requestParams.get(Constants.PASSWORD);
 		
 		// check cell phone and password provided with the data in the session
 		String preCellPhone = (String)request.getSession().getAttribute(Constants.CELL_PHONE);

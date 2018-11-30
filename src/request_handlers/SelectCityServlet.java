@@ -1,6 +1,7 @@
 package request_handlers;
 
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -14,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.omg.CORBA.portable.ResponseHandler;
 
 import request_handlers.ResponseConstants.ResponseCode;
@@ -64,7 +67,33 @@ public class SelectCityServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		int cityId = Integer.parseInt(request.getParameter(Constants.CITY_ID));
+		// get parameters as json object
+		StringBuilder sb = new StringBuilder();
+		BufferedReader reader = request.getReader();
+		try {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				sb.append(line).append('\n');
+			}
+		} finally {
+			reader.close();
+		}
+		
+		String requestParametersStr = sb.toString();
+		
+		JSONObject requestParams = null;
+		try {
+			requestParams = (JSONObject) new JSONParser().parse(requestParametersStr);
+		} catch (ParseException e) {
+			// TODO: handle exception
+			// ERROR: request format should be JSON
+			ResponseHelper.respondWithMessage(false, ResponseCode.REQUEST_FORMAT_NOT_JSON, response);
+			return;
+		}
+	
+		
+		// int cityId = Integer.parseInt(request.getParameter(Constants.CITY_ID));
+		int cityId = Integer.parseInt((String)requestParams.get(Constants.CITY_ID));
 		
 		
 		ResourceManager rm = ResourceManager.getRM();

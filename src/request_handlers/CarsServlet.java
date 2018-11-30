@@ -66,7 +66,9 @@ public class CarsServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+		
+		
+		
 		String command = (String) request.getSession().getAttribute(Constants.COMMAND);
 		if(command == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.COMMAND_MISSING, response);
