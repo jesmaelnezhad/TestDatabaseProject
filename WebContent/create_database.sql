@@ -83,11 +83,11 @@ CREATE TABLE IF NOT EXISTS sectors
 	city_id INT NOT NULL,
 	rep_x DOUBLE NOT NULL,
 	rep_y DOUBLE NOT NULL,
-	price_rate_id INT,
+	price_rates_id INT,
 	working_hour_id INT,
 	PRIMARY KEY(id),
 	FOREIGN KEY(city_id) REFERENCES cities(id),
-	FOREIGN KEY(price_rate_id) REFERENCES price_rates(id),
+	FOREIGN KEY(price_rates_id) REFERENCES price_rates(id),
 	FOREIGN KEY(working_hour_id) REFERENCES working_hours(id)
 ) ENGINE=INNODB;
 
@@ -100,19 +100,25 @@ CREATE TABLE IF NOT EXISTS sector_segments
 	start_y DOUBLE NOT NULL,
 	end_x DOUBLE NOT NULL,
 	end_y DOUBLE NOT NULL,
-	PRIMARY KEY(id),
-	FOREIGN KEY(sector_id) REFERENCES sectors(id)
+	PRIMARY KEY(id)
 ) ENGINE=INNODB;
 
+CREATE TABLE IF NOT EXISTS sensors
+(
+	id INT NOT NULL AUTO_INCREMENT,
+	city_id INT NOT NULL,
+	full_flag TINYINT NOT NULL,
+	last_changed time NOT NULL,
+	last_updated time NOT NULL,
+	PRIMARY KEY(id),
+ 	FOREIGN KEY(city_id) REFERENCES cities(id) ON DELETE CASCADE
+) ENGINE=INNODB;
 
 CREATE TABLE IF NOT EXISTS spots
 (
-	id INT NOT NULL AUTO_INCREMENT,
 	sector_id INT NOT NULL,
 	local_spot_id INT NOT NULL,
 	sensor_id INT NOT NULL,
-	PRIMARY KEY(id),
-	FOREIGN KEY(sector_id) REFERENCES sectors(id) ON DELETE CASCADE,
 	FOREIGN KEY(sensor_id) REFERENCES sensors(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
 
@@ -151,24 +157,6 @@ CREATE TABLE IF NOT EXISTS transactions
     FOREIGN KEY(reservation_id) REFERENCES reservations(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
 
-
-CREATE TABLE IF NOT EXISTS sensors
-(
-	id INT NOT NULL AUTO_INCREMENT,
-	full_flag TINYINT NOT NULL,
-	last_changed time NOT NULL,
-	last_updated time NOT NULL,
-	PRIMARY KEY(id)
-) ENGINE=INNODB;
-
-CREATE TABLE IF NOT EXISTS spots
-(
-	sector_id INT NOT NULL,
-	local_spot_id INT,
-	sensor_id INT,
-	FOREIGN KEY(sector_id) REFERENCES sectors(id) ON DELETE CASCADE
-/*	FOREIGN KEY(sensor_id) REFERENCES sensors(id) ON DELETE CASCADE*/
-) ENGINE=INNODB;
 
 
 /* Test Data */

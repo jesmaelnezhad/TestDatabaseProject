@@ -13,7 +13,6 @@ import rm.ResourceManager;
 @WebListener
 public class Server implements ServletContextListener {
     public void contextInitialized(ServletContextEvent event) {
-        // Do your thing during webapp's startup.
     	// load data if datafile exists, load data structures, ...
     	List<String> dataFilePaths = new ArrayList<>();
     	String filePaths = event.getServletContext().getInitParameter("dataFilePaths");

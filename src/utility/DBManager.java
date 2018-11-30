@@ -20,13 +20,13 @@ public class DBManager {
 	private static final String PASS = "parkingadminpassword";
 	//
 	private Connection conn = null;
-	private int connectionUsersCount = 1;
+	private int connectionUsersCount = 0;
 	//
 	private DBManager() {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			// Open a connection
-			conn = DBManager.createNewConnection();
+			conn = null;
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

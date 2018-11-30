@@ -138,7 +138,7 @@ if(sensorIdString != null){
 	City city = UserManager.getCM().getCity(request);
 	if(sensorId != -1){
 		SensorId sensorIdObj = SensorId.toSensorId(sensorId);
-		JSONObject sensorJSON = rm.readSensor(sensorId);
+		JSONObject sensorJSON = rm.readSensor(city, sensorId);
 		if("unsuccessful".equals(sensorJSON.get("status"))){
 			%>
 					<table width="972" cellpadding="4" cellspacing="0">

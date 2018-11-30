@@ -7,6 +7,7 @@ import java.sql.Time;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
@@ -22,25 +23,44 @@ import rm.basestations.Sensor;
 import rm.basestations.SensorId;
 import utility.Constants;
 import utility.KDTree;
+import utility.Locker;
 import utility.ParkingSpotStatus;
+import utility.Permit;
 import utility.Point;
 
 /**
  * @author jam
  *
  */
-public class ParkingSpotContainer {
-	// sector id to sector location
+public class ParkingSpotContainer implements Locker{
+	
+	// This KDTree and the map of sectors are created in the time of system boot
+	// and there won't be any add/remove to the structures after that.
+	// Therefore, the structures don't need locks but each Sector itself has a lock.
 	public KDTree<Sector> sectorsKDTree = new KDTree<>(2);
-	// TODO: these maps may need a lock themselves
 	public Map<Integer, Sector> sectorIndex = new HashMap<>();
 	
+	
+	// This structure may change while it's being used. It may be changed 
+	// and materialized simultaneously. 
 	public Map<SensorId, Sensor> citySensors = new HashMap<>();
+	private ReentrantReadWriteLock citySensortsMapMutex = new ReentrantReadWriteLock();
 	
 	private SensorInfoMaterializer materializer = null;
 	
-	public ParkingSpotContainer() {
+	
+	public ParkingSpotContainer(Map<Integer, Sector> sectorIndex) {
 		this.materializer = new SensorInfoMaterializer(this);
+		this.sectorIndex = sectorIndex;
+		for(Integer i : sectorIndex.keySet()) {
+			Sector sec = sectorIndex.get(i);
+			double [] loc = new double[2];
+			loc[0] = sec.sectorLocation.x;
+			loc[0] = sec.sectorLocation.y;
+			sectorsKDTree.add(loc, sec);
+		}
+		System.out.println("Number of sectors in this container : " + this.sectorIndex.size());
+		
 		this.materializer.start();
 	}
 	
@@ -67,9 +87,6 @@ public class ParkingSpotContainer {
 		
 		List<Sector> inRangeSectors = sectorsKDTree.getRange(lows, highs);
 		for(Sector sector : inRangeSectors) {
-			// lock S on sector
-			ReadLock sectorLock = sector.lock.readLock();
-			///////// sector is safe for read ////////
 			// read sector info
 			JSONObject sectorJSONObj = sector.getMinimumJSONObject();
 			// read segments' info
@@ -81,9 +98,6 @@ public class ParkingSpotContainer {
 			}
 			sectorJSONObj.put(Constants.SEGMENTS, sectorSegments);
 			result.add(sectorJSONObj);
-			/////////
-			// unlock sector
-			sectorLock.unlock();
 		}
 		
 		return result;
@@ -96,9 +110,6 @@ public class ParkingSpotContainer {
 			return ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_INVALID);
 		}
 
-		// lock S on sector
-		ReadLock sectorLock = sector.lock.readLock();
-		///////// sector is safe for read ////////
 		// read sector info
 		JSONObject sectorJSONObj = sector.getMinimumJSONObject();
 		// read price rates
@@ -118,9 +129,6 @@ public class ParkingSpotContainer {
 			segmentsJSONArray.add(segment.getMinimumJSONObject());
 		}
 		sectorJSONObj.put(Constants.SEGMENTS, segmentsJSONArray);
-		/////////
-		// unlock sector
-		sectorLock.unlock();
 		
 		return null;
 	}
@@ -128,20 +136,15 @@ public class ParkingSpotContainer {
 	// Get the price of parking 'time' minutes in the given sector
 	public JSONObject calculatePrice(int sectorId, int time) {
 
-		JSONObject status = new JSONObject();
-		
 		Sector sector = sectorIndex.get(sectorId);
 		if(sector == null) { 
 			// there is something wrong. sectorId isn't valid.
 			return ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_INVALID);
 		}
 
-		// lock S on sector
-		ReadLock sectorLock = sector.lock.readLock();
-		///////// sector is safe for read ////////
-		boolean emptySpotExists = sector.availablePark < sector.parkCapacity;
+
+		boolean emptySpotExists = sector.getAvailablePark() < sector.parkCapacity;
 		if(! emptySpotExists) {
-			sectorLock.unlock();
 			return ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_CAPACITY_FULL);
 		}
 		// read sector info
@@ -149,9 +152,6 @@ public class ParkingSpotContainer {
 		// read the working hour and check if any price applies to the current time
 		int price = calcPrice(sector, time);
 		sectorJSONObj.put("price", price);
-		/////////
-		// unlock sector
-		sectorLock.unlock();
 		
 		return sectorJSONObj;
 	}
@@ -197,17 +197,11 @@ public class ParkingSpotContainer {
 
 		JSONObject transactionJSONObj = new JSONObject();
 
-		// lock S on sector
-		WriteLock sectorLock = sector.lock.writeLock();
-		///////// sector is safe for read ////////
 		// read sector info
 		transactionJSONObj.put(Constants.SECTOR_ID, sector.id);
-		sector.availablePark --;
+		sector.setAvailablePark(sector.getAvailablePark() - 1);
 		
 		transactionJSONObj = ResponseHelper.respondWithStatus(transactionJSONObj, true);
-
-		// unlock sector
-		sectorLock.unlock();
 		return transactionJSONObj;
 	}
 	
@@ -232,56 +226,55 @@ public class ParkingSpotContainer {
 			return ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_INVALID);
 		}
 
-		// lock S on sector
-		WriteLock sectorLock = sector.lock.writeLock();
-		///////// sector is safe for read ////////
+
 		// read sector info
 		transactionJSONObj.put(Constants.SECTOR_ID, sector.id);
 
-		sector.availablePark ++;
+		sector.setAvailablePark(sector.getAvailablePark() + 1);
 		
 		transactionJSONObj = ResponseHelper.respondWithStatus(transactionJSONObj, true);
 
-		// unlock sector
-		sectorLock.unlock();
 		return transactionJSONObj;
 	}
 	
-	// load the parking spots of a city into memory
-	public static ParkingSpotContainer loadCity(City city) {
-		
-		// TODO
-		return null;
-	}
-	
-	public JSONObject updateSensors(int[] sensorIds, boolean[] fullFlags, 
+	public JSONObject updateSensors(int cityId, int[] sensorIds, boolean[] fullFlags, 
 			Time[] lastTimeChanged, Time[] lastTimeUpdated) {
-		
 		JSONObject result = new JSONObject();
+		JSONArray updatedSensors = new JSONArray();
+		
 		for(int i = 0 ; i < sensorIds.length; i++) {
 			int sensorIdInt = sensorIds[i];
 			boolean fullFlag = fullFlags[i];
 			Time t1 = lastTimeChanged[i];
 			Time t2 = lastTimeUpdated[i];
-			SensorId id = SensorId.toSensorId(sensorIdInt);
-			Sensor s = citySensors.get(id);
-			if(s == null) {
-				if(! result.containsKey("status")) {
-					result.put("status", "unsuccessful");
+			
+			// first try to get the existing sensor object
+			Sensor sensor = this.getSensorById(sensorIdInt);
+			if(sensor == null) {
+				// doesn't exist. Insert it in DB and in the map.
+				sensor = Sensor.insertSensor(sensorIdInt, fullFlag, cityId, t1, t2);
+				if(sensor == null) {
+					return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
 				}
-				result.put("sensor_not_found", sensorIdInt);
-				continue;
+				Permit citySensorsWritePermit = null;
+		        try{
+		        	citySensorsWritePermit = getWritePermit();
+		        	citySensors.put(SensorId.toSensorId(sensorIdInt), sensor);
+				}finally {
+					citySensorsWritePermit.unlock();
+				}
+
+			}else {
+				sensor.update(fullFlag, t1, t2);
 			}
-			s.update(fullFlag, t1, t2);
-			result.put("sensor_updated", sensorIdInt);
+			updatedSensors.add(sensorIdInt);
 		}
+		result.put("updated_sensors", updatedSensors);
 		return result;
 	}
 	
 	public JSONObject readSensor(int sensorId) {
-		JSONObject result = new JSONObject();
-		SensorId id = SensorId.toSensorId(sensorId);
-		Sensor s = citySensors.get(id);
+		Sensor s = this.getSensorById(sensorId);
 		if(s == null) {
 			return ResponseHelper.respondWithMessage(false, ResponseCode.SENSOR_ID_INVALID);
 		}
@@ -290,10 +283,29 @@ public class ParkingSpotContainer {
 	
 	public Sensor getSensorById(int sensorId) {
 		SensorId id = SensorId.toSensorId(sensorId);
-		Sensor s = citySensors.get(id);
-		if(s == null) {
-			return null;
-		}
-		return s;		
+		// 1. Read lock on citySensors map
+		Permit citySensorsReadPermit = null;
+        try{
+        	citySensorsReadPermit = getReadPermit();
+    		Sensor s = citySensors.get(id);
+    		if(s != null) {
+    			return s;
+    		}
+    		// if it doesn't exist in the map, try to load it from the database.
+    		Sensor sensor = Sensor.fetchSensorById(sensorId);
+    		return sensor;
+        }finally {
+        	citySensorsReadPermit.unlock();
+        }
+	}
+
+	@Override
+	public Permit getReadPermit() {
+		return new Permit(citySensortsMapMutex.readLock());
+	}
+
+	@Override
+	public Permit getWritePermit() {
+		return new Permit(citySensortsMapMutex.writeLock());
 	}
 }

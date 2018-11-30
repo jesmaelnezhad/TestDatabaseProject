@@ -87,7 +87,7 @@ public class UpdateSensorsServlet extends HttpServlet {
 //	    		rm.updateSensors(city, sensorIds, fullFlags, lastChangedTimes, lastUpdatedTimes) , response);
 		
 	    ResponseHelper.respondWithJSONObject(
-	    		rm.updateSensors(sensorIds, fullFlags, lastChangedTimes, lastUpdatedTimes) , response);
+	    		rm.updateSensors(city, sensorIds, fullFlags, lastChangedTimes, lastUpdatedTimes) , response);
 	    return;
 		
 	}
