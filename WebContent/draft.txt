@@ -1,0 +1,59 @@
+Sanandaj starts in 4 months
+
+4000 spots
+
+Application and Police - Parkometer doesn't exist
+
+So the user either has the application or he/she should get a ticket.
+
+Police car should take at least two photos with time difference at least 30 minutes
+
+So all payments are with plate number. But in general, we CAN also have payments with park location instead of plate.
+
+The police car has about 5 minutes for each car.
+
+
+What do we know in our database (that can be used for ticketing)?
+1. Which plate numbers have paid for how much time?
+2. Which locations are paid for? for how much time?
+
+
+Whether or not the car should be ticketed is decided by the server. The police car issues the tickets
+if the server finds a car guilty.
+
+The ticket is the same no matter the user parked 1 minutes over or 10 hours over.
+
+No more than one ticket is issued for one same plate in one day.
+
+Should we update the server database based on the info sent by the police car?
+Yes, the 4 scenarios didn't all have localSpotId. So localSpotId is null in some
+scenarios: these scenarios can be completed using the information sent by police.
+Also some of them don't have plate number which will be filled if given.
+
+Police sends (plate, localSpotId, time_of_take_photo)
+*** Police can send NULL for the plate value which means the given spot is empty.
+
+1.   Plate payment exists, localSpotId is empty: we use this value to fill the NULL
+     value of localSpotId in our database record.
+
+2.1. Plate payment exists which has a localSpotId which is equal to the localSpotId that we have now:
+     take action based on whether or not the reservation is still valid.
+
+2.2. Plate payment exists which has a localSpotId, but what we have now is different: this means that
+     the user has payed for one location but is now parked somewhere else.
+     ??????? TODO We should ask...
+2.   There is a payment for localSpotId which doesn't have a plate: fill the plate value of
+     the corresponding reservation: take action based on whether or not the reservation is still valid.
+3.   There is a payment for localSpotId which does has plate, but the current plate value is different:
+     this means the new plate is parked illegally: take action (for example based on whether or not it 
+     is the first photo or the second one)
+4.   No payment is found: take action based on the first or second photo...
+
+A new table is needed for the information of the issued tickets...
+
+
+Police API:
+
+1. Requesting and submitting the locations of police cars.
+2. Requesting statistics about finished parks or illegal parks.
+3. Requesting the results for a tripple (plate, localSpotId, time_of_take_photo)
