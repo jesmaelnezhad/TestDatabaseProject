@@ -1,0 +1,164 @@
+mysql> show tables;
++--------------------------+
+| Tables_in_parking_system |
++--------------------------+
+| cars                     |
+| cities                   |
+| customer_wallets         |
+| price_rates              |
+| reservations             |
+| sector_segments          |
+| sectors                  |
+| sensors                  |
+| spots                    |
+| transactions             |
+| users                    |
+| working_hours            |
++--------------------------+
+12 rows in set (0.00 sec)
+
+mysql> describe cars;
++--------------+-------------+------+-----+---------+----------------+
+| Field        | Type        | Null | Key | Default | Extra          |
++--------------+-------------+------+-----+---------+----------------+
+| id           | int(11)     | NO   | PRI | NULL    | auto_increment |
+| customer_id  | int(11)     | NO   | MUL | NULL    |                |
+| make_model   | varchar(50) | NO   |     | NULL    |                |
+| color        | tinyint(4)  | NO   |     | NULL    |                |
+| plate_number | varchar(50) | NO   |     | NULL    |                |
++--------------+-------------+------+-----+---------+----------------+
+5 rows in set (0.03 sec)
+
+mysql> describe cities;
++-------+--------------+------+-----+---------+----------------+
+| Field | Type         | Null | Key | Default | Extra          |
++-------+--------------+------+-----+---------+----------------+
+| id    | int(11)      | NO   | PRI | NULL    | auto_increment |
+| name  | varchar(100) | NO   |     | NULL    |                |
++-------+--------------+------+-----+---------+----------------+
+2 rows in set (0.01 sec)
+
+mysql> describe customer_wallets;
++-------------+---------+------+-----+---------+-------+
+| Field       | Type    | Null | Key | Default | Extra |
++-------------+---------+------+-----+---------+-------+
+| id          | int(11) | NO   |     | NULL    |       |
+| customer_id | int(11) | NO   | MUL | NULL    |       |
+| balance     | int(11) | NO   |     | 0       |       |
++-------------+---------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> describe price_rates;
++---------+--------------+------+-----+---------+----------------+
+| Field   | Type         | Null | Key | Default | Extra          |
++---------+--------------+------+-----+---------+----------------+
+| id      | int(11)      | NO   | PRI | NULL    | auto_increment |
+| pricing | varchar(500) | NO   |     | NULL    |                |
++---------+--------------+------+-----+---------+----------------+
+2 rows in set (0.00 sec)
+
+mysql> describe reservations;
++-------------+--------------------------------------------------+------+-----+---------+----------------+
+| Field       | Type                                             | Null | Key | Default | Extra          |
++-------------+--------------------------------------------------+------+-----+---------+----------------+
+| id          | int(11)                                          | NO   | PRI | NULL    | auto_increment |
+| type        | enum('none','localSpotId','sectorId','sensorId') | NO   |     | none    |                |
+| location_id | int(11)                                          | YES  |     | NULL    |                |
+| car_id      | int(11)                                          | YES  | MUL | NULL    |                |
+| start_time  | time                                             | NO   |     | NULL    |                |
+| time_length | int(11)                                          | NO   |     | NULL    |                |
++-------------+--------------------------------------------------+------+-----+---------+----------------+
+6 rows in set (0.00 sec)
+
+mysql> describe sector_segments;
++-----------+---------+------+-----+---------+----------------+
+| Field     | Type    | Null | Key | Default | Extra          |
++-----------+---------+------+-----+---------+----------------+
+| id        | int(11) | NO   | PRI | NULL    | auto_increment |
+| sector_id | int(11) | NO   |     | NULL    |                |
+| capacity  | int(11) | NO   |     | NULL    |                |
+| start_x   | double  | NO   |     | NULL    |                |
+| start_y   | double  | NO   |     | NULL    |                |
+| end_x     | double  | NO   |     | NULL    |                |
+| end_y     | double  | NO   |     | NULL    |                |
++-----------+---------+------+-----+---------+----------------+
+7 rows in set (0.00 sec)
+
+mysql> describe sectors;
++-----------------+---------+------+-----+---------+----------------+
+| Field           | Type    | Null | Key | Default | Extra          |
++-----------------+---------+------+-----+---------+----------------+
+| id              | int(11) | NO   | PRI | NULL    | auto_increment |
+| capacity        | int(11) | NO   |     | NULL    |                |
+| city_id         | int(11) | NO   | MUL | NULL    |                |
+| rep_x           | double  | NO   |     | NULL    |                |
+| rep_y           | double  | NO   |     | NULL    |                |
+| price_rates_id  | int(11) | YES  | MUL | NULL    |                |
+| working_hour_id | int(11) | YES  | MUL | NULL    |                |
++-----------------+---------+------+-----+---------+----------------+
+7 rows in set (0.00 sec)
+
+mysql> describe sensors;
++--------------+------------+------+-----+---------+----------------+
+| Field        | Type       | Null | Key | Default | Extra          |
++--------------+------------+------+-----+---------+----------------+
+| id           | int(11)    | NO   | PRI | NULL    | auto_increment |
+| city_id      | int(11)    | NO   | MUL | NULL    |                |
+| full_flag    | tinyint(4) | NO   |     | NULL    |                |
+| last_changed | time       | NO   |     | NULL    |                |
+| last_updated | time       | NO   |     | NULL    |                |
++--------------+------------+------+-----+---------+----------------+
+5 rows in set (0.00 sec)
+
+mysql> describe spots;
++---------------+---------+------+-----+---------+-------+
+| Field         | Type    | Null | Key | Default | Extra |
++---------------+---------+------+-----+---------+-------+
+| sector_id     | int(11) | NO   |     | NULL    |       |
+| local_spot_id | int(11) | NO   |     | NULL    |       |
+| sensor_id     | int(11) | NO   | MUL | NULL    |       |
++---------------+---------+------+-----+---------+-------+
+3 rows in set (0.01 sec)
+
+mysql> describe transactions;
++------------------+---------------------------------------------------+------+-----+-----------------+----------------+
+| Field            | Type                                              | Null | Key | Default         | Extra          |
++------------------+---------------------------------------------------+------+-----+-----------------+----------------+
+| id               | int(11)                                           | NO   | PRI | NULL            | auto_increment |
+| type             | enum('topUp','paymentByWallet','paymentByRFCARD') | NO   |     | paymentByWallet |                |
+| payer_id         | varchar(100)                                      | NO   |     | NULL            |                |
+| reservation_id   | int(11)                                           | YES  | MUL | NULL            |                |
+| price            | int(11)                                           | NO   |     | NULL            |                |
+| transaction_date | date                                              | NO   |     | NULL            |                |
+| transaction_time | time                                              | NO   |     | NULL            |                |
+| description      | varchar(100)                                      | NO   |     | NULL            |                |
++------------------+---------------------------------------------------+------+-----+-----------------+----------------+
+8 rows in set (0.00 sec)
+
+mysql> describe users;
++---------------+-----------------------------------------+------+-----+----------+----------------+
+| Field         | Type                                    | Null | Key | Default  | Extra          |
++---------------+-----------------------------------------+------+-----+----------+----------------+
+| id            | int(11)                                 | NO   | PRI | NULL     | auto_increment |
+| type          | enum('customer','police','basestation') | NO   |     | customer |                |
+| username      | varchar(100)                            | YES  |     | NULL     |                |
+| password      | varchar(100)                            | YES  |     | NULL     |                |
+| fname         | varchar(100)                            | YES  |     | NULL     |                |
+| lname         | varchar(100)                            | YES  |     | NULL     |                |
+| cellphone     | varchar(20)                             | YES  |     | NULL     |                |
+| email_addr    | varchar(100)                            | YES  |     | NULL     |                |
+| profile_image | varchar(100)                            | YES  |     | NULL     |                |
+| ads_flag      | tinyint(4)                              | YES  |     | NULL     |                |
++---------------+-----------------------------------------+------+-----+----------+----------------+
+10 rows in set (0.00 sec)
+
+mysql> describe working_hours;
++------------+---------+------+-----+---------+----------------+
+| Field      | Type    | Null | Key | Default | Extra          |
++------------+---------+------+-----+---------+----------------+
+| id         | int(11) | NO   | PRI | NULL    | auto_increment |
+| start_time | time    | NO   |     | NULL    |                |
+| end_time   | time    | NO   |     | NULL    |                |
++------------+---------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
