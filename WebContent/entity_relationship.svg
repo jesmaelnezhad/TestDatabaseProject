@@ -264,10 +264,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="186.87568"
-     inkscape:cy="959.9933"
+     inkscape:cx="417.37568"
+     inkscape:cy="559.9933"
      inkscape:document-units="px"
-     inkscape:current-layer="g6934-0"
+     inkscape:current-layer="g7797-8"
      showgrid="false"
      inkscape:window-width="1301"
      inkscape:window-height="744"
@@ -1321,7 +1321,7 @@
              id="tspan4195-7-9"
              x="127.52344"
              y="853.50037"
-             style="font-size:15px">''none', 'localSpotId', 'sectorId', 'sensorId'</tspan></text>
+             style="font-size:15px">'none', 'localSpotId', 'sectorId', 'sensorId'</tspan></text>
         <text
            xml:space="preserve"
            style="font-style:normal;font-weight:normal;font-size:20px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"

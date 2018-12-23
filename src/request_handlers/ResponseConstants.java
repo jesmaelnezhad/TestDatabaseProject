@@ -55,12 +55,17 @@ public class ResponseConstants {
 		RESERVATION_TIME_MISSING,
 		RESERVATION_TYPE_UNDEFINED,
 		LOCAL_SPOT_ID_MISSING,
+		LOCAL_SPOT_ID_INVALID,
 		LOGIN_TYPE_MISSING,
 		REQUEST_FORMAT_NOT_JSON,
 		USERNAME_MISSING,
 		PASSWORD_MISSING,
 		VERIFICATION_STEP_NOT_STARTED,
-		INCORRECT_VERIFICATION_CODE
+		INCORRECT_VERIFICATION_CODE,
+		PHOTO_TIME_MISSING,
+		TIME_FORMAT_INVALID,
+		WRONG_INPUT_FOR_VERIFICATION,
+		VERIFIED_SUCCESSFULLY
 	}
 
 	private ResponseConstants() {
@@ -101,12 +106,17 @@ public class ResponseConstants {
 		messages.put(ResponseCode.RESERVATION_TIME_MISSING, "زمان رزرو مشخص نشده است.");
 		messages.put(ResponseCode.RESERVATION_TYPE_UNDEFINED, "نوع رزرو اشتباه مشخص شده است.");
 		messages.put(ResponseCode.LOCAL_SPOT_ID_MISSING, "شماره مکان پارک داده نشده است.");
+		messages.put(ResponseCode.LOCAL_SPOT_ID_INVALID, "Local spot id does not exist.");
 		messages.put(ResponseCode.LOGIN_TYPE_MISSING, "login_type parameter is missing. It should be one of the following three values: customer, police, basestation");
 		messages.put(ResponseCode.REQUEST_FORMAT_NOT_JSON, "Request data is expected to be in JSON format.");
 		messages.put(ResponseCode.USERNAME_MISSING, "username parameter missing.");
 		messages.put(ResponseCode.PASSWORD_MISSING, "password parameter missing.");
 		messages.put(ResponseCode.VERIFICATION_STEP_NOT_STARTED, "مراحل تایید کاربر از طریق پیام کوتاه انجام نشده است.");
 		messages.put(ResponseCode.INCORRECT_VERIFICATION_CODE, "کد تایید وارد شده صحیح نمی باشد.");
+		messages.put(ResponseCode.PHOTO_TIME_MISSING, "Time of taking photo is missing.");
+		messages.put(ResponseCode.TIME_FORMAT_INVALID, "Time format is invalid.");
+		messages.put(ResponseCode.WRONG_INPUT_FOR_VERIFICATION, "Wrong input for verification.");
+		messages.put(ResponseCode.VERIFIED_SUCCESSFULLY, "Verified successfully.");
 	}
 	
 	public String getMessage(ResponseCode code) {

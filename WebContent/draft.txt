@@ -30,7 +30,7 @@ Yes, the 4 scenarios didn't all have localSpotId. So localSpotId is null in some
 scenarios: these scenarios can be completed using the information sent by police.
 Also some of them don't have plate number which will be filled if given.
 
-Police sends (plate, localSpotId, time_of_take_photo)
+Police sends (plate, localSpotId, time_of_taking_photo)
 *** Police can send NULL for the plate value which means the given spot is empty.
 
 1.   Plate payment exists, localSpotId is empty: we use this value to fill the NULL
@@ -44,7 +44,7 @@ Police sends (plate, localSpotId, time_of_take_photo)
      ??????? TODO We should ask...
 2.   There is a payment for localSpotId which doesn't have a plate: fill the plate value of
      the corresponding reservation: take action based on whether or not the reservation is still valid.
-3.   There is a payment for localSpotId which does has plate, but the current plate value is different:
+3.   There is a payment for localSpotId which does have plate, but the current plate value is different:
      this means the new plate is parked illegally: take action (for example based on whether or not it 
      is the first photo or the second one)
 4.   No payment is found: take action based on the first or second photo...

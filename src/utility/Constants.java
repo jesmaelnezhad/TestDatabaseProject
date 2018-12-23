@@ -75,4 +75,6 @@ public class Constants {
 	public static final String MSG_PRICE_NOT_GIVEN = "price not given";
 	public static final String MSG_TIME_NOT_GIVEN = "time not give";
 	public static final String COMMAND_CALC_PRICE = "calcprice";
+	public static final String PHOTO_TIME = "photo_time";
+	
 }
