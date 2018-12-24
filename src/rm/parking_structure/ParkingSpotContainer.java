@@ -18,6 +18,7 @@ import request_handlers.ResponseHelper;
 import request_handlers.ResponseConstants.ResponseCode;
 import rm.PriceRate;
 import rm.SensorInfoMaterializer;
+import rm.SpotPhoto;
 import rm.WorkingHour;
 import rm.basestations.Sensor;
 import rm.basestations.SensorId;
@@ -40,6 +41,7 @@ public class ParkingSpotContainer implements Locker{
 	public KDTree<Sector> sectorsKDTree = new KDTree<>(2);
 	public Map<Integer, Sector> sectorIndex = new HashMap<>();
 	
+	public Map<Integer, SpotPhoto> pastPhotos = new HashMap<>();
 	
 	// This structure may change while it's being used. It may be changed 
 	// and materialized simultaneously. 

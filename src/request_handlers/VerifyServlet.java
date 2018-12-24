@@ -50,12 +50,14 @@ public class VerifyServlet extends HttpServlet {
 			plateNumber = request.getParameter(Constants.PLATE_NUMBER);
 		}
 		
-		String localSpotId = "";
+		String localSpotIdStr = "";
+		Integer localSpotId;
 		if(request.getParameter(Constants.PLATE_NUMBER) == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.LOCAL_SPOT_ID_MISSING, response);
 			return;
 		}else {
-			localSpotId = request.getParameter(Constants.LOCAL_SPOT_ID);
+			localSpotIdStr = request.getParameter(Constants.LOCAL_SPOT_ID);
+			localSpotId = Integer.parseInt(localSpotIdStr);
 		}
 		
 		String photoTimeStr = "";
@@ -82,18 +84,13 @@ public class VerifyServlet extends HttpServlet {
 		
 		if(plateNumber != null) {
 			// we should verify the parked car
-			
+			ResponseHelper.respondWithJSONObject(rm.verify(policeUser, city, 
+					plateNumber, localSpotId, photoTime), response);
+			return;
 		}
 		
-		// we should use the given information to improve our database 
+		// TODO : we should use the given information to improve our database 
 		// by possibly adding local_spot_id
-		
-				
-		
-		response.getWriter().append("Served at: ").append(request.getContextPath());
-		
-		//  SELECT R.id,R.type,R.location_id,C.plate_number,R.start_time,R.time_length FROM reservations AS R INNER JOIN cars AS C ON R.car_id=C.id;
-		
 	}
 
 }

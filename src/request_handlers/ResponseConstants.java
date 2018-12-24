@@ -65,7 +65,9 @@ public class ResponseConstants {
 		PHOTO_TIME_MISSING,
 		TIME_FORMAT_INVALID,
 		WRONG_INPUT_FOR_VERIFICATION,
-		VERIFIED_SUCCESSFULLY
+		VERIFIED_SUCCESSFULLY,
+		VERIFIED_UNSUCCESSFULLY,
+		SUCCESSFULLY_PROCESSED_PHOTO
 	}
 
 	private ResponseConstants() {
@@ -117,6 +119,8 @@ public class ResponseConstants {
 		messages.put(ResponseCode.TIME_FORMAT_INVALID, "Time format is invalid.");
 		messages.put(ResponseCode.WRONG_INPUT_FOR_VERIFICATION, "Wrong input for verification.");
 		messages.put(ResponseCode.VERIFIED_SUCCESSFULLY, "Verified successfully.");
+		messages.put(ResponseCode.VERIFIED_UNSUCCESSFULLY, "Verification failed. Should issue ticket.");
+		messages.put(ResponseCode.SUCCESSFULLY_PROCESSED_PHOTO, "Photo processed successfully.");
 	}
 	
 	public String getMessage(ResponseCode code) {

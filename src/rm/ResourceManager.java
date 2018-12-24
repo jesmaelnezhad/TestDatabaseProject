@@ -476,7 +476,7 @@ public class ResourceManager implements Locker{
 	}
 
 	public JSONObject verify(User policeUser, City city,
-			String plateNumber, int localSpotId, Time photoTime) {
+			String plateNumber, Integer localSpotId, Time photoTime) {
 		
 		if(policeUser == null || city == null || plateNumber == null || localSpotId == null || photoTime == null) {
 			// wrong input
@@ -508,7 +508,7 @@ public class ResourceManager implements Locker{
 		Spot localSpot = Spot.fetchSpotByLocalSpotId(localSpotId);
 		if(localSpot == null) {
 			// local spot id is wrong.
-			return ResponseHelper.respondWithMessage(verifiedReservation.toJSON(), true, ResponseCode.LOCAL_SPOT_ID_INVALID);			
+			return ResponseHelper.respondWithMessage(false, ResponseCode.LOCAL_SPOT_ID_INVALID);			
 		}
 		// find reservations with localSpotId, sector_id, or sensor_id
 		// 2.1. fetch all reservations that match this location
@@ -526,10 +526,39 @@ public class ResourceManager implements Locker{
 			return ResponseHelper.respondWithMessage(verifiedReservation.toJSON(), true, ResponseCode.VERIFIED_SUCCESSFULLY);
 		}
 		
-		// TODO: Check the candidate table to see if it's the second time this plate number's
-		//       picture is taken.
+		// Check the candidate table to see if it's the second time this plate number's
+		// picture is taken.
+		SpotPhoto photo = new SpotPhoto(localSpotId, photoTime, plateNumber);
+		Permit citySpotsPermit = null;
+		try {
+			citySpotsPermit = this.getReadPermit();
+			
+			ParkingSpotContainer container = citySpots.get(city);
+			if(container == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
+			}
+			Map<Integer, SpotPhoto> photos = container.pastPhotos;
+			if(photos.containsKey(localSpot.localSpotId)) {
+				SpotPhoto spotPhoto = photos.get(localSpot.localSpotId);
 				
-		return null;
+				if(spotPhoto.isRelatedTo(photo)) {
+					// remove the previous picture to empty the list
+					photos.remove(localSpot.localSpotId);
+					// ticket the plate number
+					return ResponseHelper.respondWithMessage(true, ResponseCode.VERIFIED_UNSUCCESSFULLY);
+				}else {
+					// TODO: for now, we remove the previous unused photo and insert this new one
+					photos.remove(localSpot.localSpotId);
+					photos.put(localSpot.localSpotId, photo);
+				}
+			}else { // first photo is taken right now, just add it to the list
+				photos.put(localSpotId, photo);
+			}
+		}finally {
+			citySpotsPermit.unlock();
+		}
+				
+		return ResponseHelper.respondWithMessage(true, ResponseCode.SUCCESSFULLY_PROCESSED_PHOTO);
 		
 	}
 	
