@@ -61,12 +61,12 @@ public class ReserveServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		int type = -1;
-		if(request.getParameter(Constants.TYPE) == null) {
+		if(RequestHelper.getRequestParameter(request, Constants.TYPE) == null) {
 		    ResponseHelper.respondWithMessage(false, ResponseCode.RESERVATION_TYPE_MISSING, response);
 		    return;
 		}else {
 			try {
-				type = Integer.parseInt(request.getParameter(Constants.TYPE));
+				type = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.TYPE));
 			} catch (NumberFormatException e) {
 			    ResponseHelper.respondWithMessage(false, ResponseCode.RESERVATION_TYPE_MISSING, response);
 			    return; 
@@ -74,11 +74,11 @@ public class ReserveServlet extends HttpServlet {
 		}
 		
 		int timeLength = -1;
-		if(request.getParameter(Constants.TIME_LENGTH) == null) {
+		if(RequestHelper.getRequestParameter(request, Constants.TIME_LENGTH) == null) {
 		    ResponseHelper.respondWithMessage(false, ResponseCode.RESERVATION_TIME_MISSING, response);
 		    return;
 		}else {
-			timeLength = Integer.parseInt(request.getParameter(Constants.TIME_LENGTH));
+			timeLength = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.TIME_LENGTH));
 		}
 		Calendar currenttime = Calendar.getInstance();
 	    Date now = new Date((currenttime.getTime()).getTime());
@@ -90,53 +90,53 @@ public class ReserveServlet extends HttpServlet {
 		
 		switch (type) {
 		case 1:{
-			if(request.getParameter(Constants.LOCAL_SPOT_ID) == null) {
+			if(RequestHelper.getRequestParameter(request, Constants.LOCAL_SPOT_ID) == null) {
 			    ResponseHelper.respondWithMessage(false, ResponseCode.LOCAL_SPOT_ID_MISSING, response);
 			    return;
 			}
-			if(request.getParameter(Constants.CAR_ID) == null) {
+			if(RequestHelper.getRequestParameter(request, Constants.CAR_ID) == null) {
 				ResponseHelper.respondWithMessage(false, ResponseCode.CAR_ID_MISSING, response);
 			    return;
 			}
-			int localSpotId = Integer.parseInt(request.getParameter(Constants.LOCAL_SPOT_ID));
-			int carId = Integer.parseInt(request.getParameter(Constants.CAR_ID));
+			int localSpotId = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.LOCAL_SPOT_ID));
+			int carId = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.CAR_ID));
 			ResponseHelper.respondWithJSONObject(
 		    		rm.reserve(customer, city, ReservationType.LocalSpotId, 
 		    				localSpotId, carId, nowTime, timeLength), response);
 			break;
 		}
 		case 2:{
-			if(request.getParameter(Constants.CAR_ID) == null) {
+			if(RequestHelper.getRequestParameter(request, Constants.CAR_ID) == null) {
 				ResponseHelper.respondWithMessage(false, ResponseCode.CAR_ID_MISSING, response);
 			    return;
 			}
-			int carId = Integer.parseInt(request.getParameter(Constants.CAR_ID));
+			int carId = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.CAR_ID));
 			ResponseHelper.respondWithJSONObject(
 		    		rm.reserve(customer, city, carId, nowTime, timeLength), response);
 			break;
 		}
 		case 3:{
-			if(request.getParameter(Constants.SECTOR_ID) == null) {
+			if(RequestHelper.getRequestParameter(request, Constants.SECTOR_ID) == null) {
 			    ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_MISSING, response);
 			    return;
 			}
-			if(request.getParameter(Constants.CAR_ID) == null) {
+			if(RequestHelper.getRequestParameter(request, Constants.CAR_ID) == null) {
 				ResponseHelper.respondWithMessage(false, ResponseCode.CAR_ID_MISSING, response);
 			    return;
 			}
-			int sectorId = Integer.parseInt(request.getParameter(Constants.SECTOR_ID));
-			int carId = Integer.parseInt(request.getParameter(Constants.CAR_ID));
+			int sectorId = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.SECTOR_ID));
+			int carId = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.CAR_ID));
 			ResponseHelper.respondWithJSONObject(
 		    		rm.reserve(customer, city, ReservationType.SectorId, 
 		    				sectorId, carId, nowTime, timeLength), response);
 			break;
 		}
 		case 4:{
-			if(request.getParameter(Constants.SENSOR_ID) == null) {
+			if(RequestHelper.getRequestParameter(request, Constants.SENSOR_ID) == null) {
 			    ResponseHelper.respondWithMessage(false, ResponseCode.SENSOR_ID_MISSING, response);
 			    return;
 			}
-			int sensorId = Integer.parseInt(request.getParameter(Constants.SENSOR_ID));
+			int sensorId = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.SENSOR_ID));
 			ResponseHelper.respondWithJSONObject(
 		    		rm.reserve(customer, city, ReservationType.SensorId, 
 		    				sensorId, -1, nowTime, timeLength), response);

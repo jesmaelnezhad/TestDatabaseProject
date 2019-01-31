@@ -64,19 +64,19 @@ public class SearchAreaServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if(request.getParameter(Constants.TOP_LEFT_X) == null
-				|| request.getParameter(Constants.TOP_LEFT_Y) == null
-				|| request.getParameter(Constants.BOTTOM_RIGHT_Y) == null
-				|| request.getParameter(Constants.BOTTOM_RIGHT_Y) == null) {
+		if(RequestHelper.getRequestParameter(request, Constants.TOP_LEFT_X) == null
+				|| RequestHelper.getRequestParameter(request, Constants.TOP_LEFT_Y) == null
+				|| RequestHelper.getRequestParameter(request, Constants.BOTTOM_RIGHT_X) == null
+				|| RequestHelper.getRequestParameter(request, Constants.BOTTOM_RIGHT_Y) == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.PARAMETERS_NOT_COMPLETE, response);
 			return;
 		}
 		
 		
-		int topLeftX = Integer.parseInt(request.getParameter(Constants.TOP_LEFT_X));
-		int topLeftY = Integer.parseInt(request.getParameter(Constants.TOP_LEFT_Y));
-		int bottomRightX = Integer.parseInt(request.getParameter(Constants.BOTTOM_RIGHT_X));
-		int bottomRightY = Integer.parseInt(request.getParameter(Constants.BOTTOM_RIGHT_Y));
+		int topLeftX = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.TOP_LEFT_X));
+		int topLeftY = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.TOP_LEFT_Y));
+		int bottomRightX = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.BOTTOM_RIGHT_X));
+		int bottomRightY = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.BOTTOM_RIGHT_Y));
 		Point topLeft = new Point(topLeftX, topLeftY);
 		Point bottomRight = new Point(bottomRightX, bottomRightY);
 		

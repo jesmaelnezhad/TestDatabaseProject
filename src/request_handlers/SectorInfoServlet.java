@@ -57,11 +57,11 @@ public class SectorInfoServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		if(request.getParameter(Constants.SECTOR_ID) == null) {
+		if(RequestHelper.getRequestParameter(request, Constants.SECTOR_ID) == null) {
 		    ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_MISSING, response);
 		    return;
 		}
-		int sectorId = Integer.parseInt(request.getParameter(Constants.SECTOR_ID));
+		int sectorId = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.SECTOR_ID));
 		
 		ResourceManager rm = ResourceManager.getRM();
 		User customer = UserManager.getCM().getUser(request);

@@ -25,6 +25,18 @@
     <listener-class>server.Server</listener-class>
   </listener>
   <filter>
+    <filter-name>request-parse-filter</filter-name>
+    <filter-class>request_handlers.filters.RequestParseFilter</filter-class>
+    <init-param>
+      <param-name>excludedUrls</param-name>
+      <param-value>/signup,/signout,/sensors.jsp,/index.html,/new_changes.html,/request_info.html,/request_info_sensors.html,/basestation_request_manual.html,/data_format.json</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>request-parse-filter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter>
     <filter-name>authentication-filter</filter-name>
     <filter-class>request_handlers.filters.AuthenticationFilter</filter-class>
     <init-param>

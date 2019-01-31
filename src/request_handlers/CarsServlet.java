@@ -69,7 +69,8 @@ public class CarsServlet extends HttpServlet {
 		
 		
 		
-		String command = (String) request.getSession().getAttribute(Constants.COMMAND);
+		
+		String command = RequestHelper.getRequestParameter(request, Constants.COMMAND);
 		if(command == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.COMMAND_MISSING, response);
 			return;
@@ -85,9 +86,9 @@ public class CarsServlet extends HttpServlet {
 		// search for sectors
 		JSONObject result = new JSONObject();
 		if(Constants.COMMAND_ADD.equals(command)) {
-			String makeModel = request.getParameter(Constants.MAKE_MODEL);
-			int color = Integer.parseInt(request.getParameter(Constants.COLOR));
-			String plateNumber = request.getParameter(Constants.PLATE_NUMBER);
+			String makeModel = RequestHelper.getRequestParameter(request, Constants.MAKE_MODEL);
+			int color = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.COLOR));
+			String plateNumber = RequestHelper.getRequestParameter(request, Constants.PLATE_NUMBER);
 			Car newCar = UserManager.getCM().insertNewCar(customer, makeModel, color, plateNumber);
 			if(newCar == null) {
 				result = ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
@@ -95,10 +96,10 @@ public class CarsServlet extends HttpServlet {
 				result = newCar.getJSON();
 			}
 		}else if(Constants.COMMAND_EDIT.equals(command)) {
-			int id = Integer.parseInt(request.getParameter("id"));
-			String makeModel = request.getParameter(Constants.MAKE_MODEL);
-			int color = Integer.parseInt(request.getParameter(Constants.COLOR));
-			String plateNumber = request.getParameter(Constants.PLATE_NUMBER);
+			int id = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.ID));
+			String makeModel = RequestHelper.getRequestParameter(request, Constants.MAKE_MODEL);
+			int color = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.COLOR));
+			String plateNumber = RequestHelper.getRequestParameter(request, Constants.PLATE_NUMBER);
 			//NOTE: the existance of these parameters is not checked because it's assumed 
 			//      this request is only used by the app in correct format.
 			

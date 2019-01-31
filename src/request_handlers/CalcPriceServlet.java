@@ -60,17 +60,17 @@ public class CalcPriceServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if(request.getAttribute(Constants.SECTOR_ID) == null) {
+		if(RequestHelper.getRequestParameter(request, Constants.SECTOR_ID) == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.SECTOR_ID_MISSING, response);
 			return;
 		}
-		if(request.getAttribute(Constants.PARK_TIME) == null) {
+		if(RequestHelper.getRequestParameter(request, Constants.PARK_TIME) == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.PARK_TIME_MISSING, response);
 			return;
 		}
 
-		int sectorId = Integer.parseInt(request.getParameter(Constants.SECTOR_ID));
-		int parkTime = Integer.parseInt(request.getParameter(Constants.PARK_TIME));
+		int sectorId = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.SECTOR_ID));
+		int parkTime = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.PARK_TIME));
 		// Park time is an integer which is the number of half-hours requested for park.
 		parkTime *= 30; 
 

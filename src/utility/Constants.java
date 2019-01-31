@@ -35,6 +35,7 @@ public class Constants {
 	public static final String SPOT_ID = "spot_id";
 	public static final String RATE_ID = "rate_id";
 	public static final String CAR_ID = "car_id";
+	public static final String ID = "id";
 	public static final String MAKE_MODEL = "make_model";
 	public static final String COLOR = "color";
 	public static final String PLATE_NUMBER = "plate_number";
@@ -63,6 +64,9 @@ public class Constants {
 	public static final String MSG_CUSTOMER_NOT_SIGHNED_IN = "Customer not signed in";
 	public static final String COMMAND_SAVE = "save";
 	public static final String SENSOR_ID = "sensor_id";
+	public static final String SENSOR_FULL = "full";
+	public static final String SENSOR_T1 = "t1";
+	public static final String SENSOR_T2 = "t2";
 	public static final String LOCAL_SPOT_ID = "local_spot_id";
 	public static final String PRICE = "price";
 	public static final String TIME = "time";
@@ -79,4 +83,5 @@ public class Constants {
 	
 	public static final String POSITION = "position";
 	public static final String GROUP = "group";
+	
 }

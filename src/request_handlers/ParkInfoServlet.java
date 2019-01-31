@@ -64,8 +64,8 @@ public class ParkInfoServlet extends HttpServlet {
 
 
 		boolean ongoing = true;
-		if(request.getAttribute(Constants.ON_GOING) != null) {
-			ongoing = (Boolean)request.getAttribute(Constants.ON_GOING);
+		if(RequestHelper.getRequestParameter(request, Constants.ON_GOING) != null) {
+			ongoing = Boolean.parseBoolean(RequestHelper.getRequestParameter(request, Constants.ON_GOING));
 		}
 		
 		TransactionManager tm = TransactionManager.getTM();

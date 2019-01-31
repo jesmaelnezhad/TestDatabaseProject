@@ -36,7 +36,7 @@ public class ReadSensorServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String sensorIdString = request.getParameter("id");
+		String sensorIdString = RequestHelper.getRequestParameter(request, Constants.ID);
 		if(sensorIdString == null) {
 		    ResponseHelper.respondWithMessage(false, ResponseCode.SENSOR_ID_MISSING, response);
 		    return;

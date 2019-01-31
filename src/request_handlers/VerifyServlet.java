@@ -43,29 +43,29 @@ public class VerifyServlet extends HttpServlet {
 		// 1. Read parameters
 		// (plate, localSpotId, time_of_taking_photo)
 		String plateNumber = "";
-		if(request.getParameter(Constants.PLATE_NUMBER) == null) {
+		if(RequestHelper.getRequestParameter(request, Constants.PLATE_NUMBER) == null) {
 			// in this case, the police is just informing us about an empty spot.
 		    plateNumber = null;
 		}else {
-			plateNumber = request.getParameter(Constants.PLATE_NUMBER);
+			plateNumber = RequestHelper.getRequestParameter(request, Constants.PLATE_NUMBER);
 		}
 		
 		String localSpotIdStr = "";
 		Integer localSpotId;
-		if(request.getParameter(Constants.PLATE_NUMBER) == null) {
+		if(RequestHelper.getRequestParameter(request, Constants.LOCAL_SPOT_ID) == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.LOCAL_SPOT_ID_MISSING, response);
 			return;
 		}else {
-			localSpotIdStr = request.getParameter(Constants.LOCAL_SPOT_ID);
+			localSpotIdStr = RequestHelper.getRequestParameter(request, Constants.LOCAL_SPOT_ID);
 			localSpotId = Integer.parseInt(localSpotIdStr);
 		}
 		
 		String photoTimeStr = "";
-		if(request.getParameter(Constants.PHOTO_TIME) == null) {
+		if(RequestHelper.getRequestParameter(request, Constants.PHOTO_TIME) == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.PHOTO_TIME_MISSING, response);
 			return;
 		}else {
-			photoTimeStr = request.getParameter(Constants.PHOTO_TIME);
+			photoTimeStr = RequestHelper.getRequestParameter(request, Constants.PHOTO_TIME);
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat(Server.getServer().getTimeFormatString());
 		long ms;

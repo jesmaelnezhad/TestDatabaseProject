@@ -36,16 +36,15 @@ public class ReservationDBFetchServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		int position = -1;
-		if(request.getSession().getAttribute(Constants.POSITION) != null) {
+		if(RequestHelper.getRequestParameter(request, Constants.POSITION) != null) {
 			try {
-				position = Integer.parseInt(
-						(String)request.getSession().getAttribute(Constants.POSITION)) ;
+				position = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.POSITION)) ;
 			} catch (NumberFormatException e) {
 				ResponseHelper.respondWithMessage(false, ResponseCode.INVALID_POSITION, response);
 				return;
 			}
 		}
-		String group = (String) request.getSession().getAttribute(Constants.GROUP);;
+		String group = RequestHelper.getRequestParameter(request, Constants.GROUP);
 		JSONArray logRecords = new JSONArray();
 		List<LogRecord> logs = LogManager.getLogger().getRecords(group, position);
 		for(LogRecord lr: logs) {

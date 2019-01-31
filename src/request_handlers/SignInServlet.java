@@ -69,50 +69,26 @@ public class SignInServlet extends HttpServlet {
 	 */
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	    
-		// get parameters as json object
-		StringBuilder sb = new StringBuilder();
-		BufferedReader reader = request.getReader();
-		try {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				sb.append(line).append('\n');
-			}
-		} finally {
-			reader.close();
-		}
+
 		
-		String requestParametersStr = sb.toString();
-		
-		JSONObject requestParams = null;
-		try {
-			requestParams = (JSONObject) new JSONParser().parse(requestParametersStr);
-		} catch (ParseException e) {
-			// TODO: handle exception
-			// ERROR: request format should be JSON
-			ResponseHelper.respondWithMessage(false, ResponseCode.REQUEST_FORMAT_NOT_JSON, response);
-			return;
-		}
-		
-		
-		
-	     
-		// TODO Auto-generated method stub
-		// String typeStr = (String) request.getParameter(Constants.LOGIN_TYPE);
-		String typeStr = (String) requestParams.get(Constants.LOGIN_TYPE); 
-		if(typeStr == null) {
+
+		if(RequestHelper.getRequestParameter(request, Constants.LOGIN_TYPE) == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.LOGIN_TYPE_MISSING, response);
 			return;
 		}
+	     
+		// TODO Auto-generated method stub
+		// String typeStr = (String) request.getParameter(Constants.LOGIN_TYPE);
+		String typeStr = RequestHelper.getRequestParameter(request, Constants.LOGIN_TYPE);
 		UserType type = UserType.fromString(typeStr);
 		// String username = (String) request.getParameter(Constants.USERNAME);
-		String username = (String) requestParams.get(Constants.USERNAME);
+		String username = (String) RequestHelper.getRequestParameter(request, Constants.USERNAME);
 		if(username == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.USERNAME_MISSING, response);
 			return;
 		}
 		// String password = (String) request.getParameter(Constants.PASSWORD);
-		String password = (String) requestParams.get(Constants.PASSWORD);
+		String password = RequestHelper.getRequestParameter(request, Constants.PASSWORD);
 		if(password == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.PASSWORD_MISSING, response);
 			return;
@@ -145,9 +121,9 @@ public class SignInServlet extends HttpServlet {
 			}
 			
 			// username = (String) request.getParameter(Constants.USERNAME);
-			username = (String) requestParams.get(Constants.USERNAME);
+			username = RequestHelper.getRequestParameter(request, Constants.USERNAME);
 			// password = (String) request.getParameter(Constants.PASSWORD);
-			password = (String) requestParams.get(Constants.PASSWORD);
+			password = RequestHelper.getRequestParameter(request, Constants.PASSWORD);
 			
 			ResponseHelper.respondWithJSONObject(UserManager.getCM().signInUser(request, username, password), response);
 			break;

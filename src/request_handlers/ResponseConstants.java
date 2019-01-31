@@ -35,6 +35,7 @@ public class ResponseConstants {
 		TOPUP_VALUE_INVALID,
 		CUSTOMER_NOT_SIGNED_IN,
 		CITY_NOT_FOUND,
+		CITY_ID_NOT_GIVEN,
 		CITY_NOT_SELECTED,
 		SPOT_NOT_FOUND,
 		WALLET_NOT_FOUND,
@@ -89,6 +90,7 @@ public class ResponseConstants {
 		messages.put(ResponseCode.TOPUP_VALUE_INVALID, "مقدار داده شده صحیح نمیباشد.");
 		messages.put(ResponseCode.CUSTOMER_NOT_SIGNED_IN, "مشتری وارد نشده است.");
 		messages.put(ResponseCode.CITY_NOT_FOUND, "شهر مورد نظر مشخص نیست.");
+		messages.put(ResponseCode.CITY_ID_NOT_GIVEN, "City ID is not given.");
 		messages.put(ResponseCode.CITY_NOT_SELECTED, "City is not selected.");
 		messages.put(ResponseCode.SPOT_NOT_FOUND, "محل مورد نظر یافت نشد.");
 		messages.put(ResponseCode.WALLET_NOT_FOUND, "کیف پول مورد نظر مشخص نیست.");
