@@ -168,4 +168,12 @@
     <servlet-name>transaction-servlet</servlet-name>
     <url-pattern>/transaction</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <servlet-name>reservation-db-fetch-servlet</servlet-name>
+    <servlet-class>request_handlers/ReservationDBFetchServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>reservation-db-fetch-servlet</servlet-name>
+    <url-pattern>/reservation_fetch</url-pattern>
+  </servlet-mapping>
 </web-app>

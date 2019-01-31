@@ -77,4 +77,6 @@ public class Constants {
 	public static final String COMMAND_CALC_PRICE = "calcprice";
 	public static final String PHOTO_TIME = "photo_time";
 	
+	public static final String POSITION = "position";
+	public static final String GROUP = "group";
 }

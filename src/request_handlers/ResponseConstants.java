@@ -67,7 +67,8 @@ public class ResponseConstants {
 		WRONG_INPUT_FOR_VERIFICATION,
 		VERIFIED_SUCCESSFULLY,
 		VERIFIED_UNSUCCESSFULLY,
-		SUCCESSFULLY_PROCESSED_PHOTO
+		SUCCESSFULLY_PROCESSED_PHOTO,
+		INVALID_POSITION
 	}
 
 	private ResponseConstants() {
@@ -121,6 +122,7 @@ public class ResponseConstants {
 		messages.put(ResponseCode.VERIFIED_SUCCESSFULLY, "Verified successfully.");
 		messages.put(ResponseCode.VERIFIED_UNSUCCESSFULLY, "Verification failed. Should issue ticket.");
 		messages.put(ResponseCode.SUCCESSFULLY_PROCESSED_PHOTO, "Photo processed successfully.");
+		messages.put(ResponseCode.INVALID_POSITION, "Invalid position.");
 	}
 	
 	public String getMessage(ResponseCode code) {
