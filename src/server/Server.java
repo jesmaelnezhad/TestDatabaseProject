@@ -12,7 +12,30 @@ import rm.ResourceManager;
 
 @WebListener
 public class Server implements ServletContextListener {
+	
+	private static Server instance = null;
+	public static Server getServer() {
+		return instance;
+	}
+	
+	private String TIME_FORMAT_STRING = "";
+	public String getTimeFormatString() {
+		return TIME_FORMAT_STRING;
+	}
+	
     public void contextInitialized(ServletContextEvent event) {
+    	
+    	// remember this server object
+    	Server.instance = this;
+    	
+    	// read the config parameters
+    	
+    	// time format string
+    	this.TIME_FORMAT_STRING = event.getServletContext().getInitParameter("timeFormatString");
+    	if(this.TIME_FORMAT_STRING == null) {
+    		this.TIME_FORMAT_STRING = "HH:mm:ss";
+    	}
+    	
     	// load data if datafile exists, load data structures, ...
     	List<String> dataFilePaths = new ArrayList<>();
     	String filePaths = event.getServletContext().getInitParameter("dataFilePaths");

@@ -38,7 +38,8 @@ public class TransactionServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// get command type
-		String command = request.getParameter(Constants.COMMAND);
+		
+		String command = RequestHelper.getRequestParameter(request, Constants.COMMAND);
 		
 		// check if command type has value
 		if (command == null) {
@@ -75,9 +76,9 @@ public class TransactionServlet extends HttpServlet {
 		if (command.equals(Constants.COMMAND_SAVE)) {
 			// save command
 			// get parameters from request
-			String sensorIdString = request.getParameter(Constants.SENSOR_ID);
-			String priceString = request.getParameter(Constants.PRICE);
-			String timeString = request.getParameter(Constants.TIME);
+			String sensorIdString = RequestHelper.getRequestParameter(request, Constants.SENSOR_ID);
+			String priceString = RequestHelper.getRequestParameter(request, Constants.PRICE);
+			String timeString = RequestHelper.getRequestParameter(request, Constants.TIME);
 			
 			// check if these parameters are exist, if is OK, then convert the parameter to its right type 
 			// sensor ID
@@ -125,8 +126,8 @@ public class TransactionServlet extends HttpServlet {
 		}
 		else if (command.equals(Constants.COMMAND_CALC_PRICE)) {
 			// get the input parameters as string
-			String sensorIdString = request.getParameter(Constants.SENSOR_ID);
-			String timeLengthString = request.getParameter(Constants.TIME_LENGTH);
+			String sensorIdString = RequestHelper.getRequestParameter(request, Constants.SENSOR_ID);
+			String timeLengthString = RequestHelper.getRequestParameter(request, Constants.TIME_LENGTH);
 			
 			// check if these parameters are exist, if is OK, then convert the parameter to its right type 
 			// sensor ID

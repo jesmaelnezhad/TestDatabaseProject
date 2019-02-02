@@ -67,33 +67,14 @@ public class SelectCityServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// get parameters as json object
-		StringBuilder sb = new StringBuilder();
-		BufferedReader reader = request.getReader();
-		try {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				sb.append(line).append('\n');
-			}
-		} finally {
-			reader.close();
+
+		if(RequestHelper.getRequestParameter(request, Constants.CITY_ID) == null) {
+			ResponseHelper.respondWithMessage(false, ResponseCode.CITY_ID_NOT_GIVEN, response);
+		    return;
 		}
-		
-		String requestParametersStr = sb.toString();
-		
-		JSONObject requestParams = null;
-		try {
-			requestParams = (JSONObject) new JSONParser().parse(requestParametersStr);
-		} catch (ParseException e) {
-			// TODO: handle exception
-			// ERROR: request format should be JSON
-			ResponseHelper.respondWithMessage(false, ResponseCode.REQUEST_FORMAT_NOT_JSON, response);
-			return;
-		}
-	
 		
 		// int cityId = Integer.parseInt(request.getParameter(Constants.CITY_ID));
-		int cityId = Integer.parseInt((String)requestParams.get(Constants.CITY_ID));
+		int cityId = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.CITY_ID));
 		
 		
 		ResourceManager rm = ResourceManager.getRM();

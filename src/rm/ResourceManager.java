@@ -49,7 +49,7 @@ import utility.Permit;
 import utility.Point;
 
 public class ResourceManager implements Locker{
-
+	
 	// A mapping from cities to the container of their parking spots
 	private Map<City, ParkingSpotContainer> citySpots = new HashMap<City, ParkingSpotContainer>();
 	private ReentrantReadWriteLock citySpotsMapLock = new ReentrantReadWriteLock();
@@ -315,8 +315,6 @@ public class ResourceManager implements Locker{
 		return city_;
 	}
 	
-
-	
 	private static ResourceManager rm = null;
 	public static ResourceManager getRM() {
 		if(rm == null) {
@@ -324,9 +322,6 @@ public class ResourceManager implements Locker{
 		}
 		return rm;
 	}
-	
-	
-	// must be replaced with several overloads of a new method called 'reserve'.
 	
 	public JSONObject reserve(User customer, City city,
 			ReservationType type, int localSpotIdOrSectorIdOrSensorId, int carId, Time startTime, int timeLength) {
@@ -480,8 +475,93 @@ public class ResourceManager implements Locker{
 
 	}
 
+	public JSONObject verify(User policeUser, City city,
+			String plateNumber, Integer localSpotId, Time photoTime) {
+		
+		if(policeUser == null || city == null || plateNumber == null || localSpotId == null || photoTime == null) {
+			// wrong input
+			return ResponseHelper.respondWithMessage(false, ResponseCode.WRONG_INPUT_FOR_VERIFICATION);
+		}
+		
+		// we should search for a reservation that matches this information.
+		// There are four cases for reservation
+		// 1. The case where the plate number exists
+		
+		// 1.1. fetch all reservations that match this plate number
+		List<Reservation> plateReservations = Reservation.findReservationsByPlateNumber(plateNumber);
+		// 1.2. check each reservation whether or not its active in the time of taking the photo
+		Reservation verifiedReservation = null;
+		for(Reservation reservation : plateReservations){
+			if(reservation.isValidAt(photoTime)) {
+				verifiedReservation = reservation;
+				break;
+			}
+		}
+		if(verifiedReservation != null) {
+			// an active reservation with plate number exists
+			// TODO: if we want to fix a null value in the database, it should be here.
+			return ResponseHelper.respondWithMessage(verifiedReservation.toJSON(), true, ResponseCode.VERIFIED_SUCCESSFULLY);
+		}
+		
+		// no working reservation found with this plate number string
+		// now we should check if localSpotId helps us in any ways
+		Spot localSpot = Spot.fetchSpotByLocalSpotId(localSpotId);
+		if(localSpot == null) {
+			// local spot id is wrong.
+			return ResponseHelper.respondWithMessage(false, ResponseCode.LOCAL_SPOT_ID_INVALID);			
+		}
+		// find reservations with localSpotId, sector_id, or sensor_id
+		// 2.1. fetch all reservations that match this location
+		plateReservations = Reservation.findReservationsBySpot(localSpot);
+		// 2.2. check each reservation whether or not its active in the time of taking the photo
+		verifiedReservation = null;
+		for(Reservation reservation : plateReservations){
+			if(reservation.isValidAt(photoTime)) {
+				verifiedReservation = reservation;
+				break;
+			}
+		}
+		if(verifiedReservation != null) {
+			// an active reservation with plate number exists
+			return ResponseHelper.respondWithMessage(verifiedReservation.toJSON(), true, ResponseCode.VERIFIED_SUCCESSFULLY);
+		}
+		
+		// Check the candidate table to see if it's the second time this plate number's
+		// picture is taken.
+		SpotPhoto photo = new SpotPhoto(localSpotId, photoTime, plateNumber);
+		Permit citySpotsPermit = null;
+		try {
+			citySpotsPermit = this.getReadPermit();
+			
+			ParkingSpotContainer container = citySpots.get(city);
+			if(container == null) {
+				return ResponseHelper.respondWithMessage(false, ResponseCode.CITY_NOT_FOUND);
+			}
+			Map<Integer, SpotPhoto> photos = container.pastPhotos;
+			if(photos.containsKey(localSpot.localSpotId)) {
+				SpotPhoto spotPhoto = photos.get(localSpot.localSpotId);
+				
+				if(spotPhoto.isRelatedTo(photo)) {
+					// remove the previous picture to empty the list
+					photos.remove(localSpot.localSpotId);
+					// ticket the plate number
+					return ResponseHelper.respondWithMessage(true, ResponseCode.VERIFIED_UNSUCCESSFULLY);
+				}else {
+					// TODO: for now, we remove the previous unused photo and insert this new one
+					photos.remove(localSpot.localSpotId);
+					photos.put(localSpot.localSpotId, photo);
+				}
+			}else { // first photo is taken right now, just add it to the list
+				photos.put(localSpotId, photo);
+			}
+		}finally {
+			citySpotsPermit.unlock();
+		}
+				
+		return ResponseHelper.respondWithMessage(true, ResponseCode.SUCCESSFULLY_PROCESSED_PHOTO);
+		
+	}
 	
-
 	public JSONObject calculatePrice(City city, int sectorId, int time) {
 		Permit citySpotsPermit = null;
 		try {
@@ -571,16 +651,6 @@ public class ResourceManager implements Locker{
 			citySpotsPermit.unlock();
 		}
 	}
-	
-//	public JSONObject readSensor(int sensorId) {
-//		Sensor sensor = Sensor.fetchSensorById(sensorId);
-//		if(sensor == null) {
-//			return ResponseHelper.respondWithMessage(false, ResponseCode.SENSOR_ID_INVALID);
-//		}
-//		JSONObject sensorObj = sensor.toJSON();
-//		sensorObj.put("id", sensorId);
-//		return sensorObj;
-//	}
 
 	@Override
 	public Permit getReadPermit() {

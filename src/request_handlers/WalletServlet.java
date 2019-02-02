@@ -54,7 +54,7 @@ public class WalletServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String command = request.getParameter("command");
+		String command = RequestHelper.getRequestParameter(request, Constants.COMMAND);
 		if(command == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.COMMAND_MISSING, response);
 			return;
@@ -69,11 +69,11 @@ public class WalletServlet extends HttpServlet {
 		
 		if(command.equals(Constants.COMMAND_TOPUP)) {
 
-			if(request.getParameter("amount") == null) {
+			if(RequestHelper.getRequestParameter(request, Constants.AMOUNT) == null) {
 				ResponseHelper.respondWithMessage(false, ResponseCode.AMOUNT_MISSING, response);
 				return;
 			}
-			int amount = Integer.parseInt(request.getParameter("amount"));
+			int amount = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.AMOUNT));
 
 			ResponseHelper.respondWithJSONObject(customer.topUp(amount), response);
 			return;

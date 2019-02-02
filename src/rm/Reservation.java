@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.simple.JSONObject;
@@ -256,6 +257,102 @@ public class Reservation {
 		// TODO: find if there are any reservations with this carId or this sensorId
 		//       and add them to 'results'
 		return results;
+	}
+	
+	
+	public static List<Reservation> findReservationsByPlateNumber(String plateNumber){
+		
+		List<Reservation> results = new ArrayList<>();
+		String sql = "SELECT R.id AS id,"
+				+ "R.type AS type,"
+				+ "R.location_id AS location_id,"
+				+ "R.car_id AS car_id,"
+				+ "R.start_time AS start_time,"
+				+ "R.time_length AS time_length "
+				+ "FROM reservations AS R INNER JOIN cars AS C ON R.car_id=C.id "
+				+ "WHERE C.plate_number=?;";
+		Connection conn = DBManager.getDBManager().getConnection();
+		if (conn == null) {
+			return null;
+		}
+		PreparedStatement stmt;
+		try {
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, plateNumber);
+			ResultSet rs = stmt.executeQuery();
+			// Extract data from result set
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				String typeStr = rs.getString("type");
+				ReservationType type = ReservationType.fromString(typeStr);
+				int locationId = rs.getInt("location_id");
+				int carId = rs.getInt("car_id");
+				Time startTime = rs.getTime("start_time");
+				int timeLength = rs.getInt("time_length");
+				results.add(new Reservation(id, type, locationId, carId, startTime, timeLength));
+				rs.close();
+				stmt.close();
+			}
+			DBManager.getDBManager().closeConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return results;
+	}
+	
+	public static List<Reservation> findReservationsBySpot(Spot spot){
+		
+		List<Reservation> results = new ArrayList<>();
+		String sql = "SELECT * FROM reservations "
+				+ "WHERE "
+				+ "(type = 'localSpotId' AND location_id = ?)"
+				+ " OR "
+				+ "(type = 'sensorId' AND location_id = ?)"
+				+ " OR "
+				+ "(type = 'sectorId' AND location_id = ?);";
+		Connection conn = DBManager.getDBManager().getConnection();
+		if (conn == null) {
+			return null;
+		}
+		PreparedStatement stmt;
+		try {
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, spot.localSpotId);
+			stmt.setInt(2, spot.sectorId);
+			stmt.setInt(3, spot.sensorId.toInt());
+			ResultSet rs = stmt.executeQuery();
+			// Extract data from result set
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				String typeStr = rs.getString("type");
+				ReservationType type = ReservationType.fromString(typeStr);
+				int locationId = rs.getInt("location_id");
+				int carId = rs.getInt("car_id");
+				Time startTime = rs.getTime("start_time");
+				int timeLength = rs.getInt("time_length");
+				results.add(new Reservation(id, type, locationId, carId, startTime, timeLength));
+				rs.close();
+				stmt.close();
+			}
+			DBManager.getDBManager().closeConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return results;
+	}
+	
+	public boolean isValidAt(Time validationTime_) {
+		LocalTime validationTime = validationTime_.toLocalTime();
+		//validate the reservation based on this time
+		LocalTime time1 = this.startTime.toLocalTime();
+		LocalTime time2 = ((Time)this.startTime.clone()).toLocalTime().plusMinutes(30 * this.timeLength);
+		if(time1.equals(validationTime) || time2.equals(validationTime)) {
+			return true;
+		}
+		if(time1.isBefore(validationTime) && validationTime.isBefore(time2)) {
+			return true;
+		}
+		return false;
 	}
 		
 

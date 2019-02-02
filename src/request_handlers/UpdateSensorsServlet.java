@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import request_handlers.ResponseConstants.ResponseCode;
@@ -37,10 +38,10 @@ public class UpdateSensorsServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String [] sensorIdStrings = request.getParameterValues("id");
-		String [] fullFlagStrings = request.getParameterValues("full");
-		String [] lastTimeChangedStrings = request.getParameterValues("t1");
-		String [] lastTimeUpdatedStrings = request.getParameterValues("t2");
+		String [] sensorIdStrings = RequestHelper.getRequestParameters(request, Constants.ID);
+		String [] fullFlagStrings = RequestHelper.getRequestParameters(request, Constants.SENSOR_FULL);
+		String [] lastTimeChangedStrings = RequestHelper.getRequestParameters(request, Constants.SENSOR_T1);
+		String [] lastTimeUpdatedStrings = RequestHelper.getRequestParameters(request, Constants.SENSOR_T2);
 		
 		if(sensorIdStrings == null || fullFlagStrings == null || 
 				lastTimeChangedStrings == null || lastTimeUpdatedStrings == null) {

@@ -16,10 +16,9 @@ mysql -u parking_admin -p
 */
 
 /*======== CREATING THE DATABASE ========*/
-CREATE DATABASE parking_system;
-CREATE DATABASE parking_system CHARACTER SET utf8
+CREATE DATABASE hypertire_system CHARACTER SET utf8
   COLLATE utf8_general_ci;;
-USE parking_system;
+USE hypertire_system;
 
 /*======== CREATING THE TABLES  ========*/
 
@@ -155,6 +154,17 @@ CREATE TABLE IF NOT EXISTS transactions
     description VARCHAR(100) NOT NULL,
     PRIMARY KEY(id),
     FOREIGN KEY(reservation_id) REFERENCES reservations(id) ON DELETE CASCADE
+) ENGINE=INNODB;
+
+
+CREATE TABLE IF NOT EXISTS logs
+(
+	id INT NOT NULL AUTO_INCREMENT,
+	log_group VARCHAR(100) NOT NULL,
+	log TEXT NOT NULL,
+	time_ time DEFAULT NULL,
+	date_ date DEFAULT NULL,
+	PRIMARY KEY(id)
 ) ENGINE=INNODB;
 
 
