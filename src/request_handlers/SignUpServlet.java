@@ -87,12 +87,11 @@ public class SignUpServlet extends HttpServlet {
 			reader.close();
 		}
 		
-		response.getWriter().write("Query String is : " + request.getQueryString() + 
-				"\n\n\n\nBody of the request is : " + sb.toString());
-		return;
-	}
 		
-		/** 
+		// This is a test for getting json object as input
+		// response.getWriter().write(sb.toString());
+		// return;
+		
 		String requestParametersStr = sb.toString();
 		
 		JSONObject requestParams = null;
@@ -102,22 +101,16 @@ public class SignUpServlet extends HttpServlet {
 			// TODO: handle exception
 			// ERROR: request format should be JSON
 			ResponseHelper.respondWithMessage(false, ResponseCode.REQUEST_FORMAT_NOT_JSON, response);
-			return;
+			// return; is it required or not
 		}
 		
 		
-		/** 
-		 * There are two types of sign up request call, one is full of data and the other has just cell phone
+		
+		// There are two types of sign up request call, one is full of data and the other has just cell phone
 		 
 		boolean codeVerification = false;
-		// if (request.getParameter(Constants.CELL_PHONE) != null) {
 		if (requestParams.get(Constants.CELL_PHONE) != null) {
 			codeVerification = true;
-			// if (request.getParameter(Constants.FIRST_NAME) != null || 
-					// request.getParameter(Constants.LAST_NAME) != null || 
-					// request.getParameter(Constants.EMAIL_ADDR) != null ||
-					// request.getParameter(Constants.ADS_FLAG) != null || 
-					// request.getParameter(Constants.PASSWORD) != null) {
 			if (requestParams.get(Constants.FIRST_NAME) != null || 
 					requestParams.get(Constants.LAST_NAME) != null ||
 					requestParams.get(Constants.EMAIL_ADDR) != null ||
