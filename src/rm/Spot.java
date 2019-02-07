@@ -6,10 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 
+import lm.LogManager;
 import rm.Reservation.ReservationType;
 import rm.basestations.SensorId;
 import rm.parking_structure.ParkingSpotContainer;
 import rm.parking_structure.Sector;
+import utility.Constants;
 import utility.DBManager;
 
 public class Spot {
@@ -35,12 +37,27 @@ public class Spot {
 		this.sensorId = sensorId;
 	}
 	
+	public String toLogString() {
+		return this.sectorId + "\t" + this.localSpotId + "\t" + this.sensorId;
+	}
+	
 	//save object in DB or update the existing record
 	public void save() {
 		Spot spot = fetchSpot(this.sectorId, this.localSpotId, this.sensorId);
 		if(spot != null) {
 			return;
 		}
+		/**
+		 * Save the new spot in logger as well: police will fetch info from logger.
+		 */
+		String logString = this.toLogString();
+		LogManager logger = LogManager.getLogger();
+		int logId = logger.addRecord(LogManager.LOG_GROUP_SPOTS, logString);
+		if(logId == LogManager.LOG_ID_FAILED) {
+			// TODO: logger failed. DO SOMETHING.
+			return;
+		}
+		
 		// insert
 		String sql = "INSERT INTO spots "
 				+ "(sector_id, local_spot_id, sensor_id) "

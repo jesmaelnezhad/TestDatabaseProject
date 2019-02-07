@@ -15,11 +15,17 @@ import utility.DBManager;
 
 public class LogManager {
 
+	public static final Integer LOG_ID_FAILED = -1;
+	
+	public static final String LOG_GROUP_SPOTS = "spots";
+	public static final String LOG_GROUP_RESERVATIONS = "reservations";
+	public static final String LOG_GROUP_CARS = "spots";
+	
 	private static LogManager instance = new LogManager();
 	public static LogManager getLogger() { return instance;}
 	
 	
-	/// returns -1 if inserting a new record fails
+	/// returns LOG_ID_FAILED if inserting a new record fails
 	/// otherwise, returns the id of the newly added log record.
 	public int addRecord(String group, String log) {
 		LogRecord record = null;
@@ -53,7 +59,7 @@ public class LogManager {
 			DBManager.getDBManager().closeConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return -1;
+			return LOG_ID_FAILED;
 		}
 		return record.getId();
 	}

@@ -89,7 +89,7 @@ public class CarsServlet extends HttpServlet {
 			String makeModel = RequestHelper.getRequestParameter(request, Constants.MAKE_MODEL);
 			int color = Integer.parseInt(RequestHelper.getRequestParameter(request, Constants.COLOR));
 			String plateNumber = RequestHelper.getRequestParameter(request, Constants.PLATE_NUMBER);
-			Car newCar = UserManager.getCM().insertNewCar(customer, makeModel, color, plateNumber);
+			Car newCar = Car.insertNewCar(customer, makeModel, color, plateNumber);
 			if(newCar == null) {
 				result = ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
 			}else {
@@ -107,14 +107,14 @@ public class CarsServlet extends HttpServlet {
 			car.makeModel = makeModel;
 			car.color = color;
 			car.plateNumber = plateNumber;
-			Car editedCar = UserManager.getCM().editCar(car);
+			Car editedCar = Car.editCar(car);
 			if(editedCar == null) {
 				result = ResponseHelper.respondWithMessage(false, ResponseCode.CAR_ID_NOT_FOUND);
 			}else {
 				result = editedCar.getJSON();
 			}
 		}else if(Constants.COMMAND_GET_ALL.equals(command)) {
-			List<Car> cars = UserManager.getCM().fetchAllCars(customer);
+			List<Car> cars = Car.fetchAllCars(customer);
 			JSONArray results = new JSONArray();
 			for(Car car : cars) {
 				results.add(car.getJSON());
