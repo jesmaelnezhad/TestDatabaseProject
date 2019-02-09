@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.json.simple.JSONObject;
 
-
+import lm.LogManager;
 import utility.DBManager;
 
 public class Reservation {
@@ -55,6 +55,13 @@ public class Reservation {
 	public Time startTime;
 	public int timeLength;
 	
+	public String toLogRecord() {
+		String result = "";
+		result += id + "\t";
+		result += ReservationType.toString(type) + "\t";
+		result += locationId + "\t" + carId + "\t" + startTime.toString() + "\t" + timeLength;
+		return result;
+	}
 	
 	
 	public Reservation(int id, int carId, int locationId, Boolean getLocalSpotId, Time startTime, int timeLength) {
@@ -141,7 +148,16 @@ public class Reservation {
 			rs.close();
 			stmt.close();
 			DBManager.getDBManager().closeConnection();
-			return new Reservation(newId, carId, locationId, getLocalSpotId, startTime, timeLength);
+			Reservation r =
+					new Reservation(newId, carId, locationId, getLocalSpotId, startTime, timeLength);
+			
+			String logRecord = r.toLogRecord();
+			int logId = LogManager.getLogger().addRecord(LogManager.LOG_GROUP_RESERVATIONS, logRecord);
+			if(logId == LogManager.LOG_ID_FAILED) {
+				// TODO : logger failed to save the reservation
+				// logger keeps these log records to be fetched by police later.
+				;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -185,7 +201,14 @@ public class Reservation {
 			rs.close();
 			stmt.close();
 			DBManager.getDBManager().closeConnection();
-			return new Reservation(newId, carSensorId, getCarId, startTime, timeLength);
+			Reservation r = new Reservation(newId, carSensorId, getCarId, startTime, timeLength);
+			String logRecord = r.toLogRecord();
+			int logId = LogManager.getLogger().addRecord(LogManager.LOG_GROUP_RESERVATIONS, logRecord);
+			if(logId == LogManager.LOG_ID_FAILED) {
+				// TODO : logger failed to save the reservation
+				// logger keeps these log records to be fetched by police later.
+				;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

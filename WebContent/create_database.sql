@@ -16,9 +16,8 @@ mysql -u parking_admin -p
 */
 
 /*======== CREATING THE DATABASE ========*/
-CREATE DATABASE hypertire_system CHARACTER SET utf8
-  COLLATE utf8_general_ci;;
-USE hypertire_system;
+CREATE DATABASE parking_db CHARACTER SET utf8 COLLATE utf8_general_ci;;
+USE parking_db;
 
 /*======== CREATING THE TABLES  ========*/
 
