@@ -75,56 +75,29 @@ public class SignUpServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		// get parameters as json object
-		StringBuilder sb = new StringBuilder();
-		BufferedReader reader = request.getReader();
-		try {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				sb.append(line).append('\n');
-			}
-		} finally {
-			reader.close();
-		}
-		
-		
-		// This is a test for getting json object as input
-		// response.getWriter().write(sb.toString());
-		// return;
-		
-		String requestParametersStr = sb.toString();
-		
-		JSONObject requestParams = null;
-		try {
-			requestParams = (JSONObject) new JSONParser().parse(requestParametersStr);
-		} catch (ParseException e) {
-			// TODO: handle exception
-			// ERROR: request format should be JSON
-			ResponseHelper.respondWithMessage(false, ResponseCode.REQUEST_FORMAT_NOT_JSON, response);
-			// return; is it required or not
-		}
-		
-		
-		
 		// There are two types of sign up request call, one is full of data and the other has just cell phone
 		 
 		boolean codeVerification = false;
-		if (requestParams.get(Constants.CELL_PHONE) != null) {
+		String cellPhone = RequestHelper.getRequestParameter(request, Constants.CELL_PHONE);	
+		String fName = RequestHelper.getRequestParameter(request, Constants.FIRST_NAME);
+		String lName = RequestHelper.getRequestParameter(request, Constants.LAST_NAME);
+		String email = RequestHelper.getRequestParameter(request, Constants.EMAIL_ADDR);
+		String ads = RequestHelper.getRequestParameter(request, Constants.ADS_FLAG);
+		String pass = RequestHelper.getRequestParameter(request, Constants.PASSWORD);
+		if (cellPhone != null) {
 			codeVerification = true;
-			if (requestParams.get(Constants.FIRST_NAME) != null || 
-					requestParams.get(Constants.LAST_NAME) != null ||
-					requestParams.get(Constants.EMAIL_ADDR) != null ||
-					requestParams.get(Constants.ADS_FLAG) != null ||
-					requestParams.get(Constants.PASSWORD) != null) {
+			if (fName != null || lName != null || email != null || ads != null || pass != null) {
 				codeVerification = false;
 			}
+		}
+		else {
+			ResponseHelper.respondWithMessage(false, ResponseCode.PARAMETERS_NOT_COMPLETE, response);
+			return;
 		}
 		if (codeVerification) {
 			// TODO: generate a random code and send it to the phone number provided
 			// set a code and put parameters in session
-			String password = "12345";
-			// String cellphone = (String) request.getParameter(Constants.CELL_PHONE);
-			String cellphone = (String) requestParams.get(Constants.CELL_PHONE);
+			String newPassword = "12345";
 			
 			// retrieve info from DB whether this user name exists in DB or not
 			boolean userExist = false;
@@ -134,7 +107,7 @@ public class SignUpServlet extends HttpServlet {
 			try {
 				sql = "SELECT * FROM users WHERE cellphone=?;";
 				stmt = conn.prepareStatement(sql);
-				stmt.setString(1, cellphone);
+				stmt.setString(1, cellPhone);
 				ResultSet rs = stmt.executeQuery();
 				if (rs.next()) {
 					userExist = true;
@@ -153,8 +126,8 @@ public class SignUpServlet extends HttpServlet {
 				try {
 					sql = "UPDATE users SET password=MD5(?) WHERE cellphone=?;";
 					stmt = conn.prepareStatement(sql);
-					stmt.setString(1, password);
-					stmt.setString(2, cellphone);
+					stmt.setString(1, newPassword);
+					stmt.setString(2, cellPhone);
 					stmt.executeUpdate();
 					stmt.close();
 					DBManager.getDBManager().closeConnection();
@@ -164,13 +137,13 @@ public class SignUpServlet extends HttpServlet {
 				}
 			}else {
 				// if user does not exist, put its data in the session and wait for a signup request with full data
-				request.getSession().setAttribute(Constants.CELL_PHONE, cellphone);
-				request.getSession().setAttribute("verificationCode", password);
+				request.getSession().setAttribute(Constants.CELL_PHONE, cellPhone);
+				request.getSession().setAttribute(Constants.VERIFICATION_CODE, newPassword);
 			}
 			
 			// return result with user existence notification
 			JSONObject result = new JSONObject();
-			result.put("user_exist", userExist?1:0);
+			result.put(Constants.USER_EXIST, userExist?"TRUE":"FALSE");
 			result = ResponseHelper.respondWithStatus(result, true);
 			ResponseHelper.respondWithJSONObject(result, response);
 			return;
@@ -178,49 +151,20 @@ public class SignUpServlet extends HttpServlet {
 		
 		// now I want to receive a full data sign-up request
 		// with the password I have set before
-		// if(request.getParameter(Constants.FIRST_NAME) == null ||
-				// request.getParameter(Constants.LAST_NAME) == null ||
-				// request.getParameter(Constants.CELL_PHONE) == null ||
-				// request.getParameter(Constants.EMAIL_ADDR) == null ||
-				// request.getPart(Constants.PROFILE_IMAGE) == null || 
-				// request.getParameter(Constants.ADS_FLAG) == null || 
-				// request.getParameter(Constants.PASSWORD) == null) {
-		if(requestParams.get(Constants.FIRST_NAME) == null ||
-				requestParams.get(Constants.LAST_NAME) == null ||
-				requestParams.get(Constants.CELL_PHONE) == null ||
-				requestParams.get(Constants.EMAIL_ADDR) == null ||
-				requestParams.getPart(Constants.PROFILE_IMAGE) == null || 
-				requestParams.get(Constants.ADS_FLAG) == null || 
-				requestParams.get(Constants.PASSWORD) == null) {
+		byte[] profileImage = RequestHelper.getRequestByteArrayParameter(request, Constants.PROFILE_IMAGE);
+		if(fName == null || lName == null || cellPhone == null || email == null || profileImage == null || pass == null || ads == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.INPUT_INFO_INCOMPLETE, response);
 			return;
 		}
 		
-		// I know that data is complete, so first check it with parameters in the session 
-		// and then if it is OK, put it in the database and set this user as signed in user in session
-		// String fname = (String) request.getParameter(Constants.FIRST_NAME);
-		String fname = (String) requestParams.get(Constants.FIRST_NAME);
-		// String lname = (String) request.getParameter(Constants.LAST_NAME);
-		String lname = (String) requestParams.get(Constants.LAST_NAME);
-		// String cellphone = (String) request.getParameter(Constants.CELL_PHONE);
-		String cellphone = (String) requestParams.get(Constants.CELL_PHONE);
-		// String emailAddr = (String) request.getParameter(Constants.EMAIL_ADDR);
-		String emailAddr = (String) requestParams.get(Constants.EMAIL_ADDR);
-		// Part profileImagePart = request.getPart(Constants.PROFILE_IMAGE);
-		Part profileImagePart = requestParams.getPart(Constants.PROFILE_IMAGE);
-		// int adsFlag = Integer.parseInt(request.getParameter(Constants.ADS_FLAG));
-		int adsFlag = Integer.parseInt((String) requestParams.get(Constants.ADS_FLAG));
-		// String password = (String) request.getParameter(Constants.PASSWORD);
-		String password = (String) requestParams.get(Constants.PASSWORD);
-		
 		// check cell phone and password provided with the data in the session
 		String preCellPhone = (String)request.getSession().getAttribute(Constants.CELL_PHONE);
-		String preCode = (String) request.getSession().getAttribute("verificationCode");
+		String preCode = (String) request.getSession().getAttribute(Constants.VERIFICATION_CODE);
 		if (preCellPhone == null || preCode == null) {
 			ResponseHelper.respondWithMessage(false, ResponseCode.VERIFICATION_STEP_NOT_STARTED, response);
 			return;
 		}
-		if (cellphone.equals(preCellPhone) && password.equals(preCode)) {
+		if (cellPhone.equals(preCellPhone) && pass.equals(preCode)) {
 			// first check if no user is currently signed in
 			User customer = UserManager.getCM().getUser(request);
 			if(customer != null) {
@@ -228,10 +172,8 @@ public class SignUpServlet extends HttpServlet {
 			}
 			
 			// everything is fine, create new user
-			
-			
 			ResponseHelper.respondWithJSONObject(UserManager.getCM().signUpCustomer(request,
-					fname, lname, cellphone, emailAddr, profileImagePart, adsFlag, password), response);
+					fName, lName, cellPhone, email, profileImage, Integer.parseInt(ads), pass), response);
 			return;
 		} else {
 			ResponseHelper.respondWithMessage(false, ResponseCode.INCORRECT_VERIFICATION_CODE, response);

@@ -10,6 +10,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import org.apache.commons.codec.binary.Base64;
+
+
 public class RequestHelper {
 	
 	public static final String REQUEST_PARAMS_ATTR_NAME = "request_json_params";
@@ -66,5 +69,21 @@ public class RequestHelper {
 		JSONObject requestParams = null;
 		requestParams = (JSONObject) new JSONParser().parse(requestParametersStr);
 		return requestParams;
+	}
+	
+	public static byte[] getRequestByteArrayParameter(HttpServletRequest request, String paramName) {
+		String valueStr = getRequestParameter(request, paramName);
+		if (valueStr == null) {
+			return null;
+		}
+		return (byte[]) Base64.decodeBase64(valueStr);
+	}
+	
+	public static boolean getRequestBoolParameter(HttpServletRequest request, String paramName) {
+		String valueStr = getRequestParameter(request, paramName);
+		if (valueStr == null) {
+			return false; // default parameter if not set by request is false
+		}
+		return Boolean.parseBoolean(valueStr);
 	}
 }

@@ -84,4 +84,7 @@ public class Constants {
 	public static final String POSITION = "position";
 	public static final String GROUP = "group";
 	
+	public static final String VERIFICATION_CODE = "verification code";
+	public static final String USER_EXIST = "user exist";
+	
 }

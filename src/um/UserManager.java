@@ -3,7 +3,9 @@
  */
 package um;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -64,21 +66,21 @@ public class UserManager {
 	}
 	
 	public JSONObject signUpCustomer(HttpServletRequest request, 
-			String fname, String lname, String cellphone, String emailAddr, Part profileImage, int adsFlag, 
+			String fname, String lname, String cellphone, String emailAddr, byte[] profileImage, int adsFlag, 
 			String password) {
 		
 		
 		User newCustomer = insertNewCustomer(fname, 
-				lname, cellphone, emailAddr, profileImage.getName(), adsFlag, password);
+				lname, cellphone, emailAddr, profileImage, adsFlag, password);
 		if(newCustomer == null) {
 			return ResponseHelper.respondWithMessage(false, ResponseCode.CUSTOMER_EXISTS);
 		}
 		
-		try {
+		/* try {
 			Photo.savePhoto(Constants.USER_PROFILE_IMAGES, newCustomer.id, profileImage, request.getServletContext());
 		}catch(IOException e) {
 			return ResponseHelper.respondWithMessage(false, ResponseCode.NOT_POSSIBLE);
-		}
+		} */
 		
 		request.getSession().setAttribute(Constants.SIGNED_IN_CUSTOMER, newCustomer);
 		return newCustomer.getUserProfile();
@@ -86,7 +88,7 @@ public class UserManager {
 	
 	// returns null if customer exists
 	private User insertNewCustomer(String fname, String lname, String cellphone, 
-			String emailAddr, String profileImage, int adsFlag, String password) {
+			String emailAddr, byte[] profileImage, int adsFlag, String password) {
 		Connection conn = DBManager.getDBManager().getConnection();
 		String sql = "";
 		PreparedStatement stmt;
@@ -98,7 +100,7 @@ public class UserManager {
 			stmt.setString(2, lname);
 			stmt.setString(3, cellphone);
 			stmt.setString(4, emailAddr);
-			stmt.setString(5, profileImage);
+			stmt.setBlob(5, new ByteArrayInputStream(profileImage), profileImage.length);
 			stmt.setInt(6, adsFlag);
 			stmt.setString(7, cellphone);
 			stmt.setString(8, password);
@@ -146,7 +148,8 @@ public class UserManager {
 				String lname = rs.getString("lname");
 				String cellphone = rs.getString("cellphone");
 				String emailAddr = rs.getString("email_addr");
-				String profileImage = rs.getString("profile_image");
+				Blob imageBlob = rs.getBlob("profile_image");
+				byte[] profileImage = imageBlob.getBytes(1, (int)imageBlob.length());
 				int adsFlag = rs.getInt("ads_flag");
 				newCustomer = 
 						new User(id, username, password, fname, lname, cellphone, emailAddr, profileImage, adsFlag);

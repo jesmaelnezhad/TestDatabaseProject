@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS users
 	lname VARCHAR(100),
 	cellphone VARCHAR(20),
 	email_addr VARCHAR(100),
-	profile_image VARCHAR(100),
+	profile_image BLOB,
 	ads_flag TINYINT,
 	PRIMARY KEY(id)
 ) ENGINE=INNODB;

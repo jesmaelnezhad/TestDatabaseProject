@@ -60,11 +60,11 @@ public class User {
 	public String username, password;
 	public String cellphone_number;
 	public String email_addr;
-	public String profileImage;
+	public byte[] profileImage;
 	public int ads_flag;
 	
 	public User(int id, String fname, 
-			String lname, String cellphone_number, String email_addr, String profileImage,
+			String lname, String cellphone_number, String email_addr, byte[] profileImage,
 			int ads_flag) {
 		this.id = id;
 		this.username = this.password = "";
@@ -78,7 +78,7 @@ public class User {
 	}
 	
 	public User(int id, String username, String password, String fname, 
-			String lname, String cellphone_number, String email_addr, String profileImage,
+			String lname, String cellphone_number, String email_addr, byte[] profileImage,
 			int ads_flag) {
 		this.id = id;
 		this.username = username;
@@ -103,7 +103,7 @@ public class User {
 		this.cellphone_number = "";
 		this.email_addr = "";
 		this.ads_flag = 0;
-		this.profileImage = "";
+		this.profileImage = null;
 	}
 
 	public JSONObject getWalletInfo() {
@@ -223,7 +223,7 @@ public class User {
 		profile.put(Constants.LAST_NAME, lname);
 		profile.put(Constants.CELL_PHONE, cellphone_number);
 		profile.put(Constants.EMAIL_ADDR, email_addr);
-		profile.put(Constants.PROFILE_IMAGE, Photo.getPhotoPath(Constants.USER_PROFILE_IMAGES, id, profileImage));
+		// profile.put(Constants.PROFILE_IMAGE, Photo.getPhotoPath(Constants.USER_PROFILE_IMAGES, id, profileImage));
 		profile.put(Constants.ADS_FLAG, ads_flag);
 		return profile;
 	}
