@@ -25,7 +25,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import jdk.internal.util.xml.impl.Pair;
+// import jdk.internal.util.xml.impl.Pair;
 import request_handlers.ResponseConstants.ResponseCode;
 import request_handlers.ResponseHelper;
 import rm.PriceRate.PriceRating;
@@ -36,7 +36,7 @@ import rm.parking_structure.City;
 import rm.parking_structure.ParkingSpotContainer;
 import rm.parking_structure.Sector;
 import rm.parking_structure.Segment;
-import sun.util.locale.StringTokenIterator;
+// import sun.util.locale.StringTokenIterator;
 import tm.Transaction;
 import tm.TransactionManager;
 import tm.Wallet;

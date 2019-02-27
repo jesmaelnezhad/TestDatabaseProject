@@ -29,7 +29,7 @@
     <filter-class>request_handlers.filters.RequestParseFilter</filter-class>
     <init-param>
       <param-name>excludedUrls</param-name>
-      <param-value>/signup,/signout,/sensors.jsp,/index.html,/new_changes.html,/request_info.html,/request_info_sensors.html,/basestation_request_manual.html,/data_format.json</param-value>
+      <param-value>/signout,/user_image,/sensors.jsp,/index.html,/new_changes.html,/request_info.html,/request_info_sensors.html,/basestation_request_manual.html,/data_format.json</param-value>
     </init-param>
   </filter>
   <filter-mapping>
@@ -187,5 +187,13 @@
   <servlet-mapping>
     <servlet-name>reservation-db-fetch-servlet</servlet-name>
     <url-pattern>/reservation_fetch</url-pattern>
+  </servlet-mapping>
+  <servlet>
+	<servlet-name>user-image</servlet-name>
+	<servlet-class>request_handlers/UserImage</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>user-image</servlet-name>
+  	<url-pattern>/user_image</url-pattern>
   </servlet-mapping>
 </web-app>

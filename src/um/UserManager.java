@@ -115,6 +115,7 @@ public class UserManager {
 			rs.close();
 			stmt.close();
 			DBManager.getDBManager().closeConnection();
+			return newCustomer;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
